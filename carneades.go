@@ -68,18 +68,18 @@ func main() {
 	}
 
 	if (*problemFlag == "DC-GR" || *problemFlag == "DS-GR") && *argFlag != "" {
-		labeling := af.GroundedLabelling()
-		if labeling.Get(arg) == dung.In {
+		E := af.GroundedExtension()
+		if E.Contains(arg) {
 			fmt.Printf("YES\n")
 		} else {
 			fmt.Printf("NO\n")
 		}
 	} else if *problemFlag == "EE-GR" {
-		labeling := af.GroundedLabelling()
-		fmt.Printf("[%s]\n", labeling.AsExtension().String())
+		E := af.GroundedExtension()
+		fmt.Printf("[%s]\n", E)
 	} else if *problemFlag == "SE-GR" {
-		labeling := af.GroundedLabelling()
-		fmt.Printf("%s\n", labeling.AsExtension().String())
+		E := af.GroundedExtension()
+		fmt.Printf("%s\n", E)
 	} else if *problemFlag == "DC-PR" {
 		if af.CredulouslyInferredPR(arg) {
 			fmt.Printf("YES\n")
@@ -93,29 +93,22 @@ func main() {
 			fmt.Printf("NO\n")
 		}
 	} else if *problemFlag == "EE-PR" {
-		labellings := af.PreferredLabellings()
+		extensions := af.PreferredExtensions()
 		s := []string{}
-		for _, l := range labellings {
-			s = append(s, l.AsExtension().String())
-		}
-		fmt.Printf("[%s]\n", strings.Join(s, ","))
-	} else if *problemFlag == "EE-PR3" {
-		labellings := af.PreferredLabellings3()
-		s := []string{}
-		for _, l := range labellings {
-			s = append(s, l.AsExtension().String())
+		for _, E := range extensions {
+			s = append(s, E.String())
 		}
 		fmt.Printf("[%s]\n", strings.Join(s, ","))
 	} else if *problemFlag == "SE-PR" {
-		labellings := af.PreferredLabellings3()
-		if len(labellings) > 0 {
-			fmt.Printf("%s\n", labellings[0].AsExtension().String())
+		extensions := af.PreferredExtensions()
+		if len(extensions) > 0 {
+			fmt.Printf("%s\n", extensions[0])
 		} else {
 			fmt.Printf("NO\n")
 		}
 	} else if *problemFlag == "traverse" {
-		af.TraverseLabellings(func(L dung.PLabelling) {
-			fmt.Printf("%v\n", L.AsExtension())
+		af.Traverse(func(E dung.ArgSet) {
+			fmt.Printf("%v\n", E)
 		})
 	} else {
 		log.Fatal(fmt.Errorf("unsupported problem: %s\n", *problemFlag))

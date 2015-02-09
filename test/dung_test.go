@@ -12,11 +12,11 @@ import (
 func TestUnattackedArg(t *testing.T) {
 	af := dung.NewAF([]string{"1"},
 		map[string][]string{})
-	l := af.GroundedLabelling()
-	expected := dung.In
-	actual := l.Get("1")
+	l := af.GroundedExtension()
+	expected := true
+	actual := l.Contains("1")
 	if actual != expected {
-		t.Errorf("expected %s, not %s.", expected, actual)
+		t.Errorf("expected extension to contain 1")
 	}
 }
 
@@ -25,11 +25,11 @@ func TestSelfAttack(t *testing.T) {
 	atks := make(map[string][]string)
 	atks["1"] = []string{"1"}
 	af := dung.NewAF(args, atks)
-	l := af.GroundedLabelling()
-	expected := dung.Undecided
-	actual := l.Get("1")
+	l := af.GroundedExtension()
+	expected := false
+	actual := l.Contains("1")
 	if actual != expected {
-		t.Errorf("expected %s, not %s.", expected, actual)
+		t.Errorf("expected extension to not contain 1")
 	}
 }
 
@@ -38,12 +38,12 @@ func TestAttackedArg(t *testing.T) {
 	atks := make(map[string][]string)
 	atks["1"] = []string{"2"}
 	af := dung.NewAF(args, atks)
-	l := af.GroundedLabelling()
-	if v := l.Get("1"); v != dung.Out {
-		t.Errorf("expected out, not %s.", v)
+	l := af.GroundedExtension()
+	if l.Contains("1") {
+		t.Errorf("expected 1 to be out")
 	}
-	if v := l.Get("2"); v != dung.In {
-		t.Errorf("expected in, not %s.", v)
+	if !l.Contains("2") {
+		t.Errorf("expected 2 to be in")
 	}
 }
 
@@ -53,15 +53,15 @@ func TestReinstatement(t *testing.T) {
 	atks["1"] = []string{"2"}
 	atks["2"] = []string{"3"}
 	af := dung.NewAF(args, atks)
-	l := af.GroundedLabelling()
-	if v := l.Get("1"); v != dung.In {
-		t.Errorf("expected in, not %s.", v)
+	l := af.GroundedExtension()
+	if !l.Contains("1") {
+		t.Errorf("expected 1 to be in")
 	}
-	if v := l.Get("2"); v != dung.Out {
-		t.Errorf("expected out, not %s.", v)
+	if l.Contains("2") {
+		t.Errorf("expected 2 to be out")
 	}
-	if v := l.Get("3"); v != dung.In {
-		t.Errorf("expected in, not %s.", v)
+	if !l.Contains("3") {
+		t.Errorf("expected 3 to be in")
 	}
 }
 
@@ -72,15 +72,15 @@ func TestOddLoop(t *testing.T) {
 	atks["2"] = []string{"3"}
 	atks["3"] = []string{"1"}
 	af := dung.NewAF(args, atks)
-	l := af.GroundedLabelling()
-	if v := l.Get("1"); v != dung.Undecided {
-		t.Errorf("expected undecided, not %s.", v)
+	l := af.GroundedExtension()
+	if l.Contains("1") {
+		t.Errorf("expected 1 to be out")
 	}
-	if v := l.Get("2"); v != dung.Undecided {
-		t.Errorf("expected undecided, not %s.", v)
+	if l.Contains("2") {
+		t.Errorf("expected 2 to be out")
 	}
-	if v := l.Get("3"); v != dung.Undecided {
-		t.Errorf("expected undecided, not %s.", v)
+	if l.Contains("3") {
+		t.Errorf("expected 3 to be out")
 	}
 }
 
@@ -88,7 +88,7 @@ func TestEqualArgSets(t *testing.T) {
 	args1 := dung.NewArgSet("1", "2", "3")
 	args2 := dung.NewArgSet("3", "2", "1")
 	expected := true
-	actual := dung.EqualArgSets(args1, args2)
+	actual := args1.Equals(args2)
 	if expected != actual {
 		t.Errorf("expected EqualArgSets(%s,%s)", args1, args2)
 	}
@@ -105,7 +105,7 @@ func TestAf2Import(t *testing.T) {
 	atks["2"] = []string{"1"}
 	atks["3"] = []string{"2"}
 	expected := dung.NewAF(args, atks)
-	if !dung.EqualAFs(af, expected) {
+	if !af.Equals(expected) {
 		t.Errorf("expected %s, not %s.\n", expected.String(), af.String())
 	}
 }
@@ -116,9 +116,9 @@ func TestAf2GroundedLabelling(t *testing.T) {
 		log.Fatal(err)
 	}
 	af, err := tgf.Import(inFile)
-	extension := af.GroundedLabelling().AsExtension()
+	extension := af.GroundedExtension()
 	expected := dung.NewArgSet("3", "1")
-	if !dung.EqualArgSets(extension, expected) {
+	if !extension.Equals(expected) {
 		t.Errorf("expected %s, not %s.\n", expected, extension)
 	}
 }
@@ -129,11 +129,7 @@ func TestEvenCycle1PreferredLabelling(t *testing.T) {
 		log.Fatal(err)
 	}
 	af, err := tgf.Import(inFile)
-	l := af.PreferredLabellings3()
-	actual := []dung.ArgSet{}
-	for _, labelling := range l {
-		actual = append(actual, labelling.AsExtension())
-	}
+	actual := af.PreferredExtensions()
 	e1 := dung.NewArgSet("1")
 	e2 := dung.NewArgSet("2")
 	expected := []dung.ArgSet{e1, e2}
