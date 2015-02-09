@@ -1,10 +1,5 @@
 // Dung Abstract Argumentation Frameworks
 
-// The algorithms for grounded and preferred semantics used here are from
-// Modgil, S. & Caminada, M. Rahwan, I. & Simari, G. R. (Eds.)
-// Proof Theories and Algorithms for Abstract Argumentation Frameworks
-// Argumentation in Artificial Intelligence, Spinger, 2009, 105-129
-
 package dung
 
 import (
@@ -14,46 +9,49 @@ import (
 	"strings"
 )
 
-type Arg interface {
-	fmt.Stringer
-	seq.Setable
-	Id() string // identifier
-}
-
 // Argumentation Framework
 type AF struct {
-	args []Arg         // the arguments
-	atks map[Arg][]Arg // arguments attacking each key argument
+	args   []string            // the arguments
+	atks   map[string][]string // arguments attacking each key argument
+	atkdby map[string][]string // arguments attacked by each argument
 }
 
-func NewAF(args []Arg, atks map[Arg][]Arg) AF {
-	return AF{args, atks}
+// Constructs an AF. The atkdby attribute is initialized to nil, since it
+// is not needed for all semantics.  When needed use the
+// attackedArgs() method.
+func NewAF(args []string, atks map[string][]string) AF {
+	return AF{args, atks, nil}
 }
 
-func (af AF) String() string {
-	a := []string{}
-	for _, arg := range af.args {
-		a = append(a, arg.Id())
-	}
+func (af *AF) String() string {
 	d := []string{}
 	for arg, attacks := range af.atks {
 		attackStrings := []string{}
 		for _, attack := range attacks {
-			attackStrings = append(attackStrings, attack.Id())
+			attackStrings = append(attackStrings, attack)
 		}
-		d = append(d, fmt.Sprintf("%s: [%s]", arg.Id(),
+		d = append(d, fmt.Sprintf("%s: [%s]", arg,
 			strings.Join(attackStrings, ",")))
 	}
 	return fmt.Sprintf("{args: [%s], attacks: {%s}}",
-		strings.Join(a, ", "),
+		strings.Join(af.args, ", "),
 		strings.Join(d, ", "))
 }
 
 type ArgSet struct {
-	members *seq.Set
+	members *seq.Set // Set[string]
 }
 
-func NewArgSet(args ...Arg) ArgSet {
+// work around for bugs in the seq library
+func size(S *seq.Set) uint64 {
+	if S == nil {
+		return 0
+	} else {
+		return S.Size() - 1
+	}
+}
+
+func NewArgSet(args ...string) ArgSet {
 	S := seq.NewSet()
 	for _, arg := range args {
 		S, _ = S.SetVal(arg)
@@ -65,16 +63,21 @@ func (e ArgSet) String() string {
 	s := []string{}
 	f, r, ok := e.members.FirstRest()
 	for ok {
-		arg := f.(Arg)
-		s = append(s, arg.String())
+		s = append(s, f.(string))
 		f, r, ok = r.FirstRest()
 	}
 	return fmt.Sprintf("[%s]", strings.Join(s, ","))
 }
 
 func EqualArgSets(args1, args2 ArgSet) bool {
-	S := args1.members.Union(args2.members)
-	return S.Size() == args1.members.Size()
+	if size(args1.members) != size(args2.members) {
+		return false
+	}
+	S := args1.members.SymDifference(args2.members)
+	if size(S) == 0 {
+		return true
+	}
+	return false
 }
 
 // EqualArgSetSlices: returns true iff for every ArgSet in l1 there is an
@@ -97,16 +100,9 @@ func EqualArgSetSlices(l1, l2 []ArgSet) bool {
 }
 
 func EqualAFs(af1, af2 AF) bool {
-	S1 := seq.NewSet()
-	for _, arg1 := range af1.args {
-		S1, _ = S1.SetVal(arg1)
-	}
-	S2 := seq.NewSet()
-	for _, arg2 := range af2.args {
-		S2, _ = S2.SetVal(arg2)
-	}
-	S3 := S1.Union(S2)
-	return S3.Size() == S1.Size() &&
+	S1 := NewArgSet(af1.args...)
+	S2 := NewArgSet(af2.args...)
+	return EqualArgSets(S1, S2) &&
 		reflect.DeepEqual(af1.atks, af2.atks)
 }
 
@@ -130,14 +126,14 @@ func (l Label) String() string {
 }
 
 type Labelling struct {
-	Labels map[Arg]Label
+	Labels map[string]Label
 }
 
 func NewLabelling() Labelling {
-	return Labelling{make(map[Arg]Label)}
+	return Labelling{make(map[string]Label)}
 }
 
-func (l Labelling) Get(arg Arg) Label {
+func (l Labelling) Get(arg string) Label {
 	v, found := l.Labels[arg]
 	if found {
 		return v
@@ -147,6 +143,7 @@ func (l Labelling) Get(arg Arg) Label {
 }
 
 func (l Labelling) AsExtension() ArgSet {
+	// fmt.Printf("l=%v\n", l)
 	S := seq.NewSet()
 	for arg, label := range l.Labels {
 		if label == In {
@@ -156,7 +153,7 @@ func (l Labelling) AsExtension() ArgSet {
 	return ArgSet{S}
 }
 
-func (af AF) GroundedLabelling() Labelling {
+func (af *AF) GroundedLabelling() Labelling {
 	l := NewLabelling()
 	var changed bool
 	for {
@@ -196,21 +193,25 @@ func (af AF) GroundedLabelling() Labelling {
 // Persistent, immutable labelling
 type PLabelling struct {
 	labels *seq.HashMap // argId  -> Label
-	inArgs *seq.Set     // set-of(Arg)
+	inArgs *seq.Set     // Set[string]
 }
 
 func newPLabelling() PLabelling {
 	return PLabelling{seq.NewHashMap(), seq.NewSet()}
 }
 
-func (pl PLabelling) set(arg Arg, newLabel Label) PLabelling {
+func (pl PLabelling) AsExtension() ArgSet {
+	return ArgSet{pl.inArgs}
+}
+
+func (pl PLabelling) set(arg string, newLabel Label) PLabelling {
 	currentLabel := pl.lookup(arg)
 
 	if currentLabel == newLabel {
 		return pl
 	}
 
-	newLabels, _ := pl.labels.Set(arg.Id(), newLabel)
+	newLabels, _ := pl.labels.Set(arg, newLabel)
 	if currentLabel == In {
 		newInArgs, _ := pl.inArgs.DelVal(arg)
 		return PLabelling{newLabels, newInArgs}
@@ -222,8 +223,8 @@ func (pl PLabelling) set(arg Arg, newLabel Label) PLabelling {
 	}
 }
 
-func (pl PLabelling) lookup(arg Arg) Label {
-	l, ok := pl.labels.Get(arg.Id())
+func (pl PLabelling) lookup(arg string) Label {
+	l, ok := pl.labels.Get(arg)
 	if ok {
 		return l.(Label)
 	} else {
@@ -231,7 +232,190 @@ func (pl PLabelling) lookup(arg Arg) Label {
 	}
 }
 
-func (af AF) PreferredLabellings() []Labelling {
+func (pl PLabelling) toLabelling(af *AF) Labelling {
+	l := NewLabelling()
+	for _, arg := range af.args {
+		l.Labels[arg] = pl.lookup(arg)
+	}
+	return l
+}
+
+// subset returns true if in(L1) is a subset of in(L2)
+func (L1 PLabelling) subset(L2 PLabelling) bool {
+	if size(L1.inArgs) <= 0 {
+		return true
+	}
+	if size(L1.inArgs) > size(L2.inArgs) {
+		return false
+	}
+	f, r, ok := L1.inArgs.FirstRest()
+	for ok {
+		_, member := L2.inArgs.GetVal(f.(string))
+		if !member {
+			return false
+		}
+		f, r, ok = r.FirstRest()
+	}
+	return true
+}
+
+// x is legally IN iff x is labelled IN and every y
+// that attacks x (yRx) is labelled OUT
+func (af *AF) legallyIn(x string, L PLabelling) bool {
+	if L.lookup(x) != In {
+		return false
+	}
+	for _, y := range af.atks[x] {
+		if L.lookup(y) != Out {
+			return false
+		}
+		//if L.lookup(y) == In {
+		//	return false
+		//}
+	}
+	return true
+}
+
+// an argument is illegally In if it is In but
+// not legally In
+func (af *AF) illegallyIn(arg string, L PLabelling) bool {
+	return L.lookup(arg) == In && !af.legallyIn(arg, L)
+}
+
+func (af *AF) illegallyInArgs(L PLabelling) seq.Seq {
+	f := func(arg interface{}) bool {
+		return af.illegallyIn(arg.(string), L)
+	}
+	return seq.LFilter(f, L.inArgs)
+}
+
+// x is legally OUT iff x is labelled OUT and there is at least
+// one y that attacks x and y is labelled IN
+func (af *AF) legallyOut(x string, L PLabelling) bool {
+	if L.lookup(x) != Out {
+		return false
+	}
+	for _, y := range af.atks[x] {
+		if L.lookup(y) == In {
+			return true
+		}
+	}
+	return false
+}
+
+// an argument is illegally Out if it is Out
+// but not legally out.
+func (af *AF) illegallyOut(arg string, L PLabelling) bool {
+	return L.lookup(arg) == Out && !af.legallyOut(arg, L)
+}
+
+// noIllegalInArg: returns true if no argument in the labelling
+// is illegally In
+func (af *AF) noIllegalInArg(L PLabelling) bool {
+	f := func(x interface{}) bool {
+		return af.illegallyIn(x.(string), L)
+	}
+	_, found := seq.Any(f, L.inArgs)
+	return !found
+}
+
+// An illegally In argument x in L is also super-illegally In
+// iff it is attacked by a y that is *legally* In in L,
+// or Undecided in L. The input argument is assumed to be illegally In.
+func (af *AF) superIllegallyIn(arg string, L PLabelling) bool {
+	for _, atk := range af.atks[arg] {
+		switch L.lookup(atk) {
+		case In:
+			if af.legallyIn(atk, L) {
+				return true
+			}
+		case Out:
+			continue
+		case Undecided:
+			return true
+		}
+	}
+	return false
+}
+
+// filters as a sequence of illegally In args in L to return
+// the super illegally In arguments s. The input sequence s is assumed
+// to consist of only illegally In arguments.
+func (af *AF) superIllegallyInArgs(s seq.Seq, L PLabelling) seq.Seq {
+	f := func(arg interface{}) bool {
+		return af.superIllegallyIn(arg.(string), L)
+	}
+	return seq.LFilter(f, s)
+}
+
+// Traverse labellings, starting with all arguments labelled out.
+// Visit each possible labelling only once
+func (af *AF) TraverseLabellings(f func(L PLabelling)) {
+	allOut := af.setAllLabelsTo(Out)
+	// count := 1
+
+	var subsets func(int, PLabelling)
+	subsets = func(i int, L PLabelling) {
+		if i == len(af.args) {
+			// fmt.Printf("%v. ", count)
+			// count++
+			f(L)
+			return
+		}
+		subsets(i+1, L)
+		subsets(i+1, L.set(af.args[i], In))
+	}
+	subsets(0, allOut)
+}
+
+func (af *AF) setAllLabelsTo(l Label) PLabelling {
+	pl := newPLabelling()
+	for _, arg := range af.args {
+		pl = pl.set(arg, l)
+	}
+	return pl
+}
+
+// The arguments attacked by each argument in the AF
+func (af *AF) attackedArgs() {
+	attackedBy := make(map[string][]string)
+	for _, arg := range af.args {
+		attackedBy[arg] = []string{} // initialize to an empty slice
+	}
+	for arg, s := range af.atks {
+		for _, attacker := range s {
+			attackedBy[attacker] = append(attackedBy[attacker], arg)
+		}
+	}
+	af.atkdby = attackedBy
+}
+
+func (af *AF) transitionStep(L PLabelling, x string) PLabelling {
+	L2 := L.set(x, Out)
+	if af.illegallyOut(x, L2) {
+		L2 = L2.set(x, Undecided)
+	}
+	for _, z := range af.atkdby[x] {
+		if af.illegallyOut(z, L2) {
+			L2 = L2.set(z, Undecided)
+		}
+	}
+	return L2
+}
+
+func (af *AF) toLabellings(pls []PLabelling) []Labelling {
+	labellings := []Labelling{}
+	for _, candidate := range pls {
+		labellings = append(labellings, candidate.toLabelling(af))
+	}
+	return labellings
+}
+
+// An implemention of the algorithm for preferred semantics from
+// Modgil, S. & Caminada, M. Rahwan, I. & Simari, G. R. (Eds.)
+// Proof Theories and Algorithms for Abstract Argumentation Frameworks
+// Argumentation in Artificial Intelligence, Spinger, 2009, 105-129
+func (af *AF) PreferredLabellings() []Labelling {
 
 	candidatePLabellings := []PLabelling{}
 	closed := []ArgSet{} // Argument sets already visited
@@ -247,223 +431,142 @@ func (af AF) PreferredLabellings() []Labelling {
 	}
 
 	// allIn is a labelling with all args in af labelled In
-	allIn := newPLabelling()
-	for _, arg := range af.args {
-		allIn = allIn.set(arg, In)
-	}
-
-	toLabelling := func(pl PLabelling) Labelling {
-		l := NewLabelling()
-		for _, arg := range af.args {
-			l.Labels[arg] = pl.lookup(arg)
-		}
-		return l
-	}
-
-	// attackedBy: the arguments attacked by each argument in the AF
-	attackedBy := make(map[Arg][]Arg)
-	for _, arg := range af.args {
-		attackedBy[arg] = []Arg{} // initialize to an empty slice
-	}
-	for arg, s := range af.atks {
-		for _, attacker := range s {
-			attackedBy[attacker] = append(attackedBy[attacker], arg)
-		}
-	}
-
-	// subset returns true if in(L1) is a subset of in(L2)
-	subset := func(L1, L2 PLabelling) bool {
-		if L1.inArgs.Size() <= 0 {
-			return true
-		}
-		if L1.inArgs.Size() > L2.inArgs.Size() {
-			return false
-		}
-		f, r, ok := L1.inArgs.FirstRest()
-		for ok {
-			arg1 := f.(Arg)
-			_, member := L2.inArgs.GetVal(arg1)
-			if !member {
-				return false
-			}
-			f, r, ok = r.FirstRest()
-		}
-		return true
-	}
+	allIn := af.setAllLabelsTo(In)
+	af.attackedArgs()
 
 	subsetOfCandidate := func(L PLabelling) bool {
 		for _, L2 := range candidatePLabellings {
-			if subset(L, L2) {
+			if L.subset(L2) {
 				return true
 			}
 		}
 		return false
-	}
-
-	// x is legally IN iff x is labelled IN and every y
-	// that attacks x (yRx) is labelled OUT
-	legallyIn := func(x Arg, L PLabelling) bool {
-		if L.lookup(x) != In {
-			return false
-		}
-		for _, y := range af.atks[x] {
-			if L.lookup(y) != Out {
-				return false
-			}
-		}
-		return true
-	}
-
-	// an argument is illegally In if it is In but
-	// not legally In
-	illegallyIn := func(arg Arg, L PLabelling) bool {
-		return L.lookup(arg) == In && !legallyIn(arg, L)
-	}
-
-	illegallyInArgs := func(L PLabelling) seq.Seq {
-		f := func(arg interface{}) bool {
-			return illegallyIn(arg.(Arg), L)
-		}
-		return seq.LFilter(f, L.inArgs)
-	}
-
-	// x is legally OUT iff x is labelled OUT and there is at least
-	// one y that attacks x and y is labelled IN
-
-	legallyOut := func(x Arg, L PLabelling) bool {
-		if L.lookup(x) != Out {
-			return false
-		}
-		for _, y := range af.atks[x] {
-			if L.lookup(y) == In {
-				return true
-			}
-		}
-		return false
-	}
-
-	// an argument is illegally Out if it is Out
-	// but not legally out.
-	illegallyOut := func(arg Arg, L PLabelling) bool {
-		return L.lookup(arg) == Out && !legallyOut(arg, L)
-	}
-
-	// noIllegalInArg: returns true if no argument in the labelling
-	// is illegally In
-	noIllegalInArg := func(L PLabelling) bool {
-		f := func(x interface{}) bool {
-			return illegallyIn(x.(Arg), L)
-		}
-		_, found := seq.Any(f, L.inArgs)
-		return !found
-	}
-
-	// An illegally In argument x in L is also super-illegally In
-	// iff it is attacked by a y that is *legally* In in L,
-	// or Undecided in L. The input argument is assumed to be illegally In.
-
-	superIllegallyIn := func(arg Arg, L PLabelling) bool {
-		for _, atk := range af.atks[arg] {
-			switch L.lookup(atk) {
-			case In:
-				if legallyIn(atk, L) {
-					return true
-				}
-			case Out:
-				continue
-			case Undecided:
-				return true
-			}
-		}
-		return false
-	}
-
-	// filters as a sequence of illegally In args in L to return
-	// the super illegally In arguments s.  The input sequence s is assumed
-	// to consist of only illegally In arguments.
-	superIllegallyInArgs := func(s seq.Seq, L PLabelling) seq.Seq {
-		f := func(arg interface{}) bool {
-			return superIllegallyIn(arg.(Arg), L)
-		}
-		return seq.LFilter(f, s)
-	}
-
-	transitionStep := func(L PLabelling, x Arg) PLabelling {
-		L2 := L.set(x, Out)
-		if illegallyOut(x, L2) {
-			L2 = L2.set(x, Undecided)
-		}
-		for _, z := range attackedBy[x] {
-			if illegallyOut(z, L2) {
-				L2 = L2.set(z, Undecided)
-			}
-		}
-		return L2
 	}
 
 	var findLabellings func(PLabelling)
 
 	findLabellings = func(L PLabelling) {
+		// fmt.Printf("L=%v\n", L.inArgs)
 		if visited(ArgSet{L.inArgs}) {
+			// fmt.Printf("visited\n")
 			return
 		}
-		// fmt.Printf("L=%v\n", L.inArgs)
 		if subsetOfCandidate(L) {
 			// fmt.Printf("subset\n")
 			return
 		}
 
-		if noIllegalInArg(L) {
-			for i, L3 := range candidatePLabellings {
-				// if L3’s In arguments are a subset of L's
-				//  In arguments then remove L3 from the candidate labellings
-				// fmt.Printf("removing: %v\n", L3.inArgs)
-				if subset(L3, L) {
-					candidatePLabellings =
-						append(candidatePLabellings[:i],
-							candidatePLabellings[i+1:]...)
+		if af.noIllegalInArg(L) {
+			// Add L as a new candidate and remove each labelling from the
+			// candidates which is a subset of L.
+			s := []PLabelling{L}
+			for _, L3 := range candidatePLabellings {
+				if !L3.subset(L) {
+					s = append(s, L3)
 				}
 			}
-			// add L as a new candidate
-			// fmt.Printf("candidate: %v\n", L.inArgs)
-			candidatePLabellings = append(candidatePLabellings, L)
+			candidatePLabellings = s
 			return
 		}
 
 		// else backtrack
 
-		iiArgs := illegallyInArgs(L)
-		// fmt.Printf("illegals: %v\n", iiArgs)
-		siiArgs := superIllegallyInArgs(iiArgs, L)
-		// fmt.Printf("super illegals: %v\n", siiArgs)
-		f := func(arg interface{}) bool {
-			findLabellings(transitionStep(L, arg.(Arg)))
-			return true
-		}
+		iiArgs := af.illegallyInArgs(L)
+		siiArgs := af.superIllegallyInArgs(iiArgs, L)
 
 		if first, _, ok := siiArgs.FirstRest(); ok {
-			// fmt.Printf("s\n")
-			findLabellings(transitionStep(L, first.(Arg)))
+			// try a super illegally In argument, if one exists
+			findLabellings(af.transitionStep(L, first.(string)))
 		} else {
-			// fmt.Printf("i\n")
-			seq.All(f, iiArgs)
+			// try each illegally In argument
+			for f, r, ok := iiArgs.FirstRest(); ok; {
+				findLabellings(af.transitionStep(L, f.(string)))
+				f, r, ok = r.FirstRest()
+			}
 		}
 	}
 
 	findLabellings(allIn)
+	return af.toLabellings(candidatePLabellings)
+}
 
-	labellings := []Labelling{}
-	for _, candidate := range candidatePLabellings {
-		labellings = append(labellings, toLabelling(candidate))
+func (af *AF) complete(L PLabelling) bool {
+	// fmt.Printf("L=%v\n", L.inArgs)
+	// Is atk a member of L?
+	conflict := func(arg, atk string) bool {
+		_, isMember := L.inArgs.GetVal(atk)
+		if isMember {
+			// fmt.Printf("%v conflicts with %v:\n", arg, atk)
+			return true
+		}
+		return false
 	}
-	// fmt.Printf("\n")
-	return labellings
+	// Defended against atk by some member of L?
+	defended := func(arg, atk string) bool {
+		for _, defender := range af.atks[atk] {
+			_, isMember1 := L.inArgs.GetVal(defender)
+			if isMember1 {
+				// fmt.Printf("%v defended against %v by %v\n", arg, atk, defender)
+				return true
+			}
+		}
+		// fmt.Printf("not defended against: %v", atk)
+		return false
+	}
+	for f, r, ok := L.inArgs.FirstRest(); ok; f, r, ok = r.FirstRest() {
+		arg := f.(string)
+		for _, atk := range af.atks[arg] {
+			// fmt.Printf("atk=%v\n", atk)
+			if conflict(arg, atk) || !defended(arg, atk) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (af *AF) PreferredLabellings3() []Labelling {
+	af.attackedArgs()
+
+	candidatePLabellings := []PLabelling{}
+
+	subsetOfCandidate := func(L PLabelling) bool {
+		for _, L2 := range candidatePLabellings {
+			if L.subset(L2) {
+				return true
+			}
+		}
+		return false
+	}
+
+	af.TraverseLabellings(func(L PLabelling) {
+
+		if subsetOfCandidate(L) {
+			// fmt.Printf("subset\n")
+			return
+		}
+
+		if af.complete(L) {
+			// fmt.Printf("candidate: %v\n", L.inArgs)
+			// Add L as a new candidate and remove each labelling from the
+			// candidates which is a subset of L.
+			s := []PLabelling{L}
+			for _, L3 := range candidatePLabellings {
+				if !L3.subset(L) {
+					s = append(s, L3)
+				}
+			}
+			candidatePLabellings = s
+		}
+	})
+
+	return af.toLabellings(candidatePLabellings)
 }
 
 // Checks whether an argument, arg, is credulous inferred in an argumentation
 // framework, af, using preferred semantics.
-func (af AF) CredulouslyInferredPR(arg Arg) bool {
-	s := af.PreferredLabellings()
+func (af *AF) CredulouslyInferredPR(arg string) bool {
+	s := af.PreferredLabellings3()
 	for _, l := range s {
 		if l.Get(arg) == In {
 			return true
@@ -474,8 +577,8 @@ func (af AF) CredulouslyInferredPR(arg Arg) bool {
 
 // Checks whether an argument, arg, is skeptically inferred in an
 // Argumentation framework, af, using preferred semantics.
-func (af AF) SkepticallyInferredPR(arg Arg) bool {
-	s := af.PreferredLabellings()
+func (af *AF) SkepticallyInferredPR(arg string) bool {
+	s := af.PreferredLabellings3()
 	for _, l := range s {
 		if l.Get(arg) != In {
 			return false

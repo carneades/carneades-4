@@ -6,33 +6,13 @@ import (
 	"../../engine/dung"
 	"bufio"
 	"fmt"
-	"github.com/mediocregopher/seq"
-	"hash/crc32"
 	"io"
 )
 
-type Arg string
-
-func (arg Arg) String() string {
-	return string(arg)
-}
-
-func (arg Arg) Id() string {
-	return string(arg)
-}
-
-func (arg Arg) Hash(i uint32) uint32 {
-	return crc32.ChecksumIEEE([]byte(arg)) % seq.ARITY
-}
-
-func (arg Arg) Equal(x interface{}) bool {
-	return arg.Id() == x.(Arg).Id()
-}
-
 func Import(inFile io.Reader) (af dung.AF, err error) {
 	reader := bufio.NewReader(inFile)
-	args := make([]dung.Arg, 0, 50)
-	atks := make(map[dung.Arg][]dung.Arg, 50)
+	args := make([]string, 0, 50)
+	atks := make(map[string][]string, 50)
 	nodeList := true // false if reading the list of edges has begun
 	var line, token1, token2 string
 	var n int
@@ -52,9 +32,9 @@ func Import(inFile io.Reader) (af dung.AF, err error) {
 				nodeList = false // start of edges list
 				continue
 			}
-			args = append(args, Arg(token1))
+			args = append(args, token1)
 		} else if !nodeList && n >= 2 { // edges list
-			atks[Arg(token2)] = append(atks[Arg(token2)], Arg(token1))
+			atks[token2] = append(atks[token2], token1)
 		} else {
 			continue // skip empty and invalid lines
 		}

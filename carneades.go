@@ -12,7 +12,7 @@ import (
 
 const name = "Carneades"
 const version = "v0.2"
-const author = "Tom Gordon"
+const author = "Tom Gordon (thomas.gordon@fokus.fraunhofer.de)"
 const formats = "[tgf]"
 const problems = "[DC-GR,DS-GR,EE-GR,SE-GR,DC-PR,DS-PR,EE-PR,SE-PR]"
 
@@ -30,17 +30,20 @@ func main() {
 
 	flag.Parse()
 
-	arg := tgf.Arg(*argFlag)
+	arg := *argFlag
 
 	if *formatsFlag {
 		fmt.Printf("%s\n", formats)
+		return
 	}
 
 	if *problemsFlag {
 		fmt.Printf("%s\n", problems)
+		return
 	}
 
 	if *formatFlag != "tgf" {
+		log.Fatal(fmt.Errorf("unsupported format: %s\n", *formatFlag))
 		return
 	}
 
@@ -48,7 +51,12 @@ func main() {
 	var err error
 	var af dung.AF
 
-	if *fileFlag != "" && *formatFlag == "tgf" {
+	if *fileFlag == "" {
+		log.Fatal(fmt.Errorf("no file flag (-f)"))
+		return
+	}
+
+	if *formatFlag == "tgf" {
 		inFile, err = os.Open(*fileFlag)
 		if err != nil {
 			log.Fatal(err)
@@ -91,12 +99,26 @@ func main() {
 			s = append(s, l.AsExtension().String())
 		}
 		fmt.Printf("[%s]\n", strings.Join(s, ","))
+	} else if *problemFlag == "EE-PR3" {
+		labellings := af.PreferredLabellings3()
+		s := []string{}
+		for _, l := range labellings {
+			s = append(s, l.AsExtension().String())
+		}
+		fmt.Printf("[%s]\n", strings.Join(s, ","))
 	} else if *problemFlag == "SE-PR" {
-		labellings := af.PreferredLabellings()
+		labellings := af.PreferredLabellings3()
 		if len(labellings) > 0 {
 			fmt.Printf("%s\n", labellings[0].AsExtension().String())
 		} else {
 			fmt.Printf("NO\n")
 		}
+	} else if *problemFlag == "traverse" {
+		af.TraverseLabellings(func(L dung.PLabelling) {
+			fmt.Printf("%v\n", L.AsExtension())
+		})
+	} else {
+		log.Fatal(fmt.Errorf("unsupported problem: %s\n", *problemFlag))
+		return
 	}
 }
