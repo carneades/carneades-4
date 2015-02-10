@@ -69,7 +69,7 @@ func main() {
 
 	if (*problemFlag == "DC-GR" || *problemFlag == "DS-GR") && *argFlag != "" {
 		E := af.GroundedExtension()
-		if E.Contains(arg) {
+		if E.Contains(dung.Arg(arg)) {
 			fmt.Printf("YES\n")
 		} else {
 			fmt.Printf("NO\n")
@@ -81,13 +81,13 @@ func main() {
 		E := af.GroundedExtension()
 		fmt.Printf("%s\n", E)
 	} else if *problemFlag == "DC-PR" {
-		if af.CredulouslyInferredPR(arg) {
+		if af.CredulouslyInferredPR(dung.Arg(arg)) {
 			fmt.Printf("YES\n")
 		} else {
 			fmt.Printf("NO\n")
 		}
 	} else if *problemFlag == "DS-PR" {
-		if af.SkepticallyInferredPR(arg) {
+		if af.SkepticallyInferredPR(dung.Arg(arg)) {
 			fmt.Printf("YES\n")
 		} else {
 			fmt.Printf("NO\n")

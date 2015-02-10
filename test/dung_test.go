@@ -9,84 +9,88 @@ import (
 	"testing"
 )
 
+const a1 = dung.Arg("1")
+const a2 = dung.Arg("2")
+const a3 = dung.Arg("3")
+
 func TestUnattackedArg(t *testing.T) {
-	af := dung.NewAF([]string{"1"},
-		map[string][]string{})
+	af := dung.NewAF([]dung.Arg{a1},
+		map[dung.Arg][]dung.Arg{})
 	l := af.GroundedExtension()
 	expected := true
-	actual := l.Contains("1")
+	actual := l.Contains(a1)
 	if actual != expected {
 		t.Errorf("expected extension to contain 1")
 	}
 }
 
 func TestSelfAttack(t *testing.T) {
-	args := []string{"1"}
-	atks := make(map[string][]string)
-	atks["1"] = []string{"1"}
+	args := []dung.Arg{a1}
+	atks := make(map[dung.Arg][]dung.Arg)
+	atks[a1] = []dung.Arg{a1}
 	af := dung.NewAF(args, atks)
 	l := af.GroundedExtension()
 	expected := false
-	actual := l.Contains("1")
+	actual := l.Contains(a1)
 	if actual != expected {
 		t.Errorf("expected extension to not contain 1")
 	}
 }
 
 func TestAttackedArg(t *testing.T) {
-	args := []string{"1", "2"}
-	atks := make(map[string][]string)
-	atks["1"] = []string{"2"}
+	args := []dung.Arg{a1, a2}
+	atks := make(map[dung.Arg][]dung.Arg)
+	atks[a1] = []dung.Arg{a2}
 	af := dung.NewAF(args, atks)
 	l := af.GroundedExtension()
-	if l.Contains("1") {
+	if l.Contains(a1) {
 		t.Errorf("expected 1 to be out")
 	}
-	if !l.Contains("2") {
+	if !l.Contains(a2) {
 		t.Errorf("expected 2 to be in")
 	}
 }
 
 func TestReinstatement(t *testing.T) {
-	args := []string{"1", "2", "3"}
-	atks := make(map[string][]string)
-	atks["1"] = []string{"2"}
-	atks["2"] = []string{"3"}
+	args := []dung.Arg{a1, a2, a3}
+	atks := make(map[dung.Arg][]dung.Arg)
+	atks[a1] = []dung.Arg{a2}
+	atks[a2] = []dung.Arg{a3}
 	af := dung.NewAF(args, atks)
 	l := af.GroundedExtension()
-	if !l.Contains("1") {
+	if !l.Contains(a1) {
 		t.Errorf("expected 1 to be in")
 	}
-	if l.Contains("2") {
+	if l.Contains(a2) {
 		t.Errorf("expected 2 to be out")
 	}
-	if !l.Contains("3") {
+	if !l.Contains(a3) {
 		t.Errorf("expected 3 to be in")
 	}
 }
 
 func TestOddLoop(t *testing.T) {
-	args := []string{"1", "2", "3"}
-	atks := make(map[string][]string)
-	atks["1"] = []string{"2"}
-	atks["2"] = []string{"3"}
-	atks["3"] = []string{"1"}
+	args := []dung.Arg{a1, a2, a2}
+	atks := make(map[dung.Arg][]dung.Arg)
+	atks[a1] = []dung.Arg{a2}
+	atks[a2] = []dung.Arg{a2}
+	atks[a2] = []dung.Arg{a1}
 	af := dung.NewAF(args, atks)
 	l := af.GroundedExtension()
-	if l.Contains("1") {
+	if l.Contains(a1) {
 		t.Errorf("expected 1 to be out")
 	}
-	if l.Contains("2") {
+	if l.Contains(a2) {
 		t.Errorf("expected 2 to be out")
 	}
-	if l.Contains("3") {
+	if l.Contains(a2) {
 		t.Errorf("expected 3 to be out")
 	}
 }
 
 func TestEqualArgSets(t *testing.T) {
-	args1 := dung.NewArgSet("1", "2", "3")
-	args2 := dung.NewArgSet("3", "2", "1")
+	args1 := dung.NewArgSet(a1, a2, a2)
+	args2 := dung.NewArgSet(a2, a2, a1)
 	expected := true
 	actual := args1.Equals(args2)
 	if expected != actual {
@@ -100,10 +104,10 @@ func TestAf2Import(t *testing.T) {
 		log.Fatal(err)
 	}
 	af, err := tgf.Import(inFile)
-	args := []string{"1", "2", "3"}
-	atks := make(map[string][]string)
-	atks["2"] = []string{"1"}
-	atks["3"] = []string{"2"}
+	args := []dung.Arg{a1, a2, a3}
+	atks := make(map[dung.Arg][]dung.Arg)
+	atks[a2] = []dung.Arg{a1}
+	atks[a3] = []dung.Arg{a2}
 	expected := dung.NewAF(args, atks)
 	if !af.Equals(expected) {
 		t.Errorf("expected %s, not %s.\n", expected.String(), af.String())
@@ -117,7 +121,7 @@ func TestAf2GroundedLabelling(t *testing.T) {
 	}
 	af, err := tgf.Import(inFile)
 	extension := af.GroundedExtension()
-	expected := dung.NewArgSet("3", "1")
+	expected := dung.NewArgSet(a3, a1)
 	if !extension.Equals(expected) {
 		t.Errorf("expected %s, not %s.\n", expected, extension)
 	}
@@ -130,8 +134,8 @@ func TestEvenCycle1PreferredLabelling(t *testing.T) {
 	}
 	af, err := tgf.Import(inFile)
 	actual := af.PreferredExtensions()
-	e1 := dung.NewArgSet("1")
-	e2 := dung.NewArgSet("2")
+	e1 := dung.NewArgSet(a1)
+	e2 := dung.NewArgSet(a2)
 	expected := []dung.ArgSet{e1, e2}
 	//fmt.Printf("actual: %v\n", actual)
 	//fmt.Printf("expected: %v\n", expected)

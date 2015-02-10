@@ -8,39 +8,45 @@ import (
 	"strings"
 )
 
+type Arg string
+
 // Argumentation Framework
 type AF struct {
-	args   []string            // the arguments
-	atks   map[string][]string // arguments attacking each key argument
-	atkdby map[string][]string // arguments attacked by each argument
+	args   []Arg         // the arguments
+	atks   map[Arg][]Arg // arguments attacking each key argument
+	atkdby map[Arg][]Arg // arguments attacked by each argument
 }
 
 // Constructs an AF. The atkdby attribute is initialized to nil, since it
 // is not needed for all semantics.  When needed use the
 // attackedArgs() method.
-func NewAF(args []string, atks map[string][]string) AF {
+func NewAF(args []Arg, atks map[Arg][]Arg) AF {
 	return AF{args, atks, nil}
 }
 
 func (af *AF) String() string {
+	args := []string{}
+	for _, arg := range af.args {
+		args = append(args, string(arg))
+	}
 	d := []string{}
 	for arg, attacks := range af.atks {
 		attackStrings := []string{}
 		for _, attack := range attacks {
-			attackStrings = append(attackStrings, attack)
+			attackStrings = append(attackStrings, string(attack))
 		}
 		d = append(d, fmt.Sprintf("%s: [%s]", arg,
 			strings.Join(attackStrings, ",")))
 	}
 	return fmt.Sprintf("{args: [%s], attacks: {%s}}",
-		strings.Join(af.args, ", "),
+		strings.Join(args, ", "),
 		strings.Join(d, ", "))
 }
 
-type ArgSet map[string]bool
+type ArgSet map[Arg]bool
 
-func NewArgSet(args ...string) ArgSet {
-	S := make(map[string]bool)
+func NewArgSet(args ...Arg) ArgSet {
+	S := make(map[Arg]bool)
 	for _, arg := range args {
 		S[arg] = true
 	}
@@ -57,7 +63,7 @@ func (args1 ArgSet) Copy() ArgSet {
 
 // Add an argument to an ArgSet, nondestructively.
 // Returns the input set if the arg was already a member.
-func (args1 ArgSet) Add(arg string) ArgSet {
+func (args1 ArgSet) Add(arg Arg) ArgSet {
 	_, found := args1[arg]
 	if !found {
 		args2 := args1.Copy()
@@ -67,14 +73,14 @@ func (args1 ArgSet) Add(arg string) ArgSet {
 	return args1
 }
 
-func (args ArgSet) Contains(arg string) bool {
+func (args ArgSet) Contains(arg Arg) bool {
 	_, found := args[arg]
 	return found
 }
 
 // Removes an element from an ArgSet, nondestructively.
 // Returns the input set unchanged if the arg was not a member.
-func (args1 ArgSet) Remove(arg string) ArgSet {
+func (args1 ArgSet) Remove(arg Arg) ArgSet {
 	if args1.Contains(arg) {
 		args2 := args1.Copy()
 		delete(args2, arg)
@@ -91,7 +97,7 @@ func (args ArgSet) String() string {
 	s := []string{}
 	for arg, value := range args {
 		if value == true {
-			s = append(s, arg)
+			s = append(s, string(arg))
 		}
 	}
 	return fmt.Sprintf("[%s]", strings.Join(s, ","))
@@ -177,13 +183,13 @@ func (l Label) String() string {
 	}
 }
 
-type Labelling map[string]Label
+type Labelling map[Arg]Label
 
 func NewLabelling() Labelling {
-	return Labelling(make(map[string]Label))
+	return Labelling(make(map[Arg]Label))
 }
 
-func (l Labelling) Get(arg string) Label {
+func (l Labelling) Get(arg Arg) Label {
 	v, found := l[arg]
 	if found {
 		return v
@@ -193,7 +199,7 @@ func (l Labelling) Get(arg string) Label {
 }
 
 func (l Labelling) AsExtension() ArgSet {
-	S := make(map[string]bool)
+	S := make(map[Arg]bool)
 	for arg, label := range l {
 		if label == In {
 			S[arg] = true
@@ -261,9 +267,9 @@ func (af *AF) Traverse(f func(L ArgSet)) {
 
 // The arguments attacked by each argument in the AF
 func (af *AF) attackedArgs() {
-	attackedBy := make(map[string][]string)
+	attackedBy := make(map[Arg][]Arg)
 	for _, arg := range af.args {
-		attackedBy[arg] = []string{} // initialize to an empty slice
+		attackedBy[arg] = []Arg{} // initialize to an empty slice
 	}
 	for arg, s := range af.atks {
 		for _, attacker := range s {
@@ -276,7 +282,7 @@ func (af *AF) attackedArgs() {
 func (af *AF) complete(L ArgSet) bool {
 	// fmt.Printf("L=%v\n", L.inArgs)
 	// Is atk a member of L?
-	conflict := func(arg, atk string) bool {
+	conflict := func(arg, atk Arg) bool {
 		if L.Contains(atk) {
 			// fmt.Printf("%v conflicts with %v:\n", arg, atk)
 			return true
@@ -284,7 +290,7 @@ func (af *AF) complete(L ArgSet) bool {
 		return false
 	}
 	// Defended against atk by some member of L?
-	defended := func(arg, atk string) bool {
+	defended := func(arg, atk Arg) bool {
 		for _, defender := range af.atks[atk] {
 			if L.Contains(defender) {
 				// fmt.Printf("%v defended against %v by %v\n", arg, atk, defender)
@@ -345,7 +351,7 @@ func (af *AF) PreferredExtensions() []ArgSet {
 
 // Checks whether an argument, arg, is credulous inferred in an argumentation
 // framework, af, using preferred semantics.
-func (af *AF) CredulouslyInferredPR(arg string) bool {
+func (af *AF) CredulouslyInferredPR(arg Arg) bool {
 	s := af.PreferredExtensions()
 	for _, args := range s {
 		if args.Contains(arg) {
@@ -357,7 +363,7 @@ func (af *AF) CredulouslyInferredPR(arg string) bool {
 
 // Checks whether an argument, arg, is skeptically inferred in an
 // Argumentation framework, af, using preferred semantics.
-func (af *AF) SkepticallyInferredPR(arg string) bool {
+func (af *AF) SkepticallyInferredPR(arg Arg) bool {
 	s := af.PreferredExtensions()
 	for _, args := range s {
 		if !args.Contains(arg) {

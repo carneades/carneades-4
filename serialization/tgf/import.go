@@ -11,8 +11,8 @@ import (
 
 func Import(inFile io.Reader) (af dung.AF, err error) {
 	reader := bufio.NewReader(inFile)
-	args := make([]string, 0, 50)
-	atks := make(map[string][]string, 50)
+	args := make([]dung.Arg, 0, 50)
+	atks := make(map[dung.Arg][]dung.Arg, 50)
 	nodeList := true // false if reading the list of edges has begun
 	var line, token1, token2 string
 	var n int
@@ -32,9 +32,9 @@ func Import(inFile io.Reader) (af dung.AF, err error) {
 				nodeList = false // start of edges list
 				continue
 			}
-			args = append(args, token1)
+			args = append(args, dung.Arg(token1))
 		} else if !nodeList && n >= 2 { // edges list
-			atks[token2] = append(atks[token2], token1)
+			atks[dung.Arg(token2)] = append(atks[dung.Arg(token2)], dung.Arg(token1))
 		} else {
 			continue // skip empty and invalid lines
 		}
