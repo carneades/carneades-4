@@ -12,16 +12,12 @@ type Arg string
 
 // Argumentation Framework
 type AF struct {
-	args   []Arg         // the arguments
-	atks   map[Arg][]Arg // arguments attacking each key argument
-	atkdby map[Arg][]Arg // arguments attacked by each argument
+	args []Arg         // the arguments
+	atks map[Arg][]Arg // arguments attacking each key argument
 }
 
-// Constructs an AF. The atkdby attribute is initialized to nil, since it
-// is not needed for all semantics.  When needed use the
-// attackedArgs() method.
 func NewAF(args []Arg, atks map[Arg][]Arg) AF {
-	return AF{args, atks, nil}
+	return AF{args, atks}
 }
 
 func (af *AF) String() string {
@@ -208,6 +204,15 @@ func (l Labelling) AsExtension() ArgSet {
 	return ArgSet(S)
 }
 
+type Semantics int
+
+const (
+	Grounded Semantics = iota
+	Complete
+	Preferred
+	Stable
+)
+
 func (af *AF) GroundedExtension() ArgSet {
 	l := NewLabelling()
 	var changed bool
@@ -265,18 +270,24 @@ func (af *AF) Traverse(f func(L ArgSet)) {
 	subsets(0, allOut)
 }
 
-// The arguments attacked by each argument in the AF
-func (af *AF) attackedArgs() {
-	attackedBy := make(map[Arg][]Arg)
-	for _, arg := range af.args {
-		attackedBy[arg] = []Arg{} // initialize to an empty slice
-	}
-	for arg, s := range af.atks {
-		for _, attacker := range s {
-			attackedBy[attacker] = append(attackedBy[attacker], arg)
+// Find the first subset of the args of an AF, starting with the empty set,
+// which satifies the given predicate.  The boolean value returned is false
+// if no such ArgSet was found.
+func (af *AF) Find(pred func(ArgSet) bool) (ArgSet, bool) {
+	allOut := NewArgSet()
+	var subsets func(int, ArgSet) (ArgSet, bool)
+	subsets = func(i int, A ArgSet) (ArgSet, bool) {
+		if i == len(af.args) && pred(A) {
+			return A, true
+		} else if B, ok := subsets(i+1, A); ok {
+			return B, true
+		} else if C, ok := subsets(i+1, A.Add(af.args[i])); ok {
+			return C, true
+		} else {
+			return nil, false
 		}
 	}
-	af.atkdby = attackedBy
+	return subsets(0, allOut)
 }
 
 func (af *AF) complete(L ArgSet) bool {
@@ -311,9 +322,36 @@ func (af *AF) complete(L ArgSet) bool {
 	return true
 }
 
-func (af *AF) PreferredExtensions() []ArgSet {
-	af.attackedArgs()
+// An complete extension E is stable iff it attacks every argument not
+// a member of E. The tested argument set is assumed to be a complete extension.
+func (af *AF) stable(E ArgSet) bool {
+	hasAttacker := func(arg Arg) bool {
+		for _, atk := range af.atks[arg] {
+			if E.Contains(atk) {
+				return true
+			}
+		}
+		return false
+	}
+	for _, arg := range af.args {
+		if !E.Contains(arg) && !hasAttacker(arg) {
+			return false
+		}
+	}
+	return true
+}
 
+func (af *AF) CompleteExtensions() []ArgSet {
+	extensions := []ArgSet{}
+	af.Traverse(func(A ArgSet) {
+		if af.complete(A) {
+			extensions = append(extensions, A)
+		}
+	})
+	return extensions
+}
+
+func (af *AF) PreferredExtensions() []ArgSet {
 	candidates := []ArgSet{}
 
 	subsetOfCandidate := func(L1 ArgSet) bool {
@@ -325,50 +363,112 @@ func (af *AF) PreferredExtensions() []ArgSet {
 		return false
 	}
 
-	af.Traverse(func(L ArgSet) {
-
-		if subsetOfCandidate(L) {
-			// fmt.Printf("subset\n")
-			return
+	for _, CE := range af.CompleteExtensions() {
+		if subsetOfCandidate(CE) {
+			continue
 		}
-
-		if af.complete(L) {
-			// fmt.Printf("candidate: %v\n", L.inArgs)
-			// Add L as a new candidate and remove each labelling from the
-			// candidates which is a subset of L.
-			s := []ArgSet{L}
-			for _, L3 := range candidates {
-				if !L3.Subset(L) {
-					s = append(s, L3)
-				}
+		s := []ArgSet{CE}
+		// remove subsets of CE from the list of candidates
+		for _, C := range candidates {
+			if !C.Subset(CE) {
+				s = append(s, C)
 			}
-			candidates = s
 		}
-	})
+		candidates = s
+	}
 
 	return candidates
 }
 
-// Checks whether an argument, arg, is credulous inferred in an argumentation
-// framework, af, using preferred semantics.
-func (af *AF) CredulouslyInferredPR(arg Arg) bool {
-	s := af.PreferredExtensions()
-	for _, args := range s {
-		if args.Contains(arg) {
-			return true
+func (af *AF) StableExtensions() []ArgSet {
+	extensions := []ArgSet{}
+	for _, CE := range af.CompleteExtensions() {
+		if af.stable(CE) {
+			extensions = append(extensions, CE)
 		}
 	}
-	return false
+	return extensions
 }
 
-// Checks whether an argument, arg, is skeptically inferred in an
-// Argumentation framework, af, using preferred semantics.
-func (af *AF) SkepticallyInferredPR(arg Arg) bool {
-	s := af.PreferredExtensions()
-	for _, args := range s {
-		if !args.Contains(arg) {
+func (af *AF) CredulouslyInferred(s Semantics, arg Arg) bool {
+	switch s {
+	case Grounded:
+		return af.GroundedExtension().Contains(arg)
+	case Complete:
+		pred := func(E ArgSet) bool {
+			return af.complete(E) && E.Contains(arg)
+		}
+		if _, found := af.Find(pred); found {
+			return true
+		} else {
 			return false
 		}
+	case Preferred:
+		s := af.PreferredExtensions()
+		for _, E := range s {
+			if E.Contains(arg) {
+				return true
+			}
+		}
+		return false
+	case Stable:
+		pred := func(E ArgSet) bool {
+			return af.complete(E) && af.stable(E) && E.Contains(arg)
+		}
+		if _, found := af.Find(pred); found {
+			return true
+		} else {
+			return false
+		}
+	default:
+		return false
 	}
-	return true
+}
+
+func (af *AF) SkepticallyInferred(s Semantics, arg Arg) bool {
+	memberOfAll := func(extensions []ArgSet) bool {
+		for _, E := range extensions {
+			if !E.Contains(arg) {
+				return false
+			}
+		}
+		return true
+	}
+	switch s {
+	case Grounded:
+		return af.GroundedExtension().Contains(arg)
+	case Complete:
+		return memberOfAll(af.CompleteExtensions())
+	case Preferred:
+		return memberOfAll(af.PreferredExtensions())
+	case Stable:
+		return memberOfAll(af.StableExtensions())
+	default:
+		return false
+	}
+}
+
+// Returns an extension of the AF with the given semantics, if one exists.
+// The boolean value returned is false if no extension exists for the chosen
+// semantics.
+func (af *AF) SomeExtension(s Semantics) (ArgSet, bool) {
+	switch s {
+	case Grounded:
+		return af.GroundedExtension(), true
+	case Complete:
+		return af.Find(af.complete)
+	case Preferred:
+		extensions := af.PreferredExtensions()
+		if len(extensions) > 0 {
+			return extensions[0], true
+		} else {
+			return nil, false
+		}
+	case Stable:
+		return af.Find(func(E ArgSet) bool {
+			return af.complete(E) && af.stable(E)
+		})
+	default:
+		return nil, false
+	}
 }

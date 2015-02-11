@@ -14,7 +14,7 @@ const name = "Carneades"
 const version = "v0.2"
 const author = "Tom Gordon (thomas.gordon@fokus.fraunhofer.de)"
 const formats = "[tgf]"
-const problems = "[DC-GR,DS-GR,EE-GR,SE-GR,DC-PR,DS-PR,EE-PR,SE-PR]"
+const problems = "[DC-GR,DS-GR,EE-GR,SE-GR,DC-PR,DS-PR,EE-PR,SE-PR,DC-CO,DS-CO,EE-CO,SE-CO,DC-ST,DS-ST,EE-ST,SE-ST]"
 
 func main() {
 	if len(os.Args) == 1 {
@@ -31,6 +31,12 @@ func main() {
 	flag.Parse()
 
 	arg := *argFlag
+
+	checkArgFlag := func() {
+		if arg == "" {
+			log.Fatal(fmt.Errorf("no -a flag"))
+		}
+	}
 
 	if *formatsFlag {
 		fmt.Printf("%s\n", formats)
@@ -67,45 +73,80 @@ func main() {
 		}
 	}
 
-	if (*problemFlag == "DC-GR" || *problemFlag == "DS-GR") && *argFlag != "" {
-		E := af.GroundedExtension()
-		if E.Contains(dung.Arg(arg)) {
-			fmt.Printf("YES\n")
-		} else {
-			fmt.Printf("NO\n")
-		}
-	} else if *problemFlag == "EE-GR" {
-		E := af.GroundedExtension()
-		fmt.Printf("[%s]\n", E)
-	} else if *problemFlag == "SE-GR" {
-		E := af.GroundedExtension()
-		fmt.Printf("%s\n", E)
-	} else if *problemFlag == "DC-PR" {
-		if af.CredulouslyInferredPR(dung.Arg(arg)) {
-			fmt.Printf("YES\n")
-		} else {
-			fmt.Printf("NO\n")
-		}
-	} else if *problemFlag == "DS-PR" {
-		if af.SkepticallyInferredPR(dung.Arg(arg)) {
-			fmt.Printf("YES\n")
-		} else {
-			fmt.Printf("NO\n")
-		}
-	} else if *problemFlag == "EE-PR" {
-		extensions := af.PreferredExtensions()
+	printExtensions := func(extensions []dung.ArgSet) {
 		s := []string{}
 		for _, E := range extensions {
 			s = append(s, E.String())
 		}
 		fmt.Printf("[%s]\n", strings.Join(s, ","))
-	} else if *problemFlag == "SE-PR" {
-		extensions := af.PreferredExtensions()
-		if len(extensions) > 0 {
-			fmt.Printf("%s\n", extensions[0])
+	}
+
+	printExtension := func(E dung.ArgSet, exists bool) {
+		if exists {
+			fmt.Printf("%s\n", E)
 		} else {
 			fmt.Printf("NO\n")
 		}
+	}
+
+	printBool := func(b bool) {
+		if b {
+			fmt.Printf("YES\n")
+		} else {
+			fmt.Printf("NO\n")
+		}
+	}
+
+	// Grounded Semantics
+	if *problemFlag == "DC-GR" {
+		checkArgFlag()
+		printBool(af.CredulouslyInferred(dung.Grounded, dung.Arg(arg)))
+	} else if *problemFlag == "DS-GR" {
+		checkArgFlag()
+		printBool(af.SkepticallyInferred(dung.Grounded, dung.Arg(arg)))
+	} else if *problemFlag == "EE-GR" || *problemFlag == "SE-GR" {
+		E := af.GroundedExtension()
+		fmt.Printf("[%s]\n", E)
+
+		// Preferred Semantics
+	} else if *problemFlag == "DC-PR" {
+		checkArgFlag()
+		printBool(af.CredulouslyInferred(dung.Preferred, dung.Arg(arg)))
+	} else if *problemFlag == "DS-PR" {
+		checkArgFlag()
+		printBool(af.SkepticallyInferred(dung.Preferred, dung.Arg(arg)))
+	} else if *problemFlag == "EE-PR" {
+		printExtensions(af.PreferredExtensions())
+	} else if *problemFlag == "SE-PR" {
+		E, ok := af.SomeExtension(dung.Preferred)
+		printExtension(E, ok)
+
+		// Complete Semantics
+	} else if *problemFlag == "DC-CO" {
+		checkArgFlag()
+		printBool(af.CredulouslyInferred(dung.Complete, dung.Arg(arg)))
+	} else if *problemFlag == "DS-CO" {
+		checkArgFlag()
+		printBool(af.SkepticallyInferred(dung.Complete, dung.Arg(arg)))
+	} else if *problemFlag == "EE-CO" {
+		printExtensions(af.CompleteExtensions())
+	} else if *problemFlag == "SE-CO" {
+		E, ok := af.SomeExtension(dung.Preferred)
+		printExtension(E, ok)
+
+		// Stable Semantics
+	} else if *problemFlag == "DC-ST" {
+		checkArgFlag()
+		printBool(af.CredulouslyInferred(dung.Stable, dung.Arg(arg)))
+	} else if *problemFlag == "DS-ST" {
+		checkArgFlag()
+		printBool(af.SkepticallyInferred(dung.Stable, dung.Arg(arg)))
+	} else if *problemFlag == "EE-ST" {
+		printExtensions(af.StableExtensions())
+	} else if *problemFlag == "SE-ST" {
+		E, ok := af.SomeExtension(dung.Stable)
+		printExtension(E, ok)
+
 	} else if *problemFlag == "traverse" {
 		af.Traverse(func(E dung.ArgSet) {
 			fmt.Printf("%v\n", E)
