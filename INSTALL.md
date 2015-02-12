@@ -1,5 +1,5 @@
 
-There are instructions for building and running the Carneades entry to the  (ICCMA)[http://argumentationcompetition.org/index.html]  competition.
+There are instructions for building and running the Carneades entry to the  [ICCMA](http://argumentationcompetition.org/index.html)  competition.
 
 ## Prerequisites
 
