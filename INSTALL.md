@@ -19,11 +19,11 @@ Add `$GOPATH/bin` to your `PATH` environment variable.
 
 ## Downloading 
 
-    $ go get https://github.com/carneades/carneades-go.git
+    $ go get github.com/carneades/carneades-go
 
 ## Installation
 
-    $ cd install https://github.com/carneades/carneades-go.git
+    $ cd install github.com/carneades/carneades-go
 
 ## Running
 
