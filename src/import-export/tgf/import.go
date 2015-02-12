@@ -3,9 +3,9 @@
 package tgf
 
 import (
-	"../../engine/dung"
 	"bufio"
 	"fmt"
+	"github.com/carneades/carneades-go/src/engine/dung"
 	"io"
 )
 

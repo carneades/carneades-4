@@ -1,17 +1,17 @@
 package main
 
 import (
-	"../../engine/dung"
-	"../../import-export/tgf"
 	"flag"
 	"fmt"
+	"github.com/carneades/carneades-go/src/engine/dung"
+	"github.com/carneades/carneades-go/src/import-export/tgf"
 	"log"
 	"os"
 	"strings"
 )
 
-const name = "Carneades"
-const version = "v0.2"
+const name = "Carneades ICCMA"
+const version = "v1.0"
 const author = "Tom Gordon (thomas.gordon@fokus.fraunhofer.de)"
 const formats = "[tgf]"
 const problems = "[DC-GR,DS-GR,EE-GR,SE-GR,DC-PR,DS-PR,EE-PR,SE-PR,DC-CO,DS-CO,EE-CO,SE-CO,DC-ST,DS-ST,EE-ST,SE-ST]"
@@ -19,6 +19,7 @@ const problems = "[DC-GR,DS-GR,EE-GR,SE-GR,DC-PR,DS-PR,EE-PR,SE-PR,DC-CO,DS-CO,E
 func main() {
 	if len(os.Args) == 1 {
 		fmt.Printf("%s %s\n%s\n", name, version, author)
+		return
 	}
 
 	formatsFlag := flag.Bool("formats", false, "print supported formats")
