@@ -2,7 +2,7 @@ package test
 
 import (
 	"../engine/dung"
-	"../serialization/tgf"
+	"../import-export/tgf"
 	// "fmt"
 	"log"
 	"os"

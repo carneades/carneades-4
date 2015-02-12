@@ -2,7 +2,7 @@ package main
 
 import (
 	"../../engine/dung"
-	"../../serialization/tgf"
+	"../../import-export/tgf"
 	"flag"
 	"fmt"
 	"log"
