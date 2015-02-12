@@ -1,11 +1,9 @@
 
-There are instructions for building and running the Carneades entry to the 
-(ICCMA)[http://argumentationcompetition.org/index.html]  
-competition.
+There are instructions for building and running the Carneades entry to the  (ICCMA)[http://argumentationcompetition.org/index.html]  competition.
 
 ## Prerequisites
 
-- The (Go programming language)[http://golang.org/] compiler 
+- The [Go programming language](http://golang.org/) compiler 
 
 ## Building the carneades-iccma executable
 
