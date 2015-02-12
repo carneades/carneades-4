@@ -1,6 +1,7 @@
 
 These are the source files of an experimental version of the
 Carneades argumentation system, written in the Go programming language.
+Depending on the results of this experiment, this may become version 4 of Carneades.
 
 Copyright © 2015 Fraunhofer Gesellschaft 
 
