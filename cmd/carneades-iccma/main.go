@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./engine/dung"
-	"./serialization/tgf"
+	"../../engine/dung"
+	"../../serialization/tgf"
 	"flag"
 	"fmt"
 	"log"
