@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/carneades/carneades-go/src/engine/dung"
-	"github.com/carneades/carneades-go/src/engine/dung/import/tgf"
+	"github.com/carneades/carneades-go/internal/engine/dung"
+	"github.com/carneades/carneades-go/internal/engine/dung/import/tgf"
 	// "fmt"
 	"log"
 	"os"

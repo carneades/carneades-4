@@ -5,7 +5,7 @@ package tgf
 import (
 	"bufio"
 	"fmt"
-	"github.com/carneades/carneades-go/src/engine/dung"
+	"github.com/carneades/carneades-go/internal/engine/dung"
 	"io"
 )
 
