@@ -15,21 +15,18 @@ Set the GOPATH environment variable to a directory for Go packages, e.g.
     $ mkdir ~/go
 	$ typeset -x GOPATH=~/go
 
-Use the go tool to get the carneades-go package from Github:
+Use the go tool to get, build and install the carneades-iccma
+executable from Github:
 
-    $ go get github.com/carneades/carneades-go
+    $ go get github.com/carneades/carneades-go/internal/cmd/carneades-iccma
 
-Use the go tool to build and install the carneades-iccma executable:
- 
-    $ go install github.com/carneades/carneades-go/src/cmd/carneades-iccma
-	
 ## Running the carneades-iccma executable
 
 The carneades-iccma executable should now be installed in
 
     $GOPATH/bin/carneades-iccma
 
-You can execute the program using this full path. Altneratively, add
+You can execute the program using this full path. Alternatively, add
 $GOPATH/bin to your PATH environment. You can then execute the command
 directly, as in
 
