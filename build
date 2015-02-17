@@ -1,1 +1,1 @@
-go build -o carneades-iccma ./src/cmd/carneades-iccma
+go get github.com/carneades/carneades-go/internal/cmd/carneades-iccma

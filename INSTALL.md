@@ -5,7 +5,7 @@ competition.
 
 ## Prerequisites
 
-- The [Go programming language](http://golang.org/) compiler
+- The [Go programming language](http://golang.org/) compiler suite
 - [Git](http://git-scm.com/)
 
 ## Building the carneades-iccma executable
@@ -19,6 +19,9 @@ Use the go tool to get, build and install the carneades-iccma
 executable from Github:
 
     $ go get github.com/carneades/carneades-go/internal/cmd/carneades-iccma
+
+(Or use the "build" script included in the distribution, which runs
+this command.)
 
 ## Running the carneades-iccma executable
 
