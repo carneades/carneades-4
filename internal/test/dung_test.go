@@ -2,7 +2,7 @@ package test
 
 import (
 	"github.com/carneades/carneades-go/internal/engine/dung"
-	"github.com/carneades/carneades-go/internal/engine/dung/import/tgf"
+	"github.com/carneades/carneades-go/internal/engine/dung/encoding/tgf"
 	// "fmt"
 	"log"
 	"os"
