@@ -24,7 +24,7 @@
 	* CAF
 	* YAML/Markdown
 
-# v4.3
+# v4.2
 
 - Structured survey tool, similar to Parmenides
 - Based on design in: Gordon, T. F. (2013). Structured Consultation
@@ -32,7 +32,7 @@
   From Knowledge Representation to Argumentation in AI, Law and Policy
   Making (pp. 115–134). College Publications.
 
-# v4.4
+# v4.3
 
 - Static website generator, for browsing argument graphs
 - Similar to Jeykll <http://jekyllrb.com/> and Hugo <http://gohugo.io/>
@@ -40,7 +40,7 @@
 - No Carneades Web service required
 - Static pages may be uploaded to any Web server, e.g. via FTP
 
-# v4.5
+# v4.4
 
 - Argumentation schemes, represented in Datalog
 - Argument construction, via a Datalog inference engine
