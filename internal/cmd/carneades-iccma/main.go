@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/carneades/carneades-go/internal/engine/dung"
-	"github.com/carneades/carneades-go/internal/engine/dung/import/tgf"
+	"github.com/carneades/carneades-go/internal/engine/dung/encoding/tgf"
 	"log"
 	"os"
 	"strings"
