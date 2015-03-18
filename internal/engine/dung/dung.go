@@ -277,12 +277,13 @@ func (af *AF) Find(pred func(ArgSet) bool) (ArgSet, bool) {
 	allOut := NewArgSet()
 	var subsets func(int, ArgSet) (ArgSet, bool)
 	subsets = func(i int, A ArgSet) (ArgSet, bool) {
-		if i == len(af.args) && pred(A) {
-			return A, true
-		} else if B, ok := subsets(i+1, A); ok {
-			return B, true
-		} else if C, ok := subsets(i+1, A.Add(af.args[i])); ok {
-			return C, true
+		if i == len(af.args) {
+			return A, pred(A)
+		}
+		if S1, ok1 := subsets(i+1, A); ok1 {
+			return S1, true
+		} else if S2, ok2 := subsets(i+1, A.Add(af.args[i])); ok2 {
+			return S2, true
 		} else {
 			return nil, false
 		}
@@ -291,35 +292,49 @@ func (af *AF) Find(pred func(ArgSet) bool) (ArgSet, bool) {
 }
 
 func (af *AF) complete(L ArgSet) bool {
-	// fmt.Printf("L=%v\n", L.inArgs)
-	// Is atk a member of L?
-	conflict := func(arg, atk Arg) bool {
-		if L.Contains(atk) {
-			// fmt.Printf("%v conflicts with %v:\n", arg, atk)
-			return true
-		}
-		return false
-	}
-	// Defended against atk by some member of L?
-	defended := func(arg, atk Arg) bool {
-		for _, defender := range af.atks[atk] {
-			if L.Contains(defender) {
-				// fmt.Printf("%v defended against %v by %v\n", arg, atk, defender)
-				return true
-			}
-		}
-		// fmt.Printf("not defended against: %v", atk)
-		return false
-	}
+	// If L is not conflict free, return false
 	for arg, _ := range L {
 		for _, atk := range af.atks[arg] {
-			// fmt.Printf("atk=%v\n", atk)
-			if conflict(arg, atk) || !defended(arg, atk) {
+			if L.Contains(atk) {
 				return false
 			}
 		}
 	}
-	return true
+
+	// Does L defend against some attacker, atk, by containing an
+	// attacker of atk?
+	defendsAgainst := func(atk Arg) bool {
+		for _, defender := range af.atks[atk] {
+			if L.Contains(defender) {
+				return true
+			}
+		}
+		return false
+	}
+
+	// Is every attacker of arg defended against by L?
+	defends := func(arg Arg) bool {
+		for _, atk := range af.atks[arg] {
+			if !defendsAgainst(atk) {
+				return false
+			}
+		}
+		return true
+	}
+
+	// F is the characteristic function
+	F := func(S ArgSet) ArgSet {
+		defendedArgs := []Arg{}
+		for _, arg := range af.args {
+			if defends(arg) {
+				defendedArgs = append(defendedArgs, arg)
+			}
+		}
+		return NewArgSet(defendedArgs...)
+	}
+
+	// return true if L is a fixpoint
+	return L.Equals(F(L))
 }
 
 // An complete extension E is stable iff it attacks every argument not

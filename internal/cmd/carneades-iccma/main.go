@@ -105,9 +105,12 @@ func main() {
 	} else if *problemFlag == "DS-GR" {
 		checkArgFlag()
 		printBool(af.SkepticallyInferred(dung.Grounded, dung.Arg(arg)))
-	} else if *problemFlag == "EE-GR" || *problemFlag == "SE-GR" {
+	} else if *problemFlag == "EE-GR" {
 		E := af.GroundedExtension()
 		fmt.Printf("[%s]\n", E)
+	} else if *problemFlag == "SE-GR" {
+		E := af.GroundedExtension()
+		fmt.Printf("%s\n", E)
 
 		// Preferred Semantics
 	} else if *problemFlag == "DC-PR" {
@@ -132,7 +135,7 @@ func main() {
 	} else if *problemFlag == "EE-CO" {
 		printExtensions(af.CompleteExtensions())
 	} else if *problemFlag == "SE-CO" {
-		E, ok := af.SomeExtension(dung.Preferred)
+		E, ok := af.SomeExtension(dung.Complete)
 		printExtension(E, ok)
 
 		// Stable Semantics
