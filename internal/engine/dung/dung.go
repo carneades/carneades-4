@@ -16,6 +16,14 @@ type AF struct {
 	atks map[Arg][]Arg // arguments attacking each key argument
 }
 
+func (af *AF) Args() []Arg {
+	return af.args
+}
+
+func (af *AF) Atks() map[Arg][]Arg {
+	return af.atks
+}
+
 func NewAF(args []Arg, atks map[Arg][]Arg) AF {
 	return AF{args, atks}
 }

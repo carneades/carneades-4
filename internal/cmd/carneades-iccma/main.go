@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/carneades/carneades-go/internal/engine/dung"
+	"github.com/carneades/carneades-go/internal/engine/dung/encoding/graphml"
 	"github.com/carneades/carneades-go/internal/engine/dung/encoding/tgf"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -28,6 +30,7 @@ func main() {
 	fileFlag := flag.String("f", "", "the source file for the AF")
 	formatFlag := flag.String("fo", "tgf", "the format of the source file")
 	argFlag := flag.String("a", "", "the id of the argument to check")
+	outputFlag := flag.String("o", "", "the name of a directory to create to output GraphML")
 
 	flag.Parse()
 
@@ -57,6 +60,7 @@ func main() {
 	var inFile *os.File
 	var err error
 	var af dung.AF
+	var extensions []dung.ArgSet
 
 	if *fileFlag == "" {
 		log.Fatal(fmt.Errorf("no file flag (-f)"))
@@ -107,9 +111,11 @@ func main() {
 		printBool(af.SkepticallyInferred(dung.Grounded, dung.Arg(arg)))
 	} else if *problemFlag == "EE-GR" {
 		E := af.GroundedExtension()
+		extensions = []dung.ArgSet{E}
 		fmt.Printf("[%s]\n", E)
 	} else if *problemFlag == "SE-GR" {
 		E := af.GroundedExtension()
+		extensions = []dung.ArgSet{E}
 		fmt.Printf("%s\n", E)
 
 		// Preferred Semantics
@@ -120,7 +126,8 @@ func main() {
 		checkArgFlag()
 		printBool(af.SkepticallyInferred(dung.Preferred, dung.Arg(arg)))
 	} else if *problemFlag == "EE-PR" {
-		printExtensions(af.PreferredExtensions())
+		extensions = af.PreferredExtensions()
+		printExtensions(extensions)
 	} else if *problemFlag == "SE-PR" {
 		E, ok := af.SomeExtension(dung.Preferred)
 		printExtension(E, ok)
@@ -133,7 +140,8 @@ func main() {
 		checkArgFlag()
 		printBool(af.SkepticallyInferred(dung.Complete, dung.Arg(arg)))
 	} else if *problemFlag == "EE-CO" {
-		printExtensions(af.CompleteExtensions())
+		extensions = af.CompleteExtensions()
+		printExtensions(extensions)
 	} else if *problemFlag == "SE-CO" {
 		E, ok := af.SomeExtension(dung.Complete)
 		printExtension(E, ok)
@@ -146,11 +154,11 @@ func main() {
 		checkArgFlag()
 		printBool(af.SkepticallyInferred(dung.Stable, dung.Arg(arg)))
 	} else if *problemFlag == "EE-ST" {
-		printExtensions(af.StableExtensions())
+		extensions = af.StableExtensions()
+		printExtensions(extensions)
 	} else if *problemFlag == "SE-ST" {
 		E, ok := af.SomeExtension(dung.Stable)
 		printExtension(E, ok)
-
 	} else if *problemFlag == "traverse" {
 		af.Traverse(func(E dung.ArgSet) {
 			fmt.Printf("%v\n", E)
@@ -158,5 +166,25 @@ func main() {
 	} else {
 		log.Fatal(fmt.Errorf("unsupported problem: %s\n", *problemFlag))
 		return
+	}
+	if *outputFlag != "" && extensions != nil {
+		if _, err := os.Stat(*outputFlag); err == nil {
+			log.Fatal(fmt.Errorf("The output directory, %s, should not already exist\n", *outputFlag))
+			return
+		}
+		if err = os.MkdirAll(*outputFlag, 0755); err != nil {
+			log.Fatal(fmt.Errorf("%s\n", err))
+			return
+		}
+		for i, ext := range extensions {
+			filename := "e" + fmt.Sprintf("%d", i) + ".graphml"
+			f, err := os.Create(filepath.Join(*outputFlag, filename))
+			if err != nil {
+				log.Fatal(fmt.Errorf("%s\n", err))
+				return
+			}
+			graphml.Export(f, af, ext)
+			f.Close()
+		}
 	}
 }
