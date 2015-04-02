@@ -54,9 +54,9 @@ func pNodes(w io.Writer, arg []dung.Arg, extension dung.ArgSet) {
 func pEdges(w io.Writer, atks map[dung.Arg][]dung.Arg) {
 	for target, nodes := range atks {
 		for i, source := range nodes {
-			p(w, "   <edge id=\""+
+			p(w, "   <edge id=\"e-"+
 				string(target)+
-				fmt.Sprintf("%d", i)+
+				fmt.Sprintf("-%d", i)+
 				"\" source=\""+
 				string(source)+
 				"\" target=\""+
