@@ -113,25 +113,25 @@ func (l Labelling) init(ag *ArgGraph) {
 	}
 }
 
-// Returns true if the argument is undercut
-func (arg *Argument) Undercut(l Labelling) bool {
+// Returns In if the argument has been undercut, Out if its validity is
+// not at issue or attempts to undercut it have failed, and Undecided otherwise
+func (arg *Argument) Undercut(l Labelling) Label {
 	if arg.NotAppStmt == nil {
-		return false // applicability not at issue
+		return Out // applicability not at issue
 	} else {
-		switch l.Get(arg.NotAppStmt) {
-		case In:
-			return true
-		default:
-			return false
-		}
+		return l.Get(arg.NotAppStmt)
 	}
 }
 
-// An argument is applicable if none of its premises are Undecided. Because
+// An argument is applicable if none of its premises are Undecided and its
+// validity is either not at issue or has been decided favorably. Because
 // arguments can be cumulative, arguments with Out premises are
 // applicable. Out premises affect the weight of an argument, not its
 // applicability.
 func (arg *Argument) Applicable(l Labelling) bool {
+	if arg.Undercut(l) != Out {
+		return false
+	}
 	for _, p := range arg.Premises {
 		if l.Get(p.Stmt) == Undecided {
 			return false
@@ -145,7 +145,7 @@ func (arg *Argument) Applicable(l Labelling) bool {
 func (issue *Issue) ReadyToBeResolved(l Labelling) bool {
 	for _, position := range issue.Positions {
 		for _, arg := range position.Args {
-			if !(arg.Undercut(l) || arg.Applicable(l)) {
+			if !(arg.Undercut(l) == In || arg.Applicable(l)) {
 				return false
 			}
 		}
@@ -155,13 +155,12 @@ func (issue *Issue) ReadyToBeResolved(l Labelling) bool {
 
 // Apply a proof standard to check whether w1 is strictly greater than
 // w2, where w1 and w2 are argument weights
+// Note: DV and PE are indistinguishable in this new model
 func (std Standard) greater(w1, w2 float64) bool {
 	alpha := 0.5
 	beta := 0.3
 	switch std {
-	case DV:
-		return !(w2 > 0.0)
-	case PE:
+	case DV, PE:
 		return w1 > w2
 	case CCE:
 		return w1 > w2 && (w1-w2 > alpha)
@@ -191,11 +190,15 @@ func (issue *Issue) Resolve(l Labelling) {
 	var winner *Statement
 PositionLoop:
 	for _, p1 := range issue.Positions {
+		if maxArgWeight[p1] == 0.0 {
+			continue // the winner must be supported by at least one good argument
+		}
 		winner = p1 // assumption
-		// look for a position which is at least as strong as p1
+		// look for another position which is at least as strong as p1
 		for _, p2 := range issue.Positions {
-			if !issue.Standard.greater(maxArgWeight[p1], maxArgWeight[p2]) {
-				winner = nil // falsified the assumption
+			if p2 != p1 &&
+				!issue.Standard.greater(maxArgWeight[p1], maxArgWeight[p2]) {
+				winner = nil // found an alternative which is at least as good
 				continue PositionLoop
 			}
 		}
@@ -231,7 +234,7 @@ func eval(arg *Argument, l Labelling) float64 {
 // scheme, or the weight assigned by the default evaluator, if it has
 // no scheme.
 func (arg *Argument) Weight(l Labelling) float64 {
-	if arg.Undercut(l) || !arg.Applicable(l) {
+	if arg.Undercut(l) == In || !arg.Applicable(l) {
 		return 0.0
 	} else if arg.Scheme != nil {
 		return arg.Scheme.Eval(arg, l)
