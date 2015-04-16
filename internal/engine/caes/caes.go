@@ -22,7 +22,6 @@ type Issue struct {
 
 type Statement struct {
 	Metadata Metadata
-	Wff      string // formalization
 	Text     string // natural language
 	Assumed  bool
 	Issue    *Issue      // nil if not at issue

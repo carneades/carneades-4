@@ -147,14 +147,17 @@ func TestFrisian(t *testing.T) {
 // via the ASPIC+ framework for structured argumentation", by Bas Gijzel and
 // Henry Prakken. It is the example they use to illustrate the inability of
 // Carneades to handle cycles. But, interestingly, in this formulation of the
-// problem there are no cycles in the argument graph.
+// problem there are no cycles in the argument graph. Indeed, there are no
+// arguments as well.
 
 func TestVacation(t *testing.T) {
 	var i1 caes.Issue
 	var italy = caes.Statement{
-		Text: "Let's go to Italy."}
+		Text:  "Let's go to Italy.",
+		Issue: &i1}
 	var greece = caes.Statement{
-		Text: "Let's go to Greece."}
+		Text:  "Let's go to Greece.",
+		Issue: &i1}
 	i1 = caes.Issue{
 		Standard:  caes.PE,
 		Positions: []*caes.Statement{&greece, &italy}}
@@ -284,7 +287,7 @@ func TestEvenLoop(t *testing.T) {
 		Statements: []*caes.Statement{&P, &Q},
 		Arguments:  []*caes.Argument{&a1, &a2}}
 	l := ag.GroundedLabelling()
-	expected := l[&P] == caes.Out && l[&P] == caes.Out
+	expected := l[&P] == caes.Out && l[&Q] == caes.Out
 	if !expected {
 		t.Errorf("TestEvenLoop failed\n")
 		fmt.Printf("label(P)=%v\n", l[&P])
@@ -310,7 +313,7 @@ func TestOddLoop2(t *testing.T) {
 		Statements: []*caes.Statement{&P, &Q, &R},
 		Arguments:  []*caes.Argument{&a1, &a2, &a3}}
 	l := ag.GroundedLabelling()
-	expected := l[&P] == caes.Out && l[&P] == caes.Out && l[&R] == caes.Out
+	expected := l[&P] == caes.Out && l[&Q] == caes.Out && l[&R] == caes.Out
 	if !expected {
 		t.Errorf("TestOddLoop2 failed\n")
 		fmt.Printf("label(P)=%v\n", l[&P])
@@ -322,8 +325,8 @@ func TestOddLoop2(t *testing.T) {
 func TestSelfDefeat2(t *testing.T) {
 	var a1, a2 caes.Argument
 	var i1 caes.Issue
-	var P = caes.Statement{Text: "P", Args: []*caes.Argument{&a2}}
-	var notP = caes.Statement{Text: "not P", Args: []*caes.Argument{&a1}}
+	var P = caes.Statement{Text: "P", Issue: &i1, Args: []*caes.Argument{&a2}}
+	var notP = caes.Statement{Text: "not P", Issue: &i1, Args: []*caes.Argument{&a1}}
 	a1 = caes.Argument{
 		Conclusion: &notP,
 		Premises:   []caes.Premise{caes.Premise{Stmt: &P}}}
