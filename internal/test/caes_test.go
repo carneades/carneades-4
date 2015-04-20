@@ -347,6 +347,26 @@ func TestSelfDefeat2(t *testing.T) {
 	}
 }
 
+// The arguments in TestSelfDefeat2 are irrelevant. We get the
+// same labelling without them.
+func TestSelfDefeat3(t *testing.T) {
+	var i1 caes.Issue
+	var P = caes.Statement{Text: "P", Issue: &i1}
+	var notP = caes.Statement{Text: "not P", Issue: &i1}
+	i1 = caes.Issue{Positions: []*caes.Statement{&P, &notP}}
+	var ag = caes.ArgGraph{
+		Issues:     []*caes.Issue{&i1},
+		Statements: []*caes.Statement{&P, &notP},
+		Arguments:  []*caes.Argument{}}
+	l := ag.GroundedLabelling()
+	expected := l[&P] == caes.Out && l[&notP] == caes.Out
+	if !expected {
+		t.Errorf("TestSelfDefeat3 failed\n")
+		fmt.Printf("label(P)=%v\n", l[&P])
+		fmt.Printf("label(not P)=%v\n", l[&notP])
+	}
+}
+
 func TestReinstatement2(t *testing.T) {
 	var a1, a2, a3 caes.Argument
 	var i1 caes.Issue
