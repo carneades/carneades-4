@@ -112,7 +112,7 @@ func (l Labelling) init(ag *ArgGraph) {
 	}
 }
 
-// Returns In if the argument has been undercut, Out if its validity is
+// Returns In if the argument has been undercut, Out if the argument is
 // not at issue or attempts to undercut it have failed, and Undecided otherwise
 func (arg *Argument) Undercut(l Labelling) Label {
 	if arg.NotAppStmt == nil {
@@ -122,11 +122,10 @@ func (arg *Argument) Undercut(l Labelling) Label {
 	}
 }
 
-// An argument is applicable if none of its premises are Undecided and its
-// validity is either not at issue or has been decided favorably. Because
-// arguments can be cumulative, arguments with Out premises are
-// applicable. Out premises affect the weight of an argument, not its
-// applicability.
+// An argument is applicable if none of its premises are Undecided and
+// its Undercut property is Out. Because arguments can be cumulative, arguments
+// with Out premises can be applicable. Out premises affect the weight of an
+// argument, not its applicability.
 func (arg *Argument) Applicable(l Labelling) bool {
 	if arg.Undercut(l) != Out {
 		return false

@@ -341,7 +341,7 @@ func TestSelfDefeat2(t *testing.T) {
 	l := ag.GroundedLabelling()
 	expected := l[&P] == caes.Out && l[&notP] == caes.Out
 	if !expected {
-		t.Errorf("TestOddLoop2 failed\n")
+		t.Errorf("TestSelfDefeat2 failed\n")
 		fmt.Printf("label(P)=%v\n", l[&P])
 		fmt.Printf("label(not P)=%v\n", l[&notP])
 	}
