@@ -16,6 +16,7 @@ const (
 type Metadata map[string]string
 
 type Issue struct {
+	Metadata Metadata
 	Positions []*Statement
 	Standard  Standard
 }
