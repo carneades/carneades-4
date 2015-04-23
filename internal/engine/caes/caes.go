@@ -16,12 +16,14 @@ const (
 type Metadata map[string]string
 
 type Issue struct {
-	Metadata Metadata
+	Id        string
+	Metadata  Metadata
 	Positions []*Statement
 	Standard  Standard
 }
 
 type Statement struct {
+	Id       string
 	Metadata Metadata
 	Text     string // natural language
 	Assumed  bool
@@ -41,6 +43,7 @@ type Premise struct {
 }
 
 type Argument struct {
+	Id         string
 	Metadata   Metadata
 	Scheme     *Scheme
 	Premises   []Premise
