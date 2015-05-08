@@ -13,7 +13,7 @@ const (
 	BRD                 // beyond reasonable doubt
 )
 
-type Metadata map[string]string
+type Metadata map[string]interface{}
 
 type Issue struct {
 	Id        string
