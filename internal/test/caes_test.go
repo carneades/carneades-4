@@ -423,3 +423,52 @@ func TestReinstatement2(t *testing.T) {
 		fmt.Printf("label(not P)=%v\n", l[&notP])
 	}
 }
+
+func TestSupportLoop(t *testing.T) {
+	var a1, a2 caes.Argument
+	var P = caes.Statement{Text: "P", Args: []*caes.Argument{&a1}}
+	var Q = caes.Statement{Text: "Q", Args: []*caes.Argument{&a2}}
+	a1 = caes.Argument{
+		Conclusion: &P,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &Q}}}
+	a2 = caes.Argument{
+		Conclusion: &Q,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &P}}}
+	var ag = caes.ArgGraph{
+		Statements: []*caes.Statement{&P, &Q},
+		Arguments:  []*caes.Argument{&a1, &a2}}
+	l := ag.GroundedLabelling()
+	expected := l[&P] == caes.Out && l[&Q] == caes.Out
+	if !expected {
+		t.Errorf("TestSupportLoop failed\n")
+		fmt.Printf("label(P)=%v\n", l[&P])
+		fmt.Printf("label(Q)=%v\n", l[&Q])
+	}
+}
+
+func TestIndependentSupportLoop(t *testing.T) {
+	var a1, a2, a3 caes.Argument
+	var P = caes.Statement{Text: "P", Args: []*caes.Argument{&a1, &a3}}
+	var Q = caes.Statement{Text: "Q", Args: []*caes.Argument{&a2}}
+	var R = caes.Statement{Text: "R", Assumed: true}
+	a1 = caes.Argument{
+		Conclusion: &P,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &Q}}}
+	a2 = caes.Argument{
+		Conclusion: &Q,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &P}}}
+	a3 = caes.Argument{
+		Conclusion: &P,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &R}}}
+	var ag = caes.ArgGraph{
+		Statements: []*caes.Statement{&P, &Q, &R},
+		Arguments:  []*caes.Argument{&a1, &a2, &a3}}
+	l := ag.GroundedLabelling()
+	expected := l[&P] == caes.In && l[&Q] == caes.In && l[&R] == caes.In
+	if !expected {
+		t.Errorf("TestIndependentSupportLoop failed\n")
+		fmt.Printf("label(P)=%v\n", l[&P])
+		fmt.Printf("label(Q)=%v\n", l[&Q])
+		fmt.Printf("label(R)=%v\n", l[&R])
+	}
+}
