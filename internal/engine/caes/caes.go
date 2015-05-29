@@ -29,6 +29,7 @@ type Statement struct {
 	Assumed  bool
 	Issue    *Issue      // nil if not at issue
 	Args     []*Argument // concluding with this statement
+	Value    Label       // for storing evaluation results
 }
 
 type Scheme struct {
@@ -49,6 +50,7 @@ type Argument struct {
 	Premises   []Premise
 	Conclusion *Statement
 	NotAppStmt *Statement
+	Value      float64 // for storing the evaluation results
 }
 
 type ArgGraph struct {
