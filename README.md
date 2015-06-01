@@ -9,9 +9,6 @@ License, version 2.0 (MPL-2.0). If a copy of the MPL was not
 distributed with this software, it is also available online at
 <http://mozilla.org/MPL/2.0/>.  For futher information about the MPL see <http://www.mozilla.org/MPL/2.0/FAQ.html>.
 
-For further information about the Carneades project see
-<http://carneades.github.io>.
-
 Currently, this version of Carneades consists of an
 implementation of solvers for Dung abstract argumentation frameworks,
 using grounded, complete, preferred and stable semantics.
