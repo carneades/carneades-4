@@ -1,7 +1,6 @@
 
-These are the source files of an experimental version of the
+These are the source files of Version 4 of the
 Carneades argumentation system, written in the Go programming language.
-Depending on the results of this experiment, this may become version 4 of Carneades.
 
 Copyright © 2015 Fraunhofer Gesellschaft 
 
@@ -18,8 +17,7 @@ implementation of solvers for Dung abstract argumentation frameworks,
 using grounded, complete, preferred and stable semantics.
 
 Please see the Carneades blog at <https://carneades.github.io/> for
-possible announcements about a roadmap for developing this
-experimental version further. 
+announcements about the further development of this version.
 
 See the INSTALL.md file in the same directory as this README for
 installation instructions.
