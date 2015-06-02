@@ -1,6 +1,13 @@
+// Copyright © 2015 The Carneades Authors
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain one
+// at http://mozilla.org/MPL/2.0/.
+
 // Carneades Argument Evaluation Structure (CAES)
 // This version of CAES supports cyclic argument graphs,
 // cumulative arguments and IBIS.
+
 package caes
 
 // Proof Standards
