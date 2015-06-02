@@ -2,8 +2,6 @@
 These are the source files of Version 4 of the
 Carneades argumentation system, written in the Go programming language.
 
-Copyright © 2015 Fraunhofer Gesellschaft 
-
 This source code is subject to the terms of the Mozilla Public
 License, version 2.0 (MPL-2.0). If a copy of the MPL was not
 distributed with this software, it is also available online at
