@@ -8,7 +8,7 @@ distributed with this software, it is also available online at
 <http://mozilla.org/MPL/2.0/>.  For futher information about the MPL see <http://www.mozilla.org/MPL/2.0/FAQ.html>.
 
 Currently, this version of Carneades consists of an
-implementation of solvers for Dung abstract argumentation frameworks,
+implementation of a solver for Dung abstract argumentation frameworks,
 using grounded, complete, preferred and stable semantics.
 
 Please see the Carneades blog at <https://carneades.github.io/> for
