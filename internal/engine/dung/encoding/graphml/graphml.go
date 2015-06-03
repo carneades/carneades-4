@@ -9,7 +9,7 @@ package graphml
 
 import (
 	"fmt"
-	"github.com/carneades/carneades-go/internal/engine/dung"
+	"github.com/carneades/carneades-4/internal/engine/dung"
 	"io"
 )
 

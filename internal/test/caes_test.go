@@ -7,7 +7,7 @@
 package test
 
 import (
-	"github.com/carneades/carneades-go/internal/engine/caes"
+	"github.com/carneades/carneades-4/internal/engine/caes"
 	// "log"
 	// "os"
 	"fmt"

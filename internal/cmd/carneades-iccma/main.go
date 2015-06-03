@@ -9,9 +9,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/carneades/carneades-go/internal/engine/dung"
-	"github.com/carneades/carneades-go/internal/engine/dung/encoding/graphml"
-	"github.com/carneades/carneades-go/internal/engine/dung/encoding/tgf"
+	"github.com/carneades/carneades-4/internal/engine/dung"
+	"github.com/carneades/carneades-4/internal/engine/dung/encoding/graphml"
+	"github.com/carneades/carneades-4/internal/engine/dung/encoding/tgf"
 	"log"
 	"os"
 	"path/filepath"
