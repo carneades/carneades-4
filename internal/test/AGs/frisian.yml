@@ -1,0 +1,27 @@
+meta:
+  title: The Frisian Example
+  source: > 
+    Prakken, H. An abstract framework for argumentation with 
+    structured arguments. Argument & Computation 1, (2010), 93-124.
+
+statements: 
+  dutch: 
+    text: Wiebe is Dutch.
+    value: in
+  tall: 
+    text: Wiebe is tall.
+    value: in
+  frisian: 
+    text: Wiebe is Frisian.
+
+assumptions: [frisian]
+
+arguments:
+  a1: 
+    conclusion: dutch
+    premises: [frisian]
+  a2:
+    conclusion: tall
+    premises: [dutch]
+
+

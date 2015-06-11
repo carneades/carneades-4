@@ -128,7 +128,7 @@ func TestFrisian(t *testing.T) {
 		Text: "Wiebe is Dutch.",
 		Args: []*caes.Argument{&a1}}
 	var tall = caes.Statement{
-		Text: "Wiebe is Tall.",
+		Text: "Wiebe is tall.",
 		Args: []*caes.Argument{&a2}}
 	var frisian = caes.Statement{Text: "Wiebe is Frisian.", Assumed: true}
 	a1 = caes.Argument{

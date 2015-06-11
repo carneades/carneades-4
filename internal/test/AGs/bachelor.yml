@@ -1,0 +1,34 @@
+meta:
+  title: The Bachelor Example
+  source: > 
+    Prakken, H. An abstract framework for argumentation with 
+    structured arguments. Argument & Computation 1, (2010), 93-124.
+
+statements: 
+  bachelor: 
+    text: Fred is a bachelor.
+    value: out
+  married: 
+    text: Fred is married.
+    value: out
+  wearsRing: Fred wears a ring.
+  partyAnimal: Fred is a party animal.
+
+assumptions: [wearsRing, partyAnimal]
+
+issues: 
+  i1: 
+    positions: 
+      - married
+      - bachelor
+    standard: PE
+
+arguments:
+  a1: 
+    conclusion: bachelor
+    premises: [partyAnimal]
+  a2:
+    conclusion: married
+    premises: [wearsRing]
+
+

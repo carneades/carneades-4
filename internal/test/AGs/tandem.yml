@@ -1,0 +1,56 @@
+meta: 
+  title: Tandem Bicycle Example 
+  source: "Baroni, P., Caminada, M., and Giacomin, M. An introduction
+    to argumentation semantics. The Knowledge Engineering Review, 26,
+    4 (2011), 365-410."
+
+statements:
+  jw: 
+    text: John wants to ride on the tandem.
+    assumed: true
+  mw: 
+    text: Mary wants to ride on the tandem.
+    assumed: true
+  sw: 
+    text: Suzy wants to ride on the tandem.
+    assumed: true
+  jt: 
+    text: John is riding on the tandem.
+  mt: 
+    text: Mary is riding on the tandem.
+  st: 
+    text: Suzy is riding on the tandem.
+  jmt: 
+    text: John and Mary are riding on the tandem.
+    value: out
+  jst: 
+    text: John and Suzy are riding on the tandem.
+    value: out
+  mst: 
+    text: Mary and Suzy are riding on the tandem.
+    value: out
+
+issues:
+  i1:
+    positions: [jmt, jst, mst]
+    standard: PE
+
+arguments:
+  a1:
+    conclusion: jt
+    premises: [jw]
+  a2:
+    conclusion: mt
+    premises: [mw]
+  a3:
+    conclusion: st
+    premises: [sw]
+  a4:
+    conclusion: jmt
+    premises: [jt,mt]
+  a5:
+    conclusion: jst
+    premises: [jt,st]
+  a6:
+    conclusion: mst
+    premises: [mt,st]
