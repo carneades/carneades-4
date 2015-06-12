@@ -36,7 +36,7 @@ type Statement struct {
 	Assumed  bool
 	Issue    *Issue      // nil if not at issue
 	Args     []*Argument // concluding with this statement
-	Value    Label       // for storing the evaluated label
+	Label    Label       // for storing the evaluated label
 }
 
 type Scheme struct {
@@ -57,7 +57,7 @@ type Argument struct {
 	Premises   []Premise
 	Conclusion *Statement
 	NotAppStmt *Statement
-	Value      float64 // for storing the evaluated argument weight
+	Weight     float64 // for storing the evaluated argument weight
 }
 
 type ArgGraph struct {
@@ -192,7 +192,7 @@ func (issue *Issue) Resolve(l Labelling) {
 	for _, p := range issue.Positions {
 		maxArgWeight[p] = 0.0
 		for _, arg := range p.Args {
-			w := arg.Weight(l)
+			w := arg.GetWeight(l)
 			if w > maxArgWeight[p] {
 				maxArgWeight[p] = w
 			}
@@ -244,7 +244,7 @@ func eval(arg *Argument, l Labelling) float64 {
 // Otherwise it has the weight assigned by the evaluator of its
 // scheme, or the weight assigned by the default evaluator, if it has
 // no scheme.
-func (arg *Argument) Weight(l Labelling) float64 {
+func (arg *Argument) GetWeight(l Labelling) float64 {
 	if arg.Undercut(l) == In || !arg.Applicable(l) {
 		return 0.0
 	} else if arg.Scheme != nil {
@@ -258,7 +258,7 @@ func (arg *Argument) Weight(l Labelling) float64 {
 // argument with weight greater than 0.0.
 func (stmt *Statement) Supported(l Labelling) bool {
 	for _, arg := range stmt.Args {
-		if arg.Weight(l) > 0 {
+		if arg.GetWeight(l) > 0 {
 			return true
 		}
 	}

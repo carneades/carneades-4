@@ -7,10 +7,10 @@ meta:
 statements: 
   italy: 
     text: "Let's go to Italy."
-    value: out
+    label: out
   greece: 
     text: "Let's go to Greece."
-    value: out
+    label: out
 
 issues:
   i1:
