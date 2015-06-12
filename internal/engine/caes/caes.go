@@ -50,7 +50,7 @@ type Premise struct {
 	Role string // e.g. major, minor
 }
 
-type Weight *float64 // nil means no weight has been assigned
+type Weight *float64 // [0.0,1.0]. nil means no weight has been assigned
 
 type Argument struct {
 	Id         string
@@ -59,7 +59,7 @@ type Argument struct {
 	Premises   []Premise
 	Conclusion *Statement
 	NotAppStmt *Statement
-	Weight     Weight // for storing the evaluated argument weight
+	Weight     Weight // overrides the computed weighed if not nil
 }
 
 type ArgGraph struct {
