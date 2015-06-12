@@ -50,6 +50,8 @@ type Premise struct {
 	Role string // e.g. major, minor
 }
 
+type Weight *float64 // nil means no weight has been assigned
+
 type Argument struct {
 	Id         string
 	Metadata   Metadata
@@ -57,7 +59,7 @@ type Argument struct {
 	Premises   []Premise
 	Conclusion *Statement
 	NotAppStmt *Statement
-	Weight     float64 // for storing the evaluated argument weight
+	Weight     Weight // for storing the evaluated argument weight
 }
 
 type ArgGraph struct {
@@ -241,12 +243,15 @@ func eval(arg *Argument, l Labelling) float64 {
 }
 
 // A argument has 0.0 weight if it is undercut or inapplicable.
-// Otherwise it has the weight assigned by the evaluator of its
-// scheme, or the weight assigned by the default evaluator, if it has
-// no scheme.
+// Otherwise it has the weight assigned by the audience, if a weight
+// has been assigned. Otherwise it is the weight assigned by the evaluator of its
+// scheme, if a scheme has been applied.  Otherwise it is the weight assigned
+// by the default evaluator
 func (arg *Argument) GetWeight(l Labelling) float64 {
 	if arg.Undercut(l) == In || !arg.Applicable(l) {
 		return 0.0
+	} else if arg.Weight != nil {
+		return *arg.Weight
 	} else if arg.Scheme != nil {
 		return arg.Scheme.Eval(arg, l)
 	} else {
