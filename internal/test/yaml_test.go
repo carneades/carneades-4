@@ -13,15 +13,32 @@ import (
 func check(t *testing.T, e error) {
 	if e != nil {
 		t.Errorf(e.Error())
+		t.Skip("Skip Test")
 	}
 }
 
 func TestIOTandem(t *testing.T) {
-	ioTest(t, "AGs/Tandem.yml", "AGs/OutTandem.yml")
+	ioTest(t, "AGs/Tandem.yml", "AGs/TempTandem.yml")
 }
 
 func TestIOBachelor(t *testing.T) {
-	ioTest(t, "AGs/Bachelor.yml", "AGs/OutBachelor.yml")
+	ioTest(t, "AGs/Bachelor.yml", "AGs/TempBachelor.yml")
+}
+
+func TestIOFrisan(t *testing.T) {
+	ioTest(t, "AGs/frisian.yml", "AGs/TempFrisian.yml")
+}
+
+func TestIOJogging(t *testing.T) {
+	ioTest(t, "AGs/jogging.yml", "AGs/TempJogging.yml")
+}
+
+func TestIOSherlock(t *testing.T) {
+	ioTest(t, "AGs/sherlock02.yml", "AGs/TempSherlock02.yml")
+}
+
+func TestIOVacation(t *testing.T) {
+	ioTest(t, "AGs/vacation.yml", "AGs/TempVacation.yml")
 }
 
 func checkLabeling(l caes.Labelling, stats []*caes.Statement) error {
@@ -56,16 +73,17 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 	var err error
 
 	file, err := os.Open(filename1)
+	check(t, err)
 	ag, err = yaml.Import(file)
 	check(t, err)
 	//	fmt.Printf("---------- WriteArgGraph %s ----------\n", filename1)
 	//	yaml.ExportWithReferences(os.Stdout, ag)
 	//	fmt.Printf("---------- End: WriteArgGraph %s ----------\n", filename1)
 	l := ag.GroundedLabelling()
-	fmt.Printf("---------- printLabeling %s ----------\n", filename1)
-	printLabeling(l)
+	//	fmt.Printf("---------- printLabeling %s ----------\n", filename1)
+	//	printLabeling(l)
+	//	fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
 
-	fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
 	err = checkLabeling(l, ag.Statements)
 	check(t, err)
 	//	fmt.Printf("---------- Write ArgGraph 2 Yaml: %s ----------\n", filename1)
@@ -79,13 +97,14 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 	file, err = os.Open(filename2)
 	check(t, err)
 	ag, err = yaml.Import(file)
-	fmt.Printf("---------- WriteArgGraph %s ----------\n", filename2)
-	yaml.ExportWithReferences(os.Stdout, ag)
-	fmt.Printf("---------- End: WriteArgGraph %s ----------\n", filename2)
+	check(t, err)
+	//	fmt.Printf("---------- WriteArgGraph 02  %s ----------\n", filename2)
+	//	yaml.ExportWithReferences(os.Stdout, ag)
+	//	fmt.Printf("---------- End: WriteArgGraph 02 %s ----------\n", filename2)
 	l = ag.GroundedLabelling()
-	fmt.Printf("---------- printLabeling %s ----------\n", filename2)
-	printLabeling(l)
-	fmt.Printf("---------- End: printLabeling %s ----------\n", filename2)
+	// fmt.Printf("---------- printLabeling %s ----------\n", filename2)
+	// printLabeling(l)
+	// fmt.Printf("---------- End: printLabeling %s ----------\n", filename2)
 	err = checkLabeling(l, ag.Statements)
 	check(t, err)
 	//	fmt.Printf("---------- Write ArgGraph 2 Yaml: %s ----------\n", filename2)
