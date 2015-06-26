@@ -3,7 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
-	"github.com/carneades/carneades-4/internal/engine/dung/encoding/yaml"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	//	"log"
 	"errors"
 	"os"
