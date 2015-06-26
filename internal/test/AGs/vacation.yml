@@ -15,5 +15,5 @@ statements:
 issues:
   i1:
     positions: [italy, greece]
-
+    standard: PE
 
