@@ -7,10 +7,10 @@ meta:
 statements: 
   dutch: 
     text: Wiebe is Dutch.
-    value: in
+    label: in
   tall: 
     text: Wiebe is tall.
-    value: in
+    label: in
   frisian: 
     text: Wiebe is Frisian.
 

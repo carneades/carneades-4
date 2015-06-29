@@ -22,7 +22,7 @@ statements:
     text: Suzy is riding on the tandem.
   jmt: 
     text: John and Mary are riding on the tandem.
-    value: out
+    label: out
   jst: 
     text: John and Suzy are riding on the tandem.
     value: out
