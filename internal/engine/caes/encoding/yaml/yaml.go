@@ -14,7 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
-	"github.com/yaml-2/yaml-2"
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	//	"log"

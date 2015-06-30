@@ -71,10 +71,10 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 
 	var ag *caes.ArgGraph
 	var err error
-
 	file, err := os.Open(filename1)
 	check(t, err)
 	ag, err = yaml.Import(file)
+
 	check(t, err)
 	//	fmt.Printf("---------- WriteArgGraph %s ----------\n", filename1)
 	//	yaml.ExportWithReferences(os.Stdout, ag)

@@ -54,3 +54,4 @@ arguments:
   a6:
     conclusion: mst
     premises: [mt,st]
+
