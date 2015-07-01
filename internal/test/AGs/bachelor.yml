@@ -7,10 +7,10 @@ meta:
 statements: 
   bachelor: 
     text: Fred is a bachelor.
-    value: out
+    label: out
   married: 
     text: Fred is married.
-    value: out
+    label: out
   wearsRing: Fred wears a ring.
   partyAnimal: Fred is a party animal.
 

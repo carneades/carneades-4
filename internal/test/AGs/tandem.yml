@@ -25,10 +25,10 @@ statements:
     label: out
   jst: 
     text: John and Suzy are riding on the tandem.
-    value: out
+    label: out
   mst: 
     text: Mary and Suzy are riding on the tandem.
-    value: out
+    label: out
 
 issues:
   i1:

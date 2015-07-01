@@ -30,7 +30,7 @@ Use "carneades help [topic]" for more information about that topic.
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Printf("%s %s\nfor further information try 'carneades help'\n", name, version)
+		fmt.Printf("%s %s\nFor further information try 'carneades help'\n", name, version)
 		return
 	}
 
