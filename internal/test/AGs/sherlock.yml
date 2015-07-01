@@ -29,13 +29,13 @@ arguments:
   a3: 
     conclusion: wasInWarmerClimate
     premises: [notNaturalSkinColor, warmerClimate, sunNecessary]
-  a3: 
+  a4: 
     conclusion: hardship
     premises: [haggard]
-  a4:
+  a5:
     conclusion: injured
     premises: [stiffArm]
-  a5:
+  a6:
     conclusion: Afghanistan
     premises: [armyDoctor, hardship, injured, wasInWarmerClimate]
 

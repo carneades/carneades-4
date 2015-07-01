@@ -14,12 +14,12 @@ statements:
   sw: 
     text: Suzy wants to ride on the tandem.
     assumed: true
-  jt: 
-    text: John is riding on the tandem.
-  mt: 
-    text: Mary is riding on the tandem.
-  st: 
-    text: Suzy is riding on the tandem.
+  jt: John is riding on the tandem.
+  ¬jt: John is not riding on the tandem. 
+  mt: Mary is riding on the tandem.
+  ¬mt: Mary is not riding on the tandem.
+  st: Suzy is riding on the tandem.
+  ¬st: Suzy is not riding on the tandem.
   jmt: 
     text: John and Mary are riding on the tandem.
     label: out
@@ -34,6 +34,12 @@ issues:
   i1:
     positions: [jmt, jst, mst]
     standard: PE
+  i2: 
+    positions: [jt, ¬jt]
+  i3:
+    positions: [mt, ¬mt]
+  i4:
+    positions: [st, ¬st]
 
 arguments:
   a1:
@@ -54,4 +60,15 @@ arguments:
   a6:
     conclusion: mst
     premises: [mt,st]
+  a7:
+    conclusion: ¬jt
+    premises: [mst]
+  a8:
+    conclusion: ¬mt
+    premises: [jst]
+  a9:
+    conclusion: ¬st
+    premises: [jmt]
+
+
 

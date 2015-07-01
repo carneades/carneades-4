@@ -127,6 +127,15 @@ func (l Labelling) init(ag *ArgGraph) {
 	}
 }
 
+// Apply a labelling to an argument graph by setting
+// the label property of each statement in the graph to
+// its label in the labelling
+func (ag ArgGraph) ApplyLabelling(l Labelling) {
+	for _, s := range ag.Statements {
+		s.Label = l.Get(s)
+	}
+}
+
 // Returns In if the argument has been undercut, Out if the argument is
 // not at issue or attempts to undercut it have failed, and Undecided otherwise
 func (arg *Argument) Undercut(l Labelling) Label {

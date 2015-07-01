@@ -98,6 +98,11 @@ func evalCmd() {
 		return
 	}
 
+	// evaluate the argument graph, using grounded semantics
+	// and update the labels of the statements in the argument graph
+	l := ag.GroundedLabelling()
+	ag.ApplyLabelling(l)
+
 	switch *toFlag {
 	case "yaml":
 		yaml.Export(outFile, ag)
