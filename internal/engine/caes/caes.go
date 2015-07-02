@@ -45,6 +45,84 @@ type Scheme struct {
 	Valid    func(*Argument) bool
 }
 
+func DefaultValidityCheck(*Argument) bool {
+	return true
+}
+
+func LinkedArgument(arg *Argument, l Labelling) float64 {
+	for _, p := range arg.Premises {
+		if l.Get(p.Stmt) != In {
+			return 0.0
+		}
+	}
+	return 1.0
+}
+
+func ConvergentArgument(arg *Argument, l Labelling) float64 {
+	for _, p := range arg.Premises {
+		if l.Get(p.Stmt) == In {
+			return 1.0
+		}
+	}
+	return 0.0
+}
+
+func CumulativeArgument(arg *Argument, l Labelling) float64 {
+	n := len(arg.Premises)
+	m := 0
+	for _, p := range arg.Premises {
+		if l.Get(p.Stmt) == In {
+			m++
+		}
+	}
+	return float64(m) / float64(n)
+}
+
+// Find the maximum number of premises of the arguments about positions
+// of the given issue.
+func maxPremises(issue *Issue) int {
+	m := 0
+	for _, p := range issue.Positions {
+		for _, arg := range p.Args {
+			n := len(arg.Premises)
+			if n > m {
+				m = n
+			}
+		}
+	}
+	return m
+}
+
+// A factorized argument, like a linked argument, has no weight unless all
+// of its premises are labelled In. If all the premises are in, the weight
+// of the argument depends on the number of its premises, compared to
+// other arguments about the same issue. The greater the number of premises,
+// relative to the other arguments, the greater the weight of the argument.
+// See the jogging example for an illustration of its use.  Can be used
+// to simulate HYPO-style case-based reasoning.
+func FactorizedArgument(arg *Argument, l Labelling) float64 {
+	n := maxPremises(arg.Conclusion.Issue)
+	m := 0
+	for _, p := range arg.Premises {
+		switch l.Get(p.Stmt) {
+		case In:
+			m++
+		case Out:
+			return 0.0
+		default:
+			continue
+		}
+	}
+	return float64(m) / float64(n)
+}
+
+var BasicSchemes = map[string]Scheme{
+	"linked":     Scheme{Eval: LinkedArgument, Valid: DefaultValidityCheck},
+	"convergent": Scheme{Eval: ConvergentArgument, Valid: DefaultValidityCheck},
+	"cumulative": Scheme{Eval: CumulativeArgument, Valid: DefaultValidityCheck},
+	"factorized": Scheme{Eval: FactorizedArgument, Valid: DefaultValidityCheck},
+}
+
 type Premise struct {
 	Stmt *Statement
 	Role string // e.g. major, minor
@@ -238,19 +316,6 @@ PositionLoop:
 	}
 }
 
-// The default argument evaluator. Handles the argument as
-// noncumulative. Returns 1 if all premises are In.
-// Returns 0 otherwise. Does not check whether the
-// argument has been undercut.
-func eval(arg *Argument, l Labelling) float64 {
-	for _, p := range arg.Premises {
-		if l[p.Stmt] != In {
-			return 0.0
-		}
-	}
-	return 1
-}
-
 // A argument has 0.0 weight if it is undercut or inapplicable.
 // Otherwise it has the weight assigned by the audience, if a weight
 // has been assigned. Otherwise it is the weight assigned by the evaluator of its
@@ -264,7 +329,7 @@ func (arg *Argument) GetWeight(l Labelling) float64 {
 	} else if arg.Scheme != nil {
 		return arg.Scheme.Eval(arg, l)
 	} else {
-		return eval(arg, l)
+		return LinkedArgument(arg, l) // the default argument evaluator
 	}
 }
 

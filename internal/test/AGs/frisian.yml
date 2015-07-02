@@ -11,8 +11,8 @@ statements:
   tall: 
     text: Wiebe is tall.
     label: in
-  frisian: 
-    text: Wiebe is Frisian.
+  frisian: Wiebe is Frisian.
+  ¬app(a1): a1 is not applicable.
 
 assumptions: [frisian]
 
@@ -20,6 +20,7 @@ arguments:
   a1: 
     conclusion: dutch
     premises: [frisian]
+    nas: ¬app(a1)
   a2:
     conclusion: tall
     premises: [dutch]

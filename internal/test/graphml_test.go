@@ -19,11 +19,11 @@ func gmlcheck(t *testing.T, e error) {
 }
 
 func TestIOGmlTandem(t *testing.T) {
-	ioGmlTest(t, "AGs/Tandem.yml", "AGs/TempTandem.graphml")
+	ioGmlTest(t, "AGs/tandem.yml", "AGs/TempTandem.graphml")
 }
 
 func TestIOGmlBachelor(t *testing.T) {
-	ioGmlTest(t, "AGs/Bachelor.yml", "AGs/TempBachelor.graphml")
+	ioGmlTest(t, "AGs/bachelor.yml", "AGs/TempBachelor.graphml")
 }
 
 func TestIOGmlFrisan(t *testing.T) {
@@ -35,7 +35,7 @@ func TestIOGmlJogging(t *testing.T) {
 }
 
 func TestIOGmlSherlock(t *testing.T) {
-	ioGmlTest(t, "AGs/sherlock02.yml", "AGs/TempSherlock02.graphml")
+	ioGmlTest(t, "AGs/sherlock.yml", "AGs/TempSherlock.graphml")
 }
 
 func TestIOGmlVacation(t *testing.T) {

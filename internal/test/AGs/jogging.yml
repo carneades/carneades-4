@@ -18,19 +18,19 @@ issues:
 
 arguments:
   a1:
+    scheme: factorized
     conclusion: ¬jog
     premises: [rain]
-    weight: 0.6
 
   a2: 
+    scheme: factorized
     conclusion: ¬jog
     premises: [hot]
-    weight: 0.6
 
   a3:
+    scheme: factorized
     conclusion: jog
     premises: [rain, hot]
-    weight: 0.7
 
 assumptions: [rain, hot]
 

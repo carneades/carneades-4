@@ -18,11 +18,11 @@ func check(t *testing.T, e error) {
 }
 
 func TestIOTandem(t *testing.T) {
-	ioTest(t, "AGs/Tandem.yml", "AGs/TempTandem.yml")
+	ioTest(t, "AGs/tandem.yml", "AGs/TempTandem.yml")
 }
 
 func TestIOBachelor(t *testing.T) {
-	ioTest(t, "AGs/Bachelor.yml", "AGs/TempBachelor.yml")
+	ioTest(t, "AGs/bachelor.yml", "AGs/TempBachelor.yml")
 }
 
 func TestIOFrisan(t *testing.T) {
@@ -34,7 +34,7 @@ func TestIOJogging(t *testing.T) {
 }
 
 func TestIOSherlock(t *testing.T) {
-	ioTest(t, "AGs/sherlock02.yml", "AGs/TempSherlock02.yml")
+	ioTest(t, "AGs/sherlock.yml", "AGs/TempSherlock.yml")
 }
 
 func TestIOVacation(t *testing.T) {
