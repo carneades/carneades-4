@@ -128,8 +128,6 @@ type Premise struct {
 	Role string // e.g. major, minor
 }
 
-type Weight *float64 // [0.0,1.0]. nil means no weight has been assigned
-
 type Argument struct {
 	Id         string
 	Metadata   Metadata
@@ -137,7 +135,7 @@ type Argument struct {
 	Premises   []Premise
 	Conclusion *Statement
 	NotAppStmt *Statement
-	Weight     Weight // overrides the computed weighed if not nil
+	Weight     float64 // for storing the evaluated weight
 }
 
 type ArgGraph struct {
@@ -207,10 +205,15 @@ func (l Labelling) init(ag *ArgGraph) {
 
 // Apply a labelling to an argument graph by setting
 // the label property of each statement in the graph to
-// its label in the labelling
+// its label in the labelling and by setting the weight
+// of each argument in the graph to its evaluated weight
+// in the labeling.
 func (ag ArgGraph) ApplyLabelling(l Labelling) {
 	for _, s := range ag.Statements {
 		s.Label = l.Get(s)
+	}
+	for _, arg := range ag.Arguments {
+		arg.Weight = arg.GetWeight(l)
 	}
 }
 
@@ -317,15 +320,12 @@ PositionLoop:
 }
 
 // A argument has 0.0 weight if it is undercut or inapplicable.
-// Otherwise it has the weight assigned by the audience, if a weight
-// has been assigned. Otherwise it is the weight assigned by the evaluator of its
-// scheme, if a scheme has been applied.  Otherwise it is the weight assigned
-// by the default evaluator
+// Otherwise, if a scheme has been applied, it is the weight assigned by
+// the evaluator of the scheme.  Otherwise it is the weight assigned
+// by the default evaluator, LinkedArgument.
 func (arg *Argument) GetWeight(l Labelling) float64 {
 	if arg.Undercut(l) == In || !arg.Applicable(l) {
 		return 0.0
-	} else if arg.Weight != nil {
-		return *arg.Weight
 	} else if arg.Scheme != nil {
 		return arg.Scheme.Eval(arg, l)
 	} else {
