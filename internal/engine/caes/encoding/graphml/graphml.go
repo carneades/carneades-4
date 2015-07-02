@@ -15,9 +15,11 @@ import (
 )
 
 const (
-	black = "#000000"
-	red   = "#FF0000"
-	green = "#339966"
+	black  = "#000000"
+	red    = "#FF0000"
+	green  = "#3AB54A"
+	yellow = "#FCEE21"
+
 	white = "#008000"
 	// line type
 	line   = "line"
@@ -29,6 +31,8 @@ const (
 	//
 	noArrow   = "none"
 	withArrow = "standard"
+	// font
+	font = "Dialog"
 	// shapeType
 	diamond   = "diamond"
 	rectangle = "rectangle"
@@ -47,12 +51,13 @@ type gmlEdge struct {
 }
 
 type gmlNode struct {
-	id          string
-	color       string
-	borderLine  string
-	borderWidth string
-	nodeLabel   string
-	shapeType   string
+	id              string
+	color           string
+	borderLine      string
+	borderWidth     string
+	nodeLabel       string
+	underlinedLabel bool
+	shapeType       string
 }
 
 var graphNr, nodeNr, edgeNr int
@@ -65,7 +70,8 @@ func newGmlNode() gmlNode {
 		borderLine:  line,
 		borderWidth: thinLine,
 		// nodeLabel: "",
-		shapeType: rectangle,
+		underlinedLabel: false,
+		shapeType:       rectangle,
 	}
 }
 
@@ -157,8 +163,12 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			node.borderWidth+
 			"\"/>")
 
-		p(w, "      <y:NodeLabel >"+node.nodeLabel+"</y:NodeLabel>",
-			"       <y:Shape type=\""+node.shapeType+"\"/>",
+		if node.underlinedLabel {
+			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">"+node.nodeLabel+"</y:NodeLabel>")
+		} else {
+			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" >"+node.nodeLabel+"</y:NodeLabel>")
+		}
+		p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
 			"       </y:ShapeNode>",
 			"       </data>",
 			"   </node>")
@@ -203,14 +213,15 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 		stat2Node[stat.Id] = nNode.id
 		nNode.nodeLabel = stat.Id
 		if stat.Assumed {
-			nNode.borderWidth = boldLine
+			nNode.underlinedLabel = true
 		}
 		switch stat.Label {
 		case caes.Out:
 			nNode.color = red
 		case caes.In:
 			nNode.color = green
-			// case caes.Undecided:
+		case caes.Undecided:
+			nNode.color = yellow
 		}
 		if firstNode {
 			nodes = []gmlNode{nNode}
