@@ -1,5 +1,5 @@
 
-These are instructions for building and running the Carneades-4.  
+These are instructions for building and running Carneades-4.  
 
 ## Prerequisites
 
