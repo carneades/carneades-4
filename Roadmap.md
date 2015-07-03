@@ -3,8 +3,8 @@
 
 - Dung abstract argumentation frameworks
 - Semantics: grounded, complete, preferred, stable
-- import: Trivial Graph Format (TGF)
-- export: GraphML
+- Import: Trivial Graph Format (TGF)
+- Export: GraphML
 
 # v4.1
 
