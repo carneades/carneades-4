@@ -21,11 +21,11 @@ Usage: carneades command [arguments]
 
 The commands are:
 
-eval - evaluate an argument graph
+eval - evaluate a structured argument graph
 dung - compute extensions of a Dung abstract argumentation framework
 help - displays instructions
 
-Use "carneades help [topic]" for more information about that topic.
+Execute "carneades help [command]" for further information.
 `
 
 func main() {
@@ -37,7 +37,8 @@ func main() {
 	switch os.Args[1] {
 	case "eval":
 		evalCmd()
-	// case "dung": dungCmd()
+	case "dung":
+		dungCmd()
 	default:
 		if len(os.Args) == 2 {
 			fmt.Printf("%s\n", help)
@@ -45,6 +46,8 @@ func main() {
 			switch os.Args[2] {
 			case "eval":
 				fmt.Printf("%s\n", helpEval)
+			case "dung":
+				fmt.Printf("%s\n", helpDung)
 			default:
 				fmt.Printf("%s\n", help)
 			}

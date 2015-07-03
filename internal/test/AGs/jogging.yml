@@ -28,7 +28,7 @@ arguments:
     premises: [hot]
 
   a3:
-    scheme: factorized
+    scheme: auto
     conclusion: jog
     premises: [rain, hot]
 

@@ -1,7 +1,8 @@
 meta: 
   title: "The Sherlock Holmes Example" 
-  source: "Doyle, A. C. (1932). The Complete Sherlock Holmes: The
-    Memorial Edition. Garden City, New York: Doubleday, Doran & Co."
+  source: > 
+      Doyle, A. C. (1932). The Complete Sherlock Holmes: 
+      The Memorial Edition. Garden City, New York: Doubleday, Doran & Co.
 
 statements: 
   gentleman: Watson is a gentleman of medical type but with the air of a military man.
