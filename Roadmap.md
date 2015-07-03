@@ -15,14 +15,27 @@
     * Issue-based Information Systems (IBIS)
     * Multicriteria Decision-Making (MCDM)
 - Import
+    * Simple, plain text format, based on YAML
     * Carneades Argument Format (CAF), extended to handle the new model
     * Argument Interchange Format (AIF), JSON serialization
-    * Simple, plain text format, based on YAML
+
 - Export
     * GraphML
     * YAML/Markdown
 
 # v4.2
+
+- argument graph upload to CoachDB repositories
+- argument graph search and retrieval
+
+# v4.3
+
+- Language for representing argumentation schemes, based on Datalog
+- Argument construction, via a Datalog inference engine
+- Argument validation, by matching arguments to schemes
+- Goal selection, based on: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
+
+# v4.4
 
 - Structured survey tool, similar to Parmenides
 - Based on design in: Gordon, T. F. (2013). Structured Consultation
@@ -30,17 +43,13 @@
   From Knowledge Representation to Argumentation in AI, Law and Policy
   Making (pp. 115–134). College Publications.
 
-# v4.3
+# v4.5
 
 - Static website generator, for browsing argument graphs
-- Similar to Jeykll <http://jekyllrb.com/> and Hugo <http://gohugo.io/>
-- Views: hypertext and argument maps (diagrams)
-- No Carneades Web service required
+- Views: hypertext and argument maps in SVG
+- No Carneades web services will be required
 - Static pages may be uploaded to any Web server, e.g. via FTP
 
-# v4.4
 
-- Argumentation schemes, represented in Datalog
-- Argument construction, via a Datalog inference engine
-- Argument validation, by matching arguments to schemes
+
 
