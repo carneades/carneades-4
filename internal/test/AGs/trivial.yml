@@ -1,0 +1,11 @@
+meta:
+  title: Trivial Example
+
+statements: 
+  P: 
+    text: P 
+    label: out
+  Q:
+    text: Q
+    assumed: true
+    label: in
