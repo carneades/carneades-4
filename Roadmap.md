@@ -24,6 +24,7 @@
 
 # v4.2
 
+- user-definable argument evaluation functions, for deriving relative argument weights from properties of the   arguments for positions of an issue (4.1 includes some builtin argument evaluation functions)
 - Argument graph upload to CoachDB repositories
 - Argument graph search and retrieval
 
