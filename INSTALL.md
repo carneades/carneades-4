@@ -6,7 +6,7 @@ These are instructions for building and running Carneades-4.
 - The [Go programming language](http://golang.org/) compiler suite
 - [Git](http://git-scm.com/)
 
-Set the GOPATH environment variable to a directory for Go packages, e.g.
+Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 
     $ mkdir ~/go
     $ typeset -x GOPATH=~/go
