@@ -802,8 +802,14 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					_, isIn := caes.BasicSchemes[outArg.scheme]
 					if isIn == false {
 						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
+						first := true
 						for schemeKey, _ := range caes.BasicSchemes {
-							errStr = errStr + schemeKey
+							if first {
+								errStr = errStr + schemeKey
+								first = false
+							} else {
+								errStr = errStr + ", " + schemeKey
+							}
 						}
 						return outArg,
 							errors.New(errStr + ")\n")
