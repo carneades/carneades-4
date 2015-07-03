@@ -14,7 +14,7 @@ using grounded, complete, preferred and stable semantics.
 - An evaluator for structured arguments, based on a new version of the 
 Carneades Argument Evaluation Structures (CAES) formal model of argument. 
 New in this version of CAES is support for cyclic argument graphs, cumulative
-arguments and issue-based information systems (IBIS).
+arguments, issue-based information systems (IBIS) and multicriteria decision analysis.
 
 Carneades can visualize both Dung abstract argumentation frameworks and CAES argument graphs using [GraphML](https://en.wikipedia.org/wiki/GraphML).  We recommend using the free [yEd](http://www.yworks.com/yed) GraphML editor to view
 the GraphML files.
