@@ -218,10 +218,11 @@ func (ag ArgGraph) ApplyLabelling(l Labelling) {
 	}
 }
 
-// Returns In if the argument has been undercut, Out if the argument is
-// not at issue or attempts to undercut it have failed, and Undecided otherwise
+// Returns In if the argument has been undercut, Out if the argument
+// has no undercutter, the undercutter has no arguments,
+// or attempts to undercut the argument it have failed, and Undecided otherwise
 func (arg *Argument) Undercut(l Labelling) Label {
-	if arg.Undercutter == nil {
+	if arg.Undercutter == nil || len(arg.Undercutter.Args) == 0 {
 		return Out // applicability not at issue
 	} else {
 		return l.Get(arg.Undercutter)
