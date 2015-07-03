@@ -34,9 +34,11 @@ const (
 	// font
 	font = "Dialog"
 	// shapeType
-	diamond   = "diamond"
+	// diamond   = "diamond"
 	rectangle = "rectangle"
-	ellipse   = "ellipse"
+	// ellipse   = "ellipse"
+	roundrectangle = "roundrectangle"
+	hexagon        = "hexagon"
 )
 
 type gmlEdge struct {
@@ -116,6 +118,32 @@ func pFoot(w io.Writer) {
 	p(w, "</graphml>")
 }
 
+func calculateWidth(l int) string {
+	width := "30.0"
+	switch l {
+	case 0, 1, 2, 3:
+	case 4, 5, 6:
+		width = "60.0"
+		// dheight = "45.0"
+	case 7, 8, 9:
+		width = "80.0"
+		// dheight = "67,5"
+	case 10, 11, 12:
+		width = "100.0"
+		// dheight = "90"
+	case 13, 14, 15:
+		width = "120.0"
+		// dheight = "112,5"
+	case 16, 17, 18:
+		width = "140"
+	default:
+		width = "200.0"
+		// dheight = "150.0"
+	}
+	return width
+
+}
+
 func pNodes(w io.Writer, nodes []gmlNode) {
 
 	for _, node := range nodes {
@@ -123,34 +151,11 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			"      <data key=\"d5\"/>",
 			"      <data key=\"d6\">",
 			"      <y:ShapeNode>")
+
 		height := "30.0"
-		dheight := "30.0"
-		width := "30.0"
-		switch len(node.nodeLabel) {
-		case 0, 1, 2, 3:
-		case 4, 5, 6:
-			width = "60.0"
-			dheight = "45.0"
-		case 7, 8, 9:
-			width = "90.0"
-			dheight = "67,5"
-		case 10, 11, 12:
-			width = "120.0"
-			dheight = "90"
-		case 13, 14, 15:
-			width = "150.0"
-			dheight = "112,5"
-		default:
-			width = "200.0"
-			dheight = "150.0"
-		}
-		if node.shapeType == diamond {
-			p(w,
-				"         <y:Geometry height=\""+dheight+"\" width= \""+width+"\" />")
-		} else {
-			p(w,
-				"         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
-		}
+		width := calculateWidth(len(node.nodeLabel))
+
+		p(w, "         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
 		if node.color == "" {
 			p(w, "         <y:Fill hasColor=\"false\" transparent=\"false\"/>")
 		} else {
@@ -233,8 +238,12 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	// Arguments O
 	for _, arg := range ag.Arguments {
 		nNode := newGmlNode()
-		nNode.shapeType = ellipse // O
-		nNode.nodeLabel = arg.Id
+		nNode.shapeType = roundrectangle // O
+		if arg.Scheme != nil {
+			nNode.nodeLabel = fmt.Sprintf("%s: %s", arg.Id, arg.Scheme.Id)
+		} else {
+			nNode.nodeLabel = arg.Id
+		}
 		if firstNode {
 			nodes = []gmlNode{nNode}
 			firstNode = false
@@ -273,6 +282,9 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			edge.target = nodeId
 			// if arg.Weight != nil {
 			edge.edgeLabel = fmt.Sprintf("%v", arg.Weight)
+			if len(edge.edgeLabel) > 4 {
+				edge.edgeLabel = edge.edgeLabel[0:3]
+			}
 			// }
 			if firstEdge {
 				edges = []gmlEdge{edge}
@@ -304,8 +316,19 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	// Issue <>
 	for _, issue := range ag.Issues {
 		nNode := newGmlNode()
-		nNode.shapeType = diamond
-		nNode.nodeLabel = issue.Id
+		nNode.shapeType = hexagon
+		s := ""
+		switch issue.Standard {
+		case 0:
+			s = "DV"
+		case 1:
+			s = "PE"
+		case 2:
+			s = "CCE"
+		case 3:
+			s = "BRD"
+		}
+		nNode.nodeLabel = fmt.Sprintf("%s: %s", issue.Id, s)
 		if firstNode {
 			nodes = []gmlNode{nNode}
 			firstNode = false
