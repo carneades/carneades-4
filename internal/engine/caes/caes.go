@@ -130,13 +130,13 @@ type Premise struct {
 }
 
 type Argument struct {
-	Id         string
-	Metadata   Metadata
-	Scheme     *Scheme
-	Premises   []Premise
-	Conclusion *Statement
-	NotAppStmt *Statement
-	Weight     float64 // for storing the evaluated weight
+	Id          string
+	Metadata    Metadata
+	Scheme      *Scheme
+	Premises    []Premise
+	Conclusion  *Statement
+	Undercutter *Statement
+	Weight      float64 // for storing the evaluated weight
 }
 
 type ArgGraph struct {
@@ -221,10 +221,10 @@ func (ag ArgGraph) ApplyLabelling(l Labelling) {
 // Returns In if the argument has been undercut, Out if the argument is
 // not at issue or attempts to undercut it have failed, and Undecided otherwise
 func (arg *Argument) Undercut(l Labelling) Label {
-	if arg.NotAppStmt == nil {
+	if arg.Undercutter == nil {
 		return Out // applicability not at issue
 	} else {
-		return l.Get(arg.NotAppStmt)
+		return l.Get(arg.Undercutter)
 	}
 }
 
