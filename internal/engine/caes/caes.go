@@ -40,6 +40,7 @@ type Statement struct {
 }
 
 type Scheme struct {
+	Id       string
 	Metadata Metadata
 	Eval     func(*Argument, Labelling) float64 // [0.0,1.0]
 	Valid    func(*Argument) bool
@@ -117,10 +118,10 @@ func FactorizedArgument(arg *Argument, l Labelling) float64 {
 }
 
 var BasicSchemes = map[string]Scheme{
-	"linked":     Scheme{Eval: LinkedArgument, Valid: DefaultValidityCheck},
-	"convergent": Scheme{Eval: ConvergentArgument, Valid: DefaultValidityCheck},
-	"cumulative": Scheme{Eval: CumulativeArgument, Valid: DefaultValidityCheck},
-	"factorized": Scheme{Eval: FactorizedArgument, Valid: DefaultValidityCheck},
+	"linked":     Scheme{Id: "linked", Eval: LinkedArgument, Valid: DefaultValidityCheck},
+	"convergent": Scheme{Id: "convergent", Eval: ConvergentArgument, Valid: DefaultValidityCheck},
+	"cumulative": Scheme{Id: "cumulative", Eval: CumulativeArgument, Valid: DefaultValidityCheck},
+	"factorized": Scheme{Id: "factorized", Eval: FactorizedArgument, Valid: DefaultValidityCheck},
 }
 
 type Premise struct {
