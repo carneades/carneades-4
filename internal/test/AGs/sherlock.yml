@@ -1,8 +1,7 @@
-meta:
-  title: The Sherlock Holmes Example
-  source: > 
-    Doyle, A. C. (1932). The Complete Sherlock Holmes: The
-    Memorial Edition. Garden City, New York: Doubleday, Doran & Co.
+meta: 
+  title: "The Sherlock Holmes Example" 
+  source: "Doyle, A. C. (1932). The Complete Sherlock Holmes: The
+    Memorial Edition. Garden City, New York: Doubleday, Doran & Co."
 
 statements: 
   gentleman: Watson is a gentleman of medical type but with the air of a military man.
@@ -45,7 +44,7 @@ assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
 labels:
   in: [gentleman, fairWrists, darkFace, haggard, stiffArm,
        warmerClimate, sunNecessary, armyDoctor, notNaturalSkinColor,
-       hardship, injured, Afghanistan]
+       hardship, injured, Afghanistan, wasInWarmerClimate]
   out: []
   undecided: []
 

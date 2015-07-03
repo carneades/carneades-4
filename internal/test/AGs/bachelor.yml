@@ -1,4 +1,4 @@
-meta:
+meta: 
   title: The Bachelor Example
   source: > 
     Prakken, H. An abstract framework for argumentation with 
@@ -11,8 +11,12 @@ statements:
   married: 
     text: Fred is married.
     label: out
-  wearsRing: Fred wears a ring.
-  partyAnimal: Fred is a party animal.
+  wearsRing: 
+    text: Fred wears a ring.
+    label: in
+  partyAnimal: 
+    text: Fred is a party animal.
+    label: in
 
 assumptions: [wearsRing, partyAnimal]
 

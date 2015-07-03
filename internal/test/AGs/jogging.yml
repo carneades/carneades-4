@@ -35,7 +35,7 @@ arguments:
 assumptions: [rain, hot]
 
 labels:
-  in: [rain, hot, ¬jog]
-  out: [jog]
+  in: [rain, hot, jog]
+  out: [¬jog]
   undecided: []
 

@@ -11,8 +11,12 @@ statements:
   tall: 
     text: Wiebe is tall.
     label: in
-  frisian: Wiebe is Frisian.
-  ¬app(a1): a1 is not applicable.
+  frisian: 
+    text: Wiebe is Frisian.
+    label: in
+  ¬app(a1): 
+    text: a1 is not applicable.
+    label: out
 
 assumptions: [frisian]
 
