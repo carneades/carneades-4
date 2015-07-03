@@ -18,7 +18,6 @@
     * Simple, plain text format, based on YAML
     * Carneades Argument Format (CAF), extended to handle the new model
     * Argument Interchange Format (AIF), JSON serialization
-
 - Export
     * GraphML
     * YAML/Markdown
