@@ -24,8 +24,8 @@
 
 # v4.2
 
-- argument graph upload to CoachDB repositories
-- argument graph search and retrieval
+- Argument graph upload to CoachDB repositories
+- Argument graph search and retrieval
 
 # v4.3
 
