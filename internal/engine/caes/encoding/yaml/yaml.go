@@ -35,11 +35,13 @@ type (
 		role string
 	}
 	umArgument struct {
-		id         string
-		metadata   caes.Metadata
-		premises   []umPremis
-		conclusion string
-		weigth     caes.Weight
+		id          string
+		metadata    caes.Metadata
+		premises    []umPremis
+		conclusion  string
+		weigth      float64
+		scheme      string
+		undercutter string
 	}
 	assumptions   []string
 	mapIssues     map[string]umIssue
@@ -201,7 +203,7 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 			ag.Arguments = append(ag.Arguments, arg)
 		}
 		// References: Argument.Conclusion --> *Statement, Statement.Args --> []*Argument
-	Loop:
+	LoopC:
 		for _, stat := range ag.Statements {
 			if arg_val.conclusion == stat.Id {
 				arg.Conclusion = stat
@@ -210,7 +212,20 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 				} else {
 					stat.Args = append(stat.Args, arg)
 				}
-				break Loop
+				break LoopC
+			}
+		}
+		// References: Argument.undercutter --> *Statement, Statement.Args --> []*Argument
+	LoopN:
+		for _, stat := range ag.Statements {
+			if arg_val.undercutter == stat.Id {
+				arg.Undercutter = stat
+				if stat.Args == nil {
+					stat.Args = []*caes.Argument{arg}
+				} else {
+					stat.Args = append(stat.Args, arg)
+				}
+				break LoopN
 			}
 		}
 		// References: Argument.Premises --> []Premise{Stmt: *Statement Role: string}
@@ -228,7 +243,10 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 				arg.Premises = append(arg.Premises, caes_prem)
 			}
 		}
-		// Missing NotAppStmt and Scheme
+		// Scheme
+		if arg_val.scheme != "" {
+			// arg.Scheme = caes.BasicSchemes[arg_val.scheme]
+		}
 	}
 	// log.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", ag.Arguments)
 	for _, ass := range assumps {
@@ -403,11 +421,19 @@ func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 			if ref_arg.Conclusion != nil {
 				fmt.Fprintf(f, "%sconclusion: %s\n", sp2, ref_arg.Conclusion.Id)
 			}
-			if ref_arg.Weight != nil {
-				fmt.Fprintf(f, "%sweight: %v\n", sp2, *ref_arg.Weight)
+			if ref_arg.Weight != 0.0 {
+				fmt.Fprintf(f, "%sweight: %v\n", sp2, ref_arg.Weight)
 			}
-			if ref_arg.NotAppStmt != nil {
-				fmt.Fprintf(f, "%snot app statement: %s\n", sp2, ref_arg.NotAppStmt.Id)
+			if ref_arg.Scheme != nil {
+				// for name, scheme := range caes.BasicSchemes {
+				//	if ref_arg.Scheme.Eval == scheme.Eval {
+				fmt.Fprintf(f, "scheme: %s\n", "name")
+				//		break
+				//	}
+				// }
+			}
+			if ref_arg.Undercutter != nil {
+				fmt.Fprintf(f, "%sundercutter: %s\n", sp2, ref_arg.Undercutter.Id)
 			}
 		}
 	}
@@ -780,9 +806,15 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					if err != nil {
 						return outArg, err
 					}
+				case "nas", "undercutter", "not app statement":
+					outArg.undercutter = iface2string(attValue)
+					// log.Printf(" %s \n", outArg.undercutter)
+				case "scheme":
+					outArg.scheme = iface2string(attValue)
+					// log.Printf(" %s \n", outArg.scheme)
 				default:
 					return outArg,
-						errors.New("*** ERROR: Wrong argument attribut: " + attName.(string) + " (expected: conclusion, premises, weight or metadata)\n")
+						errors.New("*** ERROR: Wrong argument attribut: " + attName.(string) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
 				}
 			default:
 				return outArg,
@@ -793,24 +825,25 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 	return outArg, nil
 }
 
-func iface2weigth(attValue interface{}) (caes.Weight, error) {
-	weight := new(float64)
+func iface2weigth(attValue interface{}) (float64, error) {
+	// weight := new(float64)
+	weight := 0.0
 	switch atype := attValue.(type) {
 	case float32:
 		// fl32 := attValue.(float32)
 		// *weight = fl32.(float64)
-		*weight = attValue.(float64)
+		weight = attValue.(float64)
 	case float64:
-		*weight = attValue.(float64)
+		weight = attValue.(float64)
 	case int:
 		intvalue := attValue.(int)
 		if intvalue == 0 || intvalue == 1 {
-			*weight = attValue.(float64)
+			weight = attValue.(float64)
 		} else {
-			return nil, errors.New(("*** ERROR: Wrong weigth type (float expeced) integer value: " + attValue.(string)))
+			return 0.0, errors.New(("*** ERROR: Wrong weigth type (float expeced) integer value: " + attValue.(string)))
 		}
 	default:
-		return nil, errors.New("*** ERROR: Wrong weigth type (float expected): " + atype.(string) + "\n")
+		return 0.0, errors.New("*** ERROR: Wrong weigth type (float expected): " + atype.(string) + "\n")
 	}
 	// log.Printf("     weight: %v\n", *weight)
 	return weight, nil

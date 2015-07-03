@@ -44,7 +44,7 @@ func TestIOVacation(t *testing.T) {
 func checkLabeling(l caes.Labelling, stats []*caes.Statement) error {
 	errStr := ""
 	for _, stat := range stats {
-		lbl := l[stat]
+		lbl := l.Get(stat)
 		if stat.Label != lbl {
 			if errStr == "" {
 				errStr = fmt.Sprintf(" statement: %s, expected Label: %v, calculated Label: %v \n", stat.Id, stat.Label, lbl)
@@ -76,13 +76,13 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 	ag, err = yaml.Import(file)
 
 	check(t, err)
-	//	fmt.Printf("---------- WriteArgGraph %s ----------\n", filename1)
-	//	yaml.ExportWithReferences(os.Stdout, ag)
-	//	fmt.Printf("---------- End: WriteArgGraph %s ----------\n", filename1)
+	// fmt.Printf("---------- WriteArgGraph %s ----------\n", filename1)
+	// yaml.ExportWithReferences(os.Stdout, ag)
+	// fmt.Printf("---------- End: WriteArgGraph %s ----------\n", filename1)
 	l := ag.GroundedLabelling()
-	//	fmt.Printf("---------- printLabeling %s ----------\n", filename1)
-	//	printLabeling(l)
-	//	fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
+	// fmt.Printf("---------- printLabeling %s ----------\n", filename1)
+	// printLabeling(l)
+	// fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
 
 	err = checkLabeling(l, ag.Statements)
 	check(t, err)

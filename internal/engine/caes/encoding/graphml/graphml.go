@@ -271,9 +271,9 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 				return
 			}
 			edge.target = nodeId
-			if arg.Weight != nil {
-				edge.edgeLabel = fmt.Sprintf("%v", *arg.Weight)
-			}
+			// if arg.Weight != nil {
+			edge.edgeLabel = fmt.Sprintf("%v", arg.Weight)
+			// }
 			if firstEdge {
 				edges = []gmlEdge{edge}
 				firstEdge = false
@@ -282,10 +282,10 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			}
 		}
 		// argument - - - - undercut
-		if arg.NotAppStmt != nil {
-			nodeId, found := stat2Node[arg.NotAppStmt.Id]
+		if arg.Undercutter != nil {
+			nodeId, found := stat2Node[arg.Undercutter.Id]
 			if found == false {
-				err = errors.New(" *** Undercut-Statement: " + arg.NotAppStmt.Id + "from Argument: " + arg.Id + "not found")
+				err = errors.New(" *** Undercut-Statement: " + arg.Undercutter.Id + "from Argument: " + arg.Id + "not found")
 				return
 			}
 			edge := newGmlEdge()
@@ -293,6 +293,12 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			edge.target = nNode.id
 			edge.lineType = dashed
 			edge.width = mediumLine
+			if firstEdge {
+				edges = []gmlEdge{edge}
+				firstEdge = false
+			} else {
+				edges = append(edges, edge)
+			}
 		}
 	}
 	// Issue <>

@@ -256,9 +256,9 @@ func TestSelfDefeat(t *testing.T) {
 		Text: "Argument a1 is invalid.",
 		Args: []*caes.Argument{&a2}}
 	a1 = caes.Argument{
-		Conclusion: &Q,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &P}},
-		NotAppStmt: &a1Invalid}
+		Conclusion:  &Q,
+		Premises:    []caes.Premise{caes.Premise{Stmt: &P}},
+		Undercutter: &a1Invalid}
 	i1 = caes.Issue{
 		Standard:  caes.PE,
 		Positions: []*caes.Statement{&Q, &R}}

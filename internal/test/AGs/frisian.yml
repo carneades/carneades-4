@@ -20,7 +20,7 @@ arguments:
   a1: 
     conclusion: dutch
     premises: [frisian]
-    nas: ¬app(a1)
+    undercutter: ¬app(a1)
   a2:
     conclusion: tall
     premises: [dutch]
