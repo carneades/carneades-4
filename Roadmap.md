@@ -10,7 +10,7 @@
 
 - Structured argumentation
 - Generalization of Carneades to handle:
-    * Cycles, via a mapping to Dung AFs
+    * Cycles
     * Cumulative arguments
     * Issue-based Information Systems (IBIS)
     * Multicriteria Decision-Making (MCDM)
