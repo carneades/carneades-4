@@ -31,6 +31,8 @@ For further information about how to use the `carneades` command, type
 
     $ carneades help
 
+Example argument graphs can be found in the `$GOPATH/src/github.com/carneades/carneades-4/internal/test/AGs` directory.
+
 ## Building and Running the Carneades ICCMA Entry
 
 This version of Carneades has been entered in the [ICCMA](http://argumentationcompetition.org/index.html)
@@ -52,6 +54,7 @@ directly, as in
 
 See the [ICCMA supplementary notes](http://argumentationcompetition.org/2015/iccma15notes_v3.pdf) for further instructions about the flags and parameters, which are the same for all ICCMA entries.
 
+Example abstract argumentation frameworks can be found in the `$GOPATH/src/github.com/carneades/carneades-4/internal/test/AFs` directory.
 	
 
 
