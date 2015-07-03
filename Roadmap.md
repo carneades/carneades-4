@@ -15,14 +15,12 @@
     * Issue-based Information Systems (IBIS)
     * Multicriteria Decision-Making (MCDM)
 - Import
-    * Carneades Argument Format (CAF), extended to handle the generalized model
-	* Argument Interchange Format (AIF), JSON serialization
-	* Simple, plain text format, based on YAML and Markdown
+    * Carneades Argument Format (CAF), extended to handle the new model
+    * Argument Interchange Format (AIF), JSON serialization
+    * Simple, plain text format, based on YAML
 - Export
     * GraphML
-	* AIF
-	* CAF
-	* YAML/Markdown
+    * YAML/Markdown
 
 # v4.2
 
