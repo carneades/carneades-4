@@ -3,7 +3,7 @@ These are instructions for building and running Carneades-4.
 
 ## Prerequisites
 
-- Version 1,4x or newer of the [Go programming language](http://golang.org/) compiler suite.
+- Version 1.4x or newer of the [Go programming language](http://golang.org/) compiler suite.
 - [Git](http://git-scm.com/).
 
 Set the `GOPATH` environment variable to a directory for Go packages, e.g.
