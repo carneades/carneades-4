@@ -1,0 +1,18 @@
+meta:
+  title: Example of a False Dilemma
+
+statements:
+  stopped beating: You have stopped beating your spouse.
+  ¬stopped beating: You have not stopped beating your spouse.
+  loaded question: That is a loaded question.
+
+issues:
+  stopped beating?: 
+    meta:
+      title: Have you stopped beating your spouse?
+    positions: 
+      - stopped beating
+      - ¬stopped beating
+      - loaded question
+
+  
