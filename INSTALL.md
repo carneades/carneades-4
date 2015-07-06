@@ -3,8 +3,8 @@ These are instructions for building and running Carneades-4.
 
 ## Prerequisites
 
-- The [Go programming language](http://golang.org/) compiler suite
-- [Git](http://git-scm.com/)
+- Version 1,4x or newer of the [Go programming language](http://golang.org/) compiler suite.
+- [Git](http://git-scm.com/).
 
 Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 
@@ -50,18 +50,16 @@ You can execute the program using this full path. If you have added
 $GOPATH/bin to your PATH environment, you can then execute the command
 directly, as in
 
-    $ carneades-iccma -p EE-GR -f ...
+    $ carneades-iccma -p EE-GR -f `$GOPATH/src/github.com/carneades/carneades-4/internal/test/AFs/bas1.tgf
 
 See the [ICCMA supplementary notes](http://argumentationcompetition.org/2015/iccma15notes_v3.pdf) for further instructions about the flags and parameters, which are the same for all ICCMA entries.
 
 Example abstract argumentation frameworks can be found in the `$GOPATH/src/github.com/carneades/carneades-4/internal/test/AFs` directory.
+
+Dung abstract argumentation frameworks can also be evaluated and visualized using the `carneades` command. For instructions, execute:
+
+    $ carneades help dung
+
 	
-
-
-
-
-
-
-
 
 
