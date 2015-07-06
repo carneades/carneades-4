@@ -27,6 +27,7 @@ issues:
     positions: 
       - moved when prodded
       - did not move when prodded
+
 arguments:
   a1: 
     scheme: cumulative
