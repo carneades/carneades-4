@@ -145,6 +145,7 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 	// log.Printf("   ---  Metadata --- \n %v \n ------End Metadata --- \n", ag.Metadata)
 	// Statement
 	first := true
+	found := false
 	for _, ref_stat := range stats {
 
 		if first {
@@ -167,8 +168,11 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 		}
 		// References: Issue.Positions --> []*Statement, Statement.Issue --> *Issue
 		for _, pos := range issue_val.positions {
+			found = false
+		LoopIss:
 			for _, stat := range ag.Statements {
 				if pos == stat.Id {
+					found = true
 					// log.Printf("   Position: %s \n", pos)
 					if iss.Positions == nil {
 						iss.Positions = []*caes.Statement{stat}
@@ -180,7 +184,11 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 					} else {
 						return ag, errors.New(" *** Semantic Error: Statement: " + stat.Id + ", with two issues: " + iss.Id + ", " + stat.Issue.Id + "\n")
 					}
+					break LoopIss
 				}
+			}
+			if !found {
+				return ag, errors.New(" *** Semantic Error: Position " + pos + ", from Issue: " + iss.Id + ", is not a Statement-ID\n")
 			}
 		}
 	}
@@ -203,10 +211,12 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 			ag.Arguments = append(ag.Arguments, arg)
 		}
 		// References: Argument.Conclusion --> *Statement, Statement.Args --> []*Argument
+		found := false
 	LoopC:
 		for _, stat := range ag.Statements {
 			if arg_val.conclusion == stat.Id {
 				arg.Conclusion = stat
+				found = true
 				if stat.Args == nil {
 					stat.Args = []*caes.Argument{arg}
 				} else {
@@ -215,17 +225,30 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 				break LoopC
 			}
 		}
+		if !found {
+			return ag, errors.New(" *** Semantic Error: Conclusion: " + arg_val.conclusion + ", from Argument: " + arg_id + ", is not a Statement-ID\n")
+		}
+
 		// References: Argument.undercutter --> *Statement, Statement.Args --> []*Argument
-	LoopN:
-		for _, stat := range ag.Statements {
-			if arg_val.undercutter == stat.Id {
-				arg.Undercutter = stat
-				break LoopN
+		if arg_val.undercutter != "" {
+			found = false
+		LoopN:
+			for _, stat := range ag.Statements {
+				if arg_val.undercutter == stat.Id {
+					found = true
+					arg.Undercutter = stat
+					break LoopN
+				}
+			}
+			if !found {
+				return ag, errors.New(" *** Semantic Error: Undercutter: " + arg_val.undercutter + ", from Argument: " + arg_id + ", is not a Statement-ID\n")
 			}
 		}
-		// References: Argument.Premises --> []Premise{Stmt: *Statement Role: string}
 		for _, prem := range arg_val.premises {
-			prem_stat := stats[prem.stmt]
+			prem_stat, ok := stats[prem.stmt]
+			if !ok {
+				return ag, errors.New(" *** Semantic Error: Premise: " + prem.stmt + ", from Argument: " + arg_id + ", is not a Statement-ID\n")
+			}
 			if prem_stat == nil {
 				// log.Printf("\n *** Prem Stat == nil für %s \n", prem.stmt)
 			} else {
@@ -246,11 +269,16 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 	}
 	// log.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", ag.Arguments)
 	for _, ass := range assumps {
+		found = false
 		for _, stat := range ag.Statements {
 			if ass == stat.Id {
+				found = true
 				// log.Printf(" Set assumtions: %s\n", ass)
 				stat.Assumed = true
 			}
+		}
+		if !found {
+			return ag, errors.New(" *** Semantic Error: Assumption: " + ass + ", is not a Statement-ID\n")
 		}
 	}
 
@@ -266,6 +294,30 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 			stat.Label = lbl
 		}
 	}
+	//check
+	for lbl_Id, lbl_val := range lbls {
+		found = false
+	LoopLbl:
+		for _, stat := range ag.Statements {
+			if lbl_Id == stat.Id {
+				found = true
+				break LoopLbl
+			}
+		}
+		if !found {
+			lbl_str := ""
+			switch lbl_val {
+			case caes.In:
+				lbl_str = "In"
+			case caes.Out:
+				lbl_str = "Out"
+			case caes.Undecided:
+				lbl_str = "Undecided"
+			}
+			return ag, errors.New(" *** Semantic Error: " + lbl_str + "- Label: " + lbl_Id + ", is not a Statement-ID\n")
+		}
+	}
+
 	return ag, nil
 
 }
