@@ -191,7 +191,7 @@ func (l Labelling) init(ag *ArgGraph) {
 			l[s] = In
 			if s.Issue != nil {
 				for _, p := range s.Issue.Positions {
-					if p != s {
+					if p != s && l.Get(p) == Undecided {
 						l[p] = Out
 					}
 				}
