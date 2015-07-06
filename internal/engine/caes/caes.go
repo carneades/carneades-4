@@ -79,19 +79,17 @@ func CumulativeArgument(arg *Argument, l Labelling) float64 {
 	return float64(m) / float64(n)
 }
 
-// Find the maximum number of premises of the arguments about positions
-// of the given issue.
-func maxPremises(issue *Issue) int {
-	m := 0
+// Count the number of distinct premises for all arguments of an issue.
+func premiseCount(issue *Issue) int {
+	m := make(map[string]bool)
 	for _, p := range issue.Positions {
 		for _, arg := range p.Args {
-			n := len(arg.Premises)
-			if n > m {
-				m = n
+			for _, pr := range arg.Premises {
+				m[pr.Stmt.Text] = true
 			}
 		}
 	}
-	return m
+	return len(m)
 }
 
 // A factorized argument, like a linked argument, has no weight unless all
@@ -102,7 +100,7 @@ func maxPremises(issue *Issue) int {
 // See the jogging example for an illustration of its use.  Can be used
 // to simulate HYPO-style case-based reasoning.
 func FactorizedArgument(arg *Argument, l Labelling) float64 {
-	n := maxPremises(arg.Conclusion.Issue)
+	n := premiseCount(arg.Conclusion.Issue)
 	m := 0
 	for _, p := range arg.Premises {
 		switch l.Get(p.Stmt) {
