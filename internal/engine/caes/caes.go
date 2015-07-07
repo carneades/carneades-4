@@ -186,18 +186,35 @@ func (l Labelling) Get(stmt *Statement) Label {
 // is not consistent, the resulting labelling will depend
 // on the order in which the assumptions are initialized.
 func (l Labelling) init(ag *ArgGraph) {
+	// first make all assumed statements In and all unsupported
+	// statements out
 	for _, s := range ag.Statements {
 		if s.Assumed {
 			l[s] = In
-			if s.Issue != nil {
-				for _, p := range s.Issue.Positions {
-					if p != s && l.Get(p) == Undecided {
-						l[p] = Out
-					}
-				}
-			}
 		} else if len(s.Args) == 0 {
 			l[s] = Out
+		}
+	}
+	// For each issue, if some position is In
+	// make the undecided positions Out
+	// The resulting issue may be inconsistent, with
+	// multiple positions being In, if the assumptions are
+	// inconsistent.
+	for _, i := range ag.Issues {
+		// is some position in?
+		somePositionIn := false
+		for _, p := range i.Positions {
+			if l.Get(p) == In {
+				somePositionIn = true
+				break
+			}
+		}
+		if somePositionIn {
+			for _, p := range i.Positions {
+				if l.Get(p) == Undecided {
+					l[p] = Out
+				}
+			}
 		}
 	}
 }
