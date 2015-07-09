@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dotout"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	"log"
@@ -26,14 +27,14 @@ For further information about the agxml format, see:
 	https://github.com/peldszus/arg-microtexts
 
 The -t flag ("to") specifies the output format of the evaluated argument
-graph. Currently graphml and yaml are supported. (default: graphml)	
+graph. Currently graphml, dot, and yaml are supported. (default: graphml)	
 
 The -o flag specifies the output file name. If the -o flag is not used, 
 output goes to stdout.
 `
 
 var inputFormats = []string{"yaml", "agxml"}
-var outputFormats = []string{"graphml", "yaml"}
+var outputFormats = []string{"graphml", "yaml", "dot"}
 
 func contains(l []string, s1 string) bool {
 	for _, s2 := range l {
@@ -121,6 +122,13 @@ func evalCmd() {
 		outFile.Close()
 	case "graphml":
 		err = graphml.Export(outFile, *ag)
+		outFile.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "dot":
+		err = dotout.Export(outFile, *ag)
 		outFile.Close()
 		if err != nil {
 			log.Fatal(err)
