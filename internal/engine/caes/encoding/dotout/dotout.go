@@ -359,8 +359,8 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 
 func Export(w io.Writer, ag caes.ArgGraph) error {
 	pHead(w)
-	p(w, "<graph id=\"G"+
-		fmt.Sprintf("%d", graphNr)+"\">")
+	p(w, "digraph G"+
+		fmt.Sprintf("%d", graphNr)+">")
 	graphNr++
 	nodes, edges, err := mkNodesAndEdges(ag)
 	if err != nil {
@@ -368,7 +368,7 @@ func Export(w io.Writer, ag caes.ArgGraph) error {
 	}
 	pNodes(w, nodes)
 	pEdges(w, edges)
-	p(w, "</graph>")
+	p(w, "}")
 	pFoot(w)
 	return nil
 }
