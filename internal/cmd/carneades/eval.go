@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	"log"
@@ -17,8 +18,12 @@ Evaluates an argument graph and prints it in the selected output format.
 
 If no input-file is specified, input is read from stdin. 
 
-The -f flag ("from") specifies the format of the input file: Currently only 
-yaml is supported.  (default: yaml)
+The -f flag ("from") specifies the format of the input file: Currently 
+yaml and agxml are supported.  (default: yaml)
+
+For further information about the agxml format, see:
+
+	https://github.com/peldszus/arg-microtexts
 
 The -t flag ("to") specifies the output format of the evaluated argument
 graph. Currently graphml and yaml are supported. (default: graphml)	
@@ -27,7 +32,7 @@ The -o flag specifies the output file name. If the -o flag is not used,
 output goes to stdout.
 `
 
-var inputFormats = []string{"yaml"}
+var inputFormats = []string{"yaml", "agxml"}
 var outputFormats = []string{"graphml", "yaml"}
 
 func contains(l []string, s1 string) bool {
@@ -88,6 +93,13 @@ func evalCmd() {
 	switch *fromFlag {
 	case "yaml":
 		ag, err = yaml.Import(inFile)
+		inFile.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "agxml":
+		ag, err = agxml.Import(inFile)
 		inFile.Close()
 		if err != nil {
 			log.Fatal(err)

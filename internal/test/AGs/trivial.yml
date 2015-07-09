@@ -1,5 +1,5 @@
 meta:
-  title: Trivial Example
+  title: Trivial Examples
 
 statements: 
   P: 
@@ -9,3 +9,12 @@ statements:
     text: Q
     assumed: true
     label: in
+  R: 
+    text: R
+    label: in
+
+arguments:
+  a1:
+    conclusion: R
+
+

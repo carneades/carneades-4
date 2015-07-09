@@ -11,8 +11,10 @@ import (
 	"os"
 )
 
-const name = "Carneades"
-const version = "v4.1"
+const name = "The Carneades Argumentation System"
+const version = "4.1"
+const source = "https://github.com/carneades/carneades-4"
+const blog = "https://carneades.github.io/"
 
 const help = `
 Carneades is a tool for evaluating and visualizing argument graphs.
@@ -30,26 +32,25 @@ Execute "carneades help [command]" for further information.
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Printf("%s %s\nFor further information try 'carneades help'\n", name, version)
-		return
-	}
-
-	switch os.Args[1] {
-	case "eval":
-		evalCmd()
-	case "dung":
-		dungCmd()
-	default:
-		if len(os.Args) == 2 {
-			fmt.Printf("%s\n", help)
-		} else {
-			switch os.Args[2] {
-			case "eval":
-				fmt.Printf("%s\n", helpEval)
-			case "dung":
-				fmt.Printf("%s\n", helpDung)
-			default:
+		fmt.Printf("%s\nversion: %s\nsource: %s\nblog: %s\nTry 'carneades help' for instructions.\n", name, version, source, blog)
+	} else {
+		switch os.Args[1] {
+		case "eval":
+			evalCmd()
+		case "dung":
+			dungCmd()
+		default:
+			if len(os.Args) == 2 {
 				fmt.Printf("%s\n", help)
+			} else {
+				switch os.Args[2] {
+				case "eval":
+					fmt.Printf("%s\n", helpEval)
+				case "dung":
+					fmt.Printf("%s\n", helpDung)
+				default:
+					fmt.Printf("%s\n", help)
+				}
 			}
 		}
 	}

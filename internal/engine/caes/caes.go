@@ -22,6 +22,10 @@ const (
 
 type Metadata map[string]interface{}
 
+func NewMetadata() Metadata {
+	return make(map[string]interface{})
+}
+
 type Issue struct {
 	Id        string
 	Metadata  Metadata
@@ -37,6 +41,13 @@ type Statement struct {
 	Issue    *Issue      // nil if not at issue
 	Args     []*Argument // concluding with this statement
 	Label    Label       // for storing the evaluated label
+}
+
+func NewStatement() *Statement {
+	return &Statement{
+		Metadata: NewMetadata(),
+		Args:     []*Argument{},
+	}
 }
 
 type Scheme struct {
@@ -143,6 +154,16 @@ type ArgGraph struct {
 	Statements []*Statement
 	Arguments  []*Argument
 	References map[string]Metadata // key -> metadata
+}
+
+func NewArgGraph() ArgGraph {
+	return ArgGraph{
+		Metadata:   make(map[string]interface{}),
+		Issues:     []*Issue{},
+		Statements: []*Statement{},
+		Arguments:  []*Argument{},
+		References: make(map[string]Metadata),
+	}
 }
 
 type Label int
