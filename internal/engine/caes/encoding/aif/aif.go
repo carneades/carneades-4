@@ -46,6 +46,7 @@ type Edge struct {
 type Node struct {
 	Id        string `json:"nodeID"`
 	Text      string `json:"text"`
+	Scheme    string `json:"scheme"`
 	Timestamp string `json:"timestamp"`
 	Type      string `json:"type"`
 }
@@ -82,7 +83,7 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		case "RA":
 			arg := caes.NewArgument()
 			arg.Id = node.Id
-			arg.Scheme = node.Text
+			arg.Scheme = node.Scheme
 			args[arg.Id] = &arg
 		default:
 			continue
