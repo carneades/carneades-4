@@ -138,13 +138,13 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 
 	for _, node := range nodes {
 
-		color := "white"
+		color := black
 		if node.color != "" {
 			color = node.color
 		}
 
 		p(w, "node"+node.id+
-			" [ label="+"\""+node.nodeLabel+"\""+
+			" [label="+"\""+node.nodeLabel+"\""+
 			// "shape=box"+
 			//			", height="+height+
 			//			", width="+width+
@@ -179,7 +179,7 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 	for _, edge := range edges {
 
 		p(w, "node"+edge.source+" -> node"+edge.target+
-			"[label=\""+edge.edgeLabel+"\"]")
+			" [label=\""+edge.edgeLabel+"\"]")
 
 		/*
 			p(w, "   <edge id=\""+
