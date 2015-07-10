@@ -54,6 +54,7 @@ type Arggraph struct {
 	Edges   []Edge  `xml:"edge"`
 }
 
+// Convert to an Arggraph to a CAES argument graph
 func (pag *Arggraph) Caes() *caes.ArgGraph {
 	cag := caes.NewArgGraph()
 	cag.Metadata["id"] = pag.Id
@@ -74,7 +75,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	}
 
 	for _, a := range pag.Adus {
-		s := *caes.NewStatement()
+		s := caes.NewStatement()
 		s.Id = a.Id
 		s.Assumed = true // overridden below if supported by arguments
 		s.Metadata["type"] = a.Type

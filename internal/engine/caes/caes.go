@@ -33,6 +33,14 @@ type Issue struct {
 	Standard  Standard
 }
 
+func NewIssue() Issue {
+	return Issue{
+		Metadata:  NewMetadata(),
+		Positions: []*Statement{},
+		Standard:  PE,
+	}
+}
+
 type Statement struct {
 	Id       string
 	Metadata Metadata
@@ -43,8 +51,8 @@ type Statement struct {
 	Label    Label       // for storing the evaluated label
 }
 
-func NewStatement() *Statement {
-	return &Statement{
+func NewStatement() Statement {
+	return Statement{
 		Metadata: NewMetadata(),
 		Args:     []*Argument{},
 	}
@@ -148,6 +156,13 @@ type Argument struct {
 	Weight      float64 // for storing the evaluated weight
 }
 
+func NewArgument() Argument {
+	return Argument{
+		Metadata: NewMetadata(),
+		Premises: []Premise{},
+	}
+}
+
 type ArgGraph struct {
 	Metadata   Metadata
 	Issues     []*Issue
@@ -158,7 +173,7 @@ type ArgGraph struct {
 
 func NewArgGraph() ArgGraph {
 	return ArgGraph{
-		Metadata:   make(map[string]interface{}),
+		Metadata:   NewMetadata(),
 		Issues:     []*Issue{},
 		Statements: []*Statement{},
 		Arguments:  []*Argument{},
