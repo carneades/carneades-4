@@ -98,24 +98,12 @@ func p(w io.Writer, strs ...string) {
 }
 
 func pHead(w io.Writer) {
-	p(w, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?> ",
-		"<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" ",
-		"     xmlns:java=\"http://www.yworks.com/xml/yfiles-common/1.0/java\" ",
-		"     xmlns:sys=\"http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0\" ",
-		"     xmlns:x=\"http://www.yworks.com/xml/yfiles-common/markup/2.0\" ",
-		"     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ",
-		"     xmlns:y=\"http://www.yworks.com/xml/graphml\" ",
-		"     xmlns:yed=\"http://www.yworks.com/xml/yed/3\" ",
-		"     xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd\"> ",
-		"<key attr.name=\"description\" attr.type=\"string\" for=\"node\" id=\"d5\"/>",
-		"<key for=\"node\" id=\"d6\" yfiles.type=\"nodegraphics\"/>",
-		"<key attr.name=\"description\" attr.type=\"string\" for=\"edge\" id=\"d9\"/>",
-		"<key for=\"edge\" id=\"d10\" yfiles.type=\"edgegraphics\"/>")
+	//	p(w, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?> ")
 	graphNr++
 }
 
 func pFoot(w io.Writer) {
-	p(w, "</graphml>")
+	//	p(w, "</graphml>")
 }
 
 func calculateWidth(l int) string {
@@ -146,37 +134,43 @@ func calculateWidth(l int) string {
 
 func pNodes(w io.Writer, nodes []gmlNode) {
 
+	p(w, "node [shape=box, style=filled, style=\"setlinewidth(4)\"]")
+
 	for _, node := range nodes {
-		p(w, "   <node id=\""+node.id+"\">",
-			"      <data key=\"d5\"/>",
-			"      <data key=\"d6\">",
-			"      <y:ShapeNode>")
 
-		height := "30.0"
-		width := calculateWidth(len(node.nodeLabel))
-
-		p(w, "         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
-		if node.color == "" {
-			p(w, "         <y:Fill hasColor=\"false\" transparent=\"false\"/>")
-		} else {
-			p(w, "         <y:Fill color=\""+node.color+"\" transparent=\"false\"/>")
+		color := "white"
+		if node.color != "" {
+			color = node.color
 		}
 
-		p(w, "         <y:BorderStyle color=\"#000000\" type=\""+
-			node.borderLine+
-			"\" width=\""+
-			node.borderWidth+
-			"\"/>")
+		p(w, "node"+node.id+
+			" [ label="+"\""+node.nodeLabel+"\""+
+			// "shape=box"+
+			//			", height="+height+
+			//			", width="+width+
+			", color=\""+color+"\""+
+			"]")
 
-		if node.underlinedLabel {
-			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">"+node.nodeLabel+"</y:NodeLabel>")
-		} else {
-			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" >"+node.nodeLabel+"</y:NodeLabel>")
-		}
-		p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
-			"       </y:ShapeNode>",
-			"       </data>",
-			"   </node>")
+		/*
+			height := "30.0"
+			width := calculateWidth(len(node.nodeLabel))
+
+			p(w, "         <y:BorderStyle color=\"#000000\" type=\""+
+				node.borderLine+
+				"\" width=\""+
+				node.borderWidth+
+				"\"/>")
+
+			if node.underlinedLabel {
+				p(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">"+node.nodeLabel+"</y:NodeLabel>")
+			} else {
+				p(w, "      <y:NodeLabel fontFamily=\""+font+"\" >"+node.nodeLabel+"</y:NodeLabel>")
+			}
+			p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
+				"       </y:ShapeNode>",
+				"       </data>",
+				"   </node>")
+		*/
 	}
 }
 
@@ -184,27 +178,31 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 
 	for _, edge := range edges {
 
-		p(w, "   <edge id=\""+
-			edge.id+
-			"\" source=\""+
-			edge.source+
-			"\" target=\""+
-			edge.target+"\">")
+		p(w, "node"+edge.source+" -> node"+edge.target)
 
-		p(w, "      <data key=\"d9\"/>",
-			"      <data key=\"d10\">",
-			"         <y:PolyLineEdge>")
-		p(w, "            <y:LineStyle color=\"#000000\" type=\""+
-			edge.lineType+"\" width=\""+edge.width+"\"/>")
-		p(w, "            <y:Arrows source=\"none\" target=\""+
-			edge.lineTarget+"\"/>")
-		if edge.edgeLabel != "" {
-			p(w, "		        <y:EdgeLabel>"+edge.edgeLabel+"</y:EdgeLabel>")
-		}
+		/*
+			p(w, "   <edge id=\""+
+				edge.id+
+				"\" source=\""+
+				edge.source+
+				"\" target=\""+
+				edge.target+"\">")
 
-		p(w, "         </y:PolyLineEdge>",
-			"      </data>",
-			"   </edge>")
+			p(w, "      <data key=\"d9\"/>",
+				"      <data key=\"d10\">",
+				"         <y:PolyLineEdge>")
+			p(w, "            <y:LineStyle color=\"#000000\" type=\""+
+				edge.lineType+"\" width=\""+edge.width+"\"/>")
+			p(w, "            <y:Arrows source=\"none\" target=\""+
+				edge.lineTarget+"\"/>")
+			if edge.edgeLabel != "" {
+				p(w, "		        <y:EdgeLabel>"+edge.edgeLabel+"</y:EdgeLabel>")
+			}
+
+			p(w, "         </y:PolyLineEdge>",
+				"      </data>",
+				"   </edge>")
+		*/
 	}
 }
 
@@ -359,8 +357,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 
 func Export(w io.Writer, ag caes.ArgGraph) error {
 	pHead(w)
-	p(w, "digraph G"+
-		fmt.Sprintf("%d", graphNr)+">")
+	p(w, "digraph G"+fmt.Sprintf("%d", graphNr)+" {", "rankdir=LR")
 	graphNr++
 	nodes, edges, err := mkNodesAndEdges(ag)
 	if err != nil {
