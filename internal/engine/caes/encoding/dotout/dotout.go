@@ -178,7 +178,8 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 
 	for _, edge := range edges {
 
-		p(w, "node"+edge.source+" -> node"+edge.target)
+		p(w, "node"+edge.source+" -> node"+edge.target+
+			"[label=\""+edge.edgeLabel+"\"]")
 
 		/*
 			p(w, "   <edge id=\""+
