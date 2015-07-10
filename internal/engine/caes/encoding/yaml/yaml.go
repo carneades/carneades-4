@@ -263,8 +263,7 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 		}
 		// Scheme
 		if arg_val.scheme != "" {
-			sch := caes.BasicSchemes[arg_val.scheme]
-			arg.Scheme = &caes.Scheme{Id: sch.Id, Metadata: sch.Metadata, Eval: sch.Eval, Valid: sch.Valid}
+			arg.Scheme = arg_val.scheme
 		}
 	}
 	// log.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", ag.Arguments)
@@ -469,8 +468,8 @@ func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 			if ref_arg.Weight != 0.0 {
 				fmt.Fprintf(f, "%sweight: %v\n", sp2, ref_arg.Weight)
 			}
-			if ref_arg.Scheme != nil {
-				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_arg.Scheme.Id)
+			if ref_arg.Scheme != "" {
+				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_arg.Scheme)
 			}
 			if ref_arg.Undercutter != nil {
 				fmt.Fprintf(f, "%sundercutter: %s\n", sp2, ref_arg.Undercutter.Id)

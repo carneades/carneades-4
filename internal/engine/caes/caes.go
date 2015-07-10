@@ -149,7 +149,7 @@ type Premise struct {
 type Argument struct {
 	Id          string
 	Metadata    Metadata
-	Scheme      *Scheme
+	Scheme      string // name of the scheme
 	Premises    []Premise
 	Conclusion  *Statement
 	Undercutter *Statement
@@ -379,8 +379,8 @@ PositionLoop:
 func (arg *Argument) GetWeight(l Labelling) float64 {
 	if arg.Undercut(l) == In || !arg.Applicable(l) {
 		return 0.0
-	} else if arg.Scheme != nil {
-		return arg.Scheme.Eval(arg, l)
+	} else if scheme, ok := BasicSchemes[arg.Scheme]; ok {
+		return scheme.Eval(arg, l)
 	} else {
 		return LinkedArgument(arg, l) // the default argument evaluator
 	}

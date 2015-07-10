@@ -19,7 +19,6 @@ package aif
 
 import (
 	"encoding/json"
-	// "fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"io"
 	"io/ioutil"
@@ -83,7 +82,7 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		case "RA":
 			arg := caes.NewArgument()
 			arg.Id = node.Id
-			arg.Metadata["scheme"] = node.Text
+			arg.Scheme = node.Text
 			args[arg.Id] = &arg
 		default:
 			continue
