@@ -20,7 +20,7 @@
     * Argument Interchange Format (AIF), JSON serialization
 - Export
     * GraphML
-    * YAML/Markdown
+    * YAML
 
 # v4.2
 
