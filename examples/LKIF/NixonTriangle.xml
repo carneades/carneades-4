@@ -1,0 +1,32 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="g1" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11286" value="unknown" assumption="true" standard="PE">
+               <s>Hawk</s>
+            </statement>
+            <statement id="s11285" value="true" assumption="false" standard="PE">
+               <s>Republican</s>
+            </statement>
+            <statement id="s11284" value="true" assumption="false" standard="PE">
+               <s>Quaker</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a2" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s11286"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11284"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11286"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11285"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

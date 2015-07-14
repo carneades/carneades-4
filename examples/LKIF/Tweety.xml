@@ -1,0 +1,40 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11560" value="unknown" assumption="false" standard="PE">
+               <s>Tweety can fly.</s>
+            </statement>
+            <statement id="s11559" value="true" assumption="false" standard="BA">
+               <s>Tweety is a bird.</s>
+            </statement>
+            <statement id="s11558" value="true" assumption="false" standard="BA">
+               <s>Birds normally fly.</s>
+            </statement>
+            <statement id="s11557" value="unknown" assumption="true" standard="BA">
+               <s>Tweety is an abnormal bird.</s>
+            </statement>
+            <statement id="s11556" value="unknown" assumption="true" standard="BA">
+               <s>Tweety is a penguin.</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11557"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11556"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11560"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11559"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11558"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11557"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

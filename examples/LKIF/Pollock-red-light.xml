@@ -1,0 +1,31 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11395" value="unknown" assumption="true" standard="BA">
+               <s>The object is red.</s>
+            </statement>
+            <statement id="s11394" value="true" assumption="true" standard="BA">
+               <s>The object looks red.</s>
+            </statement>
+            <statement id="s11393" value="true" assumption="true" standard="BA">
+               <s>Things which look red are normally red.</s>
+            </statement>
+            <statement id="s11392" value="true" assumption="true" standard="BA">
+               <s>The object is illuminated by a red light.</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11395"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11394"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11393"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11392"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

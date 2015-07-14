@@ -7,6 +7,7 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/aif"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	"log"
 	"os"
@@ -20,9 +21,9 @@ Evaluates an argument graph and prints it in the selected output format.
 If no input-file is specified, input is read from stdin. 
 
 The -f flag ("from") specifies the format of the input file: Currently 
-yaml, aif and agxml are supported. (default: yaml)
+yaml, aif, agxml and lkif are supported. (default: yaml)
 
-The "yaml" format is the native format Carneades 4.x.  YAML is a schemeless
+The "yaml" format is the native format of Carneades 4.x.  YAML is a schemeless
 data interchange format. See http://yaml.org/ for general information about
 YAML.  For examples of Carneades argument graphs in this format, see
 
@@ -39,6 +40,17 @@ annotated corpus of argumentative microtexts Github project.
 For further information about the agxml XML schema, see:
 
     https://github.com/peldszus/arg-microtext
+
+The "lkif" format is the Legal Knowledge Interchange Format
+(LKIF) XML schema. Only the first argument graph in the LKIF file
+is translated. For more information about LKIF, see:
+Gordon, T. F. The Legal Knowledge Interchange Format (LKIF).
+Deliverable 4.1, European Commission, 2008.
+http://www.tfgordon.de/publications/files/GordonLKIF2008.pdf
+
+LKIF is the native format of Carneades 2, a desktop argument mapping
+tool with a graphical user interface. Also known as the Carneades Editor.
+https://github.com/carneades/carneades-2
 
 The -t flag ("to") specifies the output format of the evaluated argument
 graph. Currently graphml and yaml are supported. (default: graphml)	
@@ -57,7 +69,7 @@ The -o flag specifies the output file name. If the -o flag is not used,
 output goes to stdout.
 `
 
-var inputFormats = []string{"yaml", "aif", "agxml"}
+var inputFormats = []string{"yaml", "aif", "agxml", "lkif"}
 var outputFormats = []string{"graphml", "yaml"}
 
 func contains(l []string, s1 string) bool {
@@ -132,6 +144,13 @@ func evalCmd() {
 		}
 	case "aif":
 		ag, err = aif.Import(inFile)
+		inFile.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "lkif":
+		ag, err = lkif.Import(inFile)
 		inFile.Close()
 		if err != nil {
 			log.Fatal(err)

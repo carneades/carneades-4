@@ -1,0 +1,19 @@
+meta:
+  title: The Vacation Example
+  source: > 
+    Prakken, H. An abstract framework for argumentation with 
+    structured arguments. Argument & Computation 1, (2010), 93-124.
+
+statements: 
+  italy: 
+    text: "Let's go to Italy."
+    label: out
+  greece: 
+    text: "Let's go to Greece."
+    label: out
+
+issues:
+  i1:
+    positions: [italy, greece]
+    standard: PE
+

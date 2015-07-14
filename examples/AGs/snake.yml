@@ -1,0 +1,51 @@
+meta:
+  title: Snake or Rope?
+  source: >
+    Walton, D. N.; Tindale, C. W. & Gordon, T. F. (2014), 
+    'Applying Recent Argumentation Methods to Some Ancient Examples 
+    of Plausible Reasoning', Argumentation 28(1), 85 –119. 
+    (Doi: 10.1007/s10503-013-9306-y.)
+
+statements:
+  snake: It is a snake.
+  rope: It is a coil of rope.
+  looks like snake:  It looks like a snake.
+  looks like rope: It looks like a coil of rope.
+  moved when jumped over: It moved when it was jumped over..
+  didn't move when jumped over: It did not move when it was jumped over.
+  moved when prodded: It moved when it was prodded with a stick.
+  did not move when prodded: It did not move when it was prodded with a stick.
+
+issues:
+  i1: 
+    positions: [snake, rope]
+  i2:
+    positions: 
+      - moved when jumped over
+      - didn't move when jumped over
+  i3:
+    positions: 
+      - moved when prodded
+      - did not move when prodded
+
+arguments:
+  a1: 
+    scheme: cumulative
+    conclusion: snake
+    premises:
+      - looks like snake
+      - moved when jumped over
+      - moved when prodded
+  a2:
+    scheme: cumulative
+    conclusion: rope
+    premises:
+      - looks like rope
+      - didn't move when jumped over
+      - did not move when prodded
+
+assumptions:
+  - looks like snake
+  - looks like rope
+  - didn't move when jumped over
+  - did not move when prodded

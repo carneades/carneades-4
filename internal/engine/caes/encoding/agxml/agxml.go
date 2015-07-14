@@ -158,23 +158,20 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 		}
 	}
 
-	for i, _ := range stmts {
-		s := stmts[i]
+	for _, s := range stmts {
 		// do not assume statements supported by arguments or at issue
 		if len(s.Args) > 0 || s.Issue != nil {
 			s.Assumed = false
 		}
 		cag.Statements = append(cag.Statements, s)
 	}
-	for i, _ := range issues {
-		issue := issues[i]
+	for _, issue := range issues {
 		cag.Issues = append(cag.Issues, issue)
 		for _, p := range issue.Positions {
 			p.Issue = issue
 		}
 	}
-	for i, _ := range args {
-		arg := args[i]
+	for _, arg := range args {
 		cag.Arguments = append(cag.Arguments, arg)
 		arg.Conclusion.Args = append(arg.Conclusion.Args, arg)
 		if s, ok := stmts["¬app("+arg.Id+")"]; ok {

@@ -1,0 +1,78 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11464" value="true" assumption="false" standard="BA">
+               <s>killing</s>
+            </statement>
+            <statement id="s11470" value="unknown" assumption="false" standard="BA">
+               <s>murder</s>
+            </statement>
+            <statement id="s11461" value="true" assumption="false" standard="BA">
+               <s>W1&apos;s testimony</s>
+            </statement>
+            <statement id="s11460" value="true" assumption="false" standard="BA">
+               <s>W2&apos;s testimony</s>
+            </statement>
+            <statement id="s11469" value="unknown" assumption="false" standard="BA">
+               <s>self defense</s>
+            </statement>
+            <statement id="s11471" value="unknown" assumption="false" standard="BA">
+               <s>W2 is not credible.</s>
+            </statement>
+            <statement id="s11465" value="true" assumption="false" standard="BA">
+               <s>W1 is not credible.</s>
+            </statement>
+            <statement id="s11467" value="true" assumption="false" standard="BA">
+               <s>malice</s>
+            </statement>
+            <statement id="s11468" value="true" assumption="false" standard="BA">
+               <s>Section 187 is excluded.</s>
+            </statement>
+            <statement id="s11462" value="unknown" assumption="true" standard="BA">
+               <s>Section 197 is excluded.</s>
+            </statement>
+            <statement id="s11466" value="true" assumption="true" standard="BA">
+               <s>Section 187 of the Criminal Code</s>
+            </statement>
+            <statement id="s11463" value="true" assumption="true" standard="BA">
+               <s>Section 197 of the Criminal Code</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a4" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s11469"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11460"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11471"/>
+               </premises>
+            </argument>
+            <argument id="a3" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11469"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11461"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11465"/>
+               </premises>
+            </argument>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11468"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11469"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11463"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11462"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11470"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11464"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11467"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11466"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11468"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

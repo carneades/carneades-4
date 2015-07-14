@@ -1,0 +1,64 @@
+meta: 
+  title: Manadatory Sentences Example
+  source: Henry Prakken
+  note: This example illustrates support for IBIS and cumulative arguments.
+
+statements: 
+  enact-mandatory-sentences: Enacting mandatory minimum sentences for serious crimes .
+  increase-social-justice: Increase social justice.
+  ms-reduce-crime: Enacting mandatory sentences would reduce crime.
+  ¬ms-reduce-crime: Enacting manadatory sentences would not reduce crime.
+  ms-satisfy-public: Enacting mandatory sentences would meet the call from the public for heavier sentences.
+  ¬ms-harden-relationship: Enacting mandatory sentences would not harden the relationship between judges and the legislature.
+  isj-crime-reduction: Increasing social justice would reduce crime.
+  isj-satisfy-public: Increasing social justice would meet the call from the public for heavier sentences.
+  ¬isj-harden-relationship: Increasing social justice would not harden the relationship between judges and the legislature.
+  ¬ms-reduce-recidivism: Mandatory sentences do not reduce recidivism.
+  ms-reduce-discretion: Mandotory sentences reduce the discretion of judges to tailor punishments to individual circumstances.
+  success-return-reduced: If judges have less discretion to tailor punishments, the chances of a successful return to society are reduced.
+
+issues:
+  i1:
+    positions:
+      - enact-mandatory-sentences
+      - increase-social-justice
+  i2:
+    positions:
+      - ms-reduce-crime
+      - ¬ms-reduce-crime
+
+arguments:
+  a1: 
+    scheme: cumulative
+    conclusion: enact-mandatory-sentences
+    premises: 
+      - ms-reduce-crime
+      - ms-satisfy-public
+      - ¬ms-harden-relationship
+  a2:
+    scheme: cumulative
+    conclusion: increase-social-justice
+    premises:
+      - isj-crime-reduction      
+      - ¬isj-harden-relationship
+      - isj-satisfy-public
+  a3: 
+    conclusion: ¬ms-reduce-crime
+    premises:
+      - ¬ms-reduce-recidivism
+
+  a4:
+    conclusion: ¬ms-reduce-recidivism
+    premises:
+      - ms-reduce-discretion
+      - success-return-reduced
+
+assumptions: 
+  - ms-satisfy-public
+  - isj-crime-reduction
+  - ¬isj-harden-relationship
+  - ms-reduce-discretion
+  - success-return-reduced
+
+
+

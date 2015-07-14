@@ -1,0 +1,86 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11261" value="unknown" assumption="false" standard="PE">
+               <s>safe</s>
+            </statement>
+            <statement id="s11260" value="true" assumption="false" standard="PE">
+               <s>government statistics</s>
+            </statement>
+            <statement id="s11259" value="true" assumption="false" standard="PE">
+               <s>Vovlo&apos;s advertising</s>
+            </statement>
+            <statement id="s11258" value="unknown" assumption="false" standard="PE">
+               <s>Porsche</s>
+            </statement>
+            <statement id="s11257" value="true" assumption="false" standard="PE">
+               <s>expensive</s>
+            </statement>
+            <statement id="s11256" value="true" assumption="false" standard="PE">
+               <s>fast</s>
+            </statement>
+            <statement id="s11255" value="unknown" assumption="true" standard="PE">
+               <s>Vovlo</s>
+            </statement>
+            <statement id="s11254" value="true" assumption="false" standard="PE">
+               <s>family car</s>
+            </statement>
+            <statement id="s11253" value="unknown" assumption="false" standard="PE">
+               <s>Which Car?</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11253"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11255"/>
+               </premises>
+            </argument>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11253"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11258"/>
+               </premises>
+            </argument>
+            <argument id="a3" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11255"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11261"/>
+               </premises>
+            </argument>
+            <argument id="a4" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s11255"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11254"/>
+               </premises>
+            </argument>
+            <argument id="a5" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11258"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11256"/>
+               </premises>
+            </argument>
+            <argument id="a6" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s11258"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11257"/>
+               </premises>
+            </argument>
+            <argument id="a7" title="" direction="pro" scheme="" weight="0.52">
+               <conclusion statement="s11261"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11259"/>
+               </premises>
+            </argument>
+            <argument id="a8" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s11261"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11260"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

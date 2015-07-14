@@ -1,0 +1,40 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s1439" value="unknown" assumption="true" standard="BA">
+               <s>The press need not keep quiet about Simon Jone&apos;s private life.</s>
+            </statement>
+            <statement id="s1438" value="unknown" assumption="true" standard="BA">
+               <s>Simon Jones is a Member of Parliament.</s>
+            </statement>
+            <statement id="s1437" value="unknown" assumption="true" standard="BA">
+               <s>The press need not keep quiet the private life of Members of Parliament.</s>
+            </statement>
+            <statement id="s1436" value="unknown" assumption="true" standard="BA">
+               <s>Simon Jones just resigned from the House of Commons.</s>
+            </statement>
+            <statement id="s1435" value="unknown" assumption="true" standard="BA">
+               <s>Persons who resign from the House of Commons are no longer Members of Parliament. </s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a2" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s1438"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1436"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1435"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s1439"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1438"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1437"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

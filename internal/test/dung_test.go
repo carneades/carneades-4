@@ -105,7 +105,7 @@ func TestEqualArgSets(t *testing.T) {
 }
 
 func TestAf2Import(t *testing.T) {
-	inFile, err := os.Open("AFs/reinstatement1.tgf")
+	inFile, err := os.Open("../../examples/AFs/reinstatement1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestAf2Import(t *testing.T) {
 }
 
 func TestAf2GroundedLabelling(t *testing.T) {
-	inFile, err := os.Open("AFs/reinstatement1.tgf")
+	inFile, err := os.Open("../../examples/AFs/reinstatement1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func TestAf2GroundedLabelling(t *testing.T) {
 }
 
 func TestEvenCycle1PreferredLabelling(t *testing.T) {
-	inFile, err := os.Open("AFs/even_cycle1.tgf")
+	inFile, err := os.Open("../../examples/AFs/even_cycle1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}

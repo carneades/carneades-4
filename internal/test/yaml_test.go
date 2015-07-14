@@ -18,27 +18,27 @@ func check(t *testing.T, e error) {
 }
 
 func TestIOTandem(t *testing.T) {
-	ioTest(t, "AGs/tandem.yml", "AGs/TempTandem.yml")
+	ioTest(t, "../../examples/AGs/tandem.yml", "../../examples/AGs/TempTandem.yml")
 }
 
 func TestIOBachelor(t *testing.T) {
-	ioTest(t, "AGs/bachelor.yml", "AGs/TempBachelor.yml")
+	ioTest(t, "../../examples/AGs/bachelor.yml", "../../examples/AGs/TempBachelor.yml")
 }
 
 func TestIOFrisan(t *testing.T) {
-	ioTest(t, "AGs/frisian.yml", "AGs/TempFrisian.yml")
+	ioTest(t, "../../examples/AGs/frisian.yml", "../../examples/AGs/TempFrisian.yml")
 }
 
 func TestIOJogging(t *testing.T) {
-	ioTest(t, "AGs/jogging.yml", "AGs/TempJogging.yml")
+	ioTest(t, "../../examples/AGs/jogging.yml", "../../examples/AGs/TempJogging.yml")
 }
 
 func TestIOSherlock(t *testing.T) {
-	ioTest(t, "AGs/sherlock.yml", "AGs/TempSherlock.yml")
+	ioTest(t, "../../examples/AGs/sherlock.yml", "../../examples/AGs/TempSherlock.yml")
 }
 
 func TestIOVacation(t *testing.T) {
-	ioTest(t, "AGs/vacation.yml", "AGs/TempVacation.yml")
+	ioTest(t, "../../examples/AGs/vacation.yml", "../../examples/AGs/TempVacation.yml")
 }
 
 func checkLabeling(l caes.Labelling, stats []*caes.Statement) error {
@@ -90,14 +90,14 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 	//	yaml.Export(os.Stdout, ag)
 	//	fmt.Printf("---------- End: Write ArgGraph 2 Yaml: %s ----------\n", filename1)
 
-	f, err := os.Create(filename2)
-	check(t, err)
-	yaml.Export(f, ag)
+	// f, err := os.Create(filename2)
+	// check(t, err)
+	// yaml.Export(f, ag)
 
-	file, err = os.Open(filename2)
-	check(t, err)
-	ag, err = yaml.Import(file)
-	check(t, err)
+	// file, err = os.Open(filename2)
+	// check(t, err)
+	// ag, err = yaml.Import(file)
+	// check(t, err)
 	// fmt.Printf("---------- WriteArgGraph 02  %s ----------\n", filename2)
 	// yaml.ExportWithReferences(os.Stdout, ag)
 	// fmt.Printf("---------- End: WriteArgGraph 02 %s ----------\n", filename2)

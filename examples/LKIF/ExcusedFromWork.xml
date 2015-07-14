@@ -1,0 +1,40 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="g1" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11170" value="unknown" assumption="true" standard="PE">
+               <s>Work</s>
+            </statement>
+            <statement id="s11169" value="true" assumption="false" standard="PE">
+               <s>Workday</s>
+            </statement>
+            <statement id="s11168" value="unknown" assumption="true" standard="PE">
+               <s>Excuse</s>
+            </statement>
+            <statement id="s11167" value="unknown" assumption="true" standard="PE">
+               <s>Ill</s>
+            </statement>
+            <statement id="s11166" value="unknown" assumption="true" standard="PE">
+               <s>Cold</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11168"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11167"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11166"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11170"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11169"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11168"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

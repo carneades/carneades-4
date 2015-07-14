@@ -1,0 +1,53 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s11521" value="unknown" assumption="true" standard="BA">
+               <s>Harry is a British subject.</s>
+            </statement>
+            <statement id="s11520" value="unknown" assumption="true" standard="BA">
+               <s>Harry was born in Bermuda.</s>
+            </statement>
+            <statement id="s11519" value="unknown" assumption="true" standard="BA">
+               <s>A man born in Bermuda will generally be a Brisith subject.</s>
+            </statement>
+            <statement id="s11518" value="unknown" assumption="true" standard="BA">
+               <s>Harry has become an American and thus is no longer a British subject.</s>
+            </statement>
+            <statement id="s11517" value="unknown" assumption="true" standard="BA">
+               <s>Civil Code Section 123</s>
+            </statement>
+            <statement id="s11516" value="unknown" assumption="true" standard="BA">
+               <s>Harry has become an American citizen.</s>
+            </statement>
+            <statement id="s11515" value="unknown" assumption="true" standard="BA">
+               <s>Persons who become American citizens are no longer British subjects.</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a3" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11518"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11516"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s11515"/>
+               </premises>
+            </argument>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11519"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="backing" statement="s11517"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s11521"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="datum" statement="s11520"/>
+                  <premise polarity="positive" type="ordinary" role="warrant" statement="s11519"/>
+                  <premise polarity="positive" type="exception" role="" statement="s11518"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

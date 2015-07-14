@@ -1,0 +1,41 @@
+meta:
+  title: The Jogging Example
+  source: > 
+    Prakken, H. A study of accrual of arguments, with
+    applications to evidential reasoning, In Proceedings of the 10th
+    International Conference on Artificial Intelligence and Law, ACM,
+    (2005), 85-94.
+
+statements: 
+  hot: It is hot.
+  rain: It is raining.
+  jog: Go jogging.
+  ¬jog: Do not go jogging.
+
+issues:
+  i1:
+    positions: [jog, ¬jog]
+
+arguments:
+  a1:
+    scheme: factorized
+    conclusion: ¬jog
+    premises: [rain]
+
+  a2: 
+    scheme: factorized
+    conclusion: ¬jog
+    premises: [hot]
+
+  a3:
+    scheme: factorized
+    conclusion: jog
+    premises: [rain, hot]
+
+assumptions: [rain, hot]
+
+labels:
+  in: [rain, hot, jog]
+  out: [¬jog]
+  undecided: []
+

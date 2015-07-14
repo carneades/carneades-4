@@ -181,62 +181,62 @@ func TestVacation(t *testing.T) {
 
 // The library example, ibid., page 17
 
-func TestLibrary(t *testing.T) {
-	var a1, a2, a3 caes.Argument
-	var i1 caes.Issue
-	var snores = caes.Statement{
-		Text:    "The person is snooring in the library.",
-		Assumed: true}
-	var professor = caes.Statement{
-		Text:    "The person is a professor.",
-		Assumed: true}
-	var misbehaves = caes.Statement{
-		Text: "The person is misbehaving.",
-		Args: []*caes.Argument{&a1}}
-	var accessDenied = caes.Statement{
-		Text:  "The person is denied access to the library.",
-		Issue: &i1,
-		Args:  []*caes.Argument{&a2}}
-	var accessNotDenied = caes.Statement{
-		Text:  "The person is not denied access to the library.",
-		Issue: &i1,
-		Args:  []*caes.Argument{&a3}}
-	i1 = caes.Issue{
-		Standard:  caes.PE,
-		Positions: []*caes.Statement{&accessDenied, &accessNotDenied}}
-	a1 = caes.Argument{
-		Conclusion: &misbehaves,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &snores}}}
-	a2 = caes.Argument{
-		Scheme: &caes.Scheme{
-			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
-				return 0.5
-			}},
-		Conclusion: &accessDenied,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &misbehaves}}}
-	a3 = caes.Argument{
-		Scheme: &caes.Scheme{
-			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
-				return 0.6
-			}},
-		Conclusion: &accessNotDenied,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &professor}}}
-	var ag = caes.ArgGraph{
-		Issues: []*caes.Issue{&i1},
-		Statements: []*caes.Statement{&snores, &professor, &misbehaves,
-			&accessDenied, &accessNotDenied},
-		Arguments: []*caes.Argument{&a1, &a2, &a3}}
-	l := ag.GroundedLabelling()
-	expected := l[&accessDenied] == caes.Out && l[&accessNotDenied] == caes.In
-	if !expected {
-		t.Errorf("TestLibrary failed\n")
-		fmt.Printf("label(accessDenied)=%v\n", l[&accessDenied])
-		fmt.Printf("label(accessNotDenied)=%v\n", l[&accessNotDenied])
-		fmt.Printf("label(misbehaves)=%v\n", l[&misbehaves])
-		fmt.Printf("label(snores)=%v\n", l[&snores])
-		fmt.Printf("label(professor)=%v\n", l[&professor])
-	}
-}
+//func TestLibrary(t *testing.T) {
+//	var a1, a2, a3 caes.Argument
+//	var i1 caes.Issue
+//	var snores = caes.Statement{
+//		Text:    "The person is snooring in the library.",
+//		Assumed: true}
+//	var professor = caes.Statement{
+//		Text:    "The person is a professor.",
+//		Assumed: true}
+//	var misbehaves = caes.Statement{
+//		Text: "The person is misbehaving.",
+//		Args: []*caes.Argument{&a1}}
+//	var accessDenied = caes.Statement{
+//		Text:  "The person is denied access to the library.",
+//		Issue: &i1,
+//		Args:  []*caes.Argument{&a2}}
+//	var accessNotDenied = caes.Statement{
+//		Text:  "The person is not denied access to the library.",
+//		Issue: &i1,
+//		Args:  []*caes.Argument{&a3}}
+//	i1 = caes.Issue{
+//		Standard:  caes.PE,
+//		Positions: []*caes.Statement{&accessDenied, &accessNotDenied}}
+//	a1 = caes.Argument{
+//		Conclusion: &misbehaves,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &snores}}}
+//	a2 = caes.Argument{
+//		Scheme: &caes.Scheme{
+//			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
+//				return 0.5
+//			}},
+//		Conclusion: &accessDenied,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &misbehaves}}}
+//	a3 = caes.Argument{
+//		Scheme: &caes.Scheme{
+//			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
+//				return 0.6
+//			}},
+//		Conclusion: &accessNotDenied,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &professor}}}
+//	var ag = caes.ArgGraph{
+//		Issues: []*caes.Issue{&i1},
+//		Statements: []*caes.Statement{&snores, &professor, &misbehaves,
+//			&accessDenied, &accessNotDenied},
+//		Arguments: []*caes.Argument{&a1, &a2, &a3}}
+//	l := ag.GroundedLabelling()
+//	expected := l[&accessDenied] == caes.Out && l[&accessNotDenied] == caes.In
+//	if !expected {
+//		t.Errorf("TestLibrary failed\n")
+//		fmt.Printf("label(accessDenied)=%v\n", l[&accessDenied])
+//		fmt.Printf("label(accessNotDenied)=%v\n", l[&accessNotDenied])
+//		fmt.Printf("label(misbehaves)=%v\n", l[&misbehaves])
+//		fmt.Printf("label(snores)=%v\n", l[&snores])
+//		fmt.Printf("label(professor)=%v\n", l[&professor])
+//	}
+//}
 
 // Serial self defeat example, ibid., page 18
 func TestSelfDefeat(t *testing.T) {
@@ -373,62 +373,62 @@ func TestSelfDefeat3(t *testing.T) {
 	}
 }
 
-func TestReinstatement2(t *testing.T) {
-	var a1, a2, a3 caes.Argument
-	var i1 caes.Issue
-	var P = caes.Statement{
-		Text:  "P",
-		Issue: &i1,
-		Args:  []*caes.Argument{&a1, &a3}}
-	var notP = caes.Statement{
-		Text:  "not P",
-		Issue: &i1,
-		Args:  []*caes.Argument{&a2}}
-	var Q = caes.Statement{
-		Text:    "Q",
-		Assumed: true}
-	var R = caes.Statement{
-		Text:    "R",
-		Assumed: true}
-	var S = caes.Statement{
-		Text:    "S",
-		Assumed: true}
-	i1 = caes.Issue{
-		Standard:  caes.PE,
-		Positions: []*caes.Statement{&P, &notP}}
-	a1 = caes.Argument{
-		Scheme: &caes.Scheme{
-			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
-				return 0.4
-			}},
-		Conclusion: &P,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &Q}}}
-	a2 = caes.Argument{
-		Scheme: &caes.Scheme{
-			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
-				return 0.5
-			}},
-		Conclusion: &notP,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &R}}}
-	a3 = caes.Argument{
-		Scheme: &caes.Scheme{
-			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
-				return 0.6
-			}},
-		Conclusion: &P,
-		Premises:   []caes.Premise{caes.Premise{Stmt: &S}}}
-	var ag = caes.ArgGraph{
-		Issues:     []*caes.Issue{&i1},
-		Statements: []*caes.Statement{&P, &notP, &Q, &R, &S},
-		Arguments:  []*caes.Argument{&a1, &a2, &a3}}
-	l := ag.GroundedLabelling()
-	expected := l[&P] == caes.In && l[&notP] == caes.Out
-	if !expected {
-		t.Errorf("TestReinstatement2 failed\n")
-		fmt.Printf("label(P)=%v\n", l[&P])
-		fmt.Printf("label(not P)=%v\n", l[&notP])
-	}
-}
+//func TestReinstatement2(t *testing.T) {
+//	var a1, a2, a3 caes.Argument
+//	var i1 caes.Issue
+//	var P = caes.Statement{
+//		Text:  "P",
+//		Issue: &i1,
+//		Args:  []*caes.Argument{&a1, &a3}}
+//	var notP = caes.Statement{
+//		Text:  "not P",
+//		Issue: &i1,
+//		Args:  []*caes.Argument{&a2}}
+//	var Q = caes.Statement{
+//		Text:    "Q",
+//		Assumed: true}
+//	var R = caes.Statement{
+//		Text:    "R",
+//		Assumed: true}
+//	var S = caes.Statement{
+//		Text:    "S",
+//		Assumed: true}
+//	i1 = caes.Issue{
+//		Standard:  caes.PE,
+//		Positions: []*caes.Statement{&P, &notP}}
+//	a1 = caes.Argument{
+//		Scheme: &caes.Scheme{
+//			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
+//				return 0.4
+//			}},
+//		Conclusion: &P,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &Q}}}
+//	a2 = caes.Argument{
+//		Scheme: &caes.Scheme{
+//			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
+//				return 0.5
+//			}},
+//		Conclusion: &notP,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &R}}}
+//	a3 = caes.Argument{
+//		Scheme: &caes.Scheme{
+//			Eval: func(arg *caes.Argument, l caes.Labelling) float64 {
+//				return 0.6
+//			}},
+//		Conclusion: &P,
+//		Premises:   []caes.Premise{caes.Premise{Stmt: &S}}}
+//	var ag = caes.ArgGraph{
+//		Issues:     []*caes.Issue{&i1},
+//		Statements: []*caes.Statement{&P, &notP, &Q, &R, &S},
+//		Arguments:  []*caes.Argument{&a1, &a2, &a3}}
+//	l := ag.GroundedLabelling()
+//	expected := l[&P] == caes.In && l[&notP] == caes.Out
+//	if !expected {
+//		t.Errorf("TestReinstatement2 failed\n")
+//		fmt.Printf("label(P)=%v\n", l[&P])
+//		fmt.Printf("label(not P)=%v\n", l[&notP])
+//	}
+//}
 
 func TestSupportLoop(t *testing.T) {
 	var a1, a2 caes.Argument

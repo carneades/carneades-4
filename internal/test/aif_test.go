@@ -12,8 +12,8 @@ import (
 
 func TestAIF1(t *testing.T) {
 	// var ag *caes.ArgGraph
-	file, _ := os.Open("AIF/nodeset7.json")
-	cag, err := aif.Import(file)
+	file, _ := os.Open("../../examples/AIF/nodeset7.json")
+	_, err := aif.Import(file)
 	if err != nil {
 		t.Errorf("AIF import failed.\n")
 	}

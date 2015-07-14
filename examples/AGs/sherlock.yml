@@ -1,0 +1,51 @@
+meta: 
+  title: "The Sherlock Holmes Example" 
+  source: > 
+      Doyle, A. C. (1932). The Complete Sherlock Holmes: 
+      The Memorial Edition. Garden City, New York: Doubleday, Doran & Co.
+
+statements: 
+  gentleman: Watson is a gentleman of medical type but with the air of a military man.
+  armyDoctor: Watson is an army doctor.
+  darkFace: Watson has a dark face.
+  fairWrists: Watson has fair wrists.
+  notNaturalSkinColor: "Darkness is not the natural tint of Watson's skin."
+  warmerClimate: Only a warmer climate can get you exposure to the sun.
+  sunNecessary: Exposure to the sun is necessary to get a suntan.
+  wasInWarmerClimate: Watson must have been recently in a warmer climate.
+  haggard: Watson has a haggard face.
+  hardship: Watson has undergone hardship and sickness.
+  stiffArm: Watson holds his left arm in a stiff and unnatural manner.
+  injured: Watson injured his left arm.
+  Afghanistan: Watson has recently been in Afghanistan.
+
+arguments:
+  a1: 
+    conclusion: armyDoctor
+    premises: [gentleman]
+  a2:
+    conclusion: notNaturalSkinColor
+    premises: [fairWrists, darkFace]
+  a3: 
+    conclusion: wasInWarmerClimate
+    premises: [notNaturalSkinColor, warmerClimate, sunNecessary]
+  a4: 
+    conclusion: hardship
+    premises: [haggard]
+  a5:
+    conclusion: injured
+    premises: [stiffArm]
+  a6:
+    conclusion: Afghanistan
+    premises: [armyDoctor, hardship, injured, wasInWarmerClimate]
+
+assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
+              warmerClimate, sunNecessary]
+
+labels:
+  in: [gentleman, fairWrists, darkFace, haggard, stiffArm,
+       warmerClimate, sunNecessary, armyDoctor, notNaturalSkinColor,
+       hardship, injured, Afghanistan, wasInWarmerClimate]
+  out: []
+  undecided: []
+

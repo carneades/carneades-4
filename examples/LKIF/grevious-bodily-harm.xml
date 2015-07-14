@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?oxygen RNGSchema="../../schemas/LKIF2.rnc" type="compact"?>
+<lkif version="2.0.4">
+  <argument-graphs>
+    <argument-graph id="NewGraph" title="New Graph">
+      <statements>
+        <statement assumption="true" id="s1" standard="BA" value="unknown">
+          <s>The accused is punishable by up to 8 years in prison.</s>
+        </statement>
+        <statement assumption="true" id="s2" standard="BA" value="unknown">
+          <s>Inflicting grevious bodily harm is punishable by up to 8 years in prison.</s>
+        </statement>
+        <statement assumption="false" id="s3" standard="BA" value="false">
+          <s>The accused inflicted grevious bodily harm upon the victim.</s>
+        </statement>
+        <statement assumption="true" id="s4" standard="BA" value="unknown">
+          <s>Section 302 of the Dutch Civil Code</s>
+        </statement>
+        <statement assumption="true" id="s5" standard="BA" value="true">
+          <s>The victim has several broken ribs, with complications.</s>
+        </statement>
+        <statement assumption="true" id="s6" standard="BA" value="true">
+          <s>The accused claims not to have been involved in the fight.</s>
+        </statement>
+        <statement assumption="true" id="s7" standard="BA" value="unknown">
+          <s>Several broken ribs is not grevious bodily harm.</s>
+        </statement>
+        <statement assumption="true" id="s8" standard="BA" value="unknown">
+          <s>10 pub customers testified they saw the accused fighting.</s>
+        </statement>
+        <statement assumption="true" id="s9" standard="BA" value="unknown">
+          <s>Case 1</s>
+        </statement>
+        <statement assumption="true" id="s11" standard="BA" value="unknown">
+          <s>Several broken ribs with complications is serious bodily harm.</s>
+        </statement>
+        <statement assumption="true" id="s12" standard="BA" value="unknown">
+          <s>Case 2</s>
+        </statement>
+        <statement assumption="true" id="s13" standard="BA" value="unknown">
+          <s>Case 2 is more on point than Case 1.</s>
+        </statement>
+      </statements>
+      <arguments>
+        <argument direction="pro" id="a1" scheme="" weight="0.5">
+          <conclusion statement="s1"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s2"/>
+            <premise exception="false" polarity="positive" role="" statement="s3"/>
+          </premises>
+        </argument>
+        <argument direction="pro" id="a2" scheme="" weight="0.5">
+          <conclusion statement="s2"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s4"/>
+          </premises>
+        </argument>
+        <argument direction="pro" id="a3" scheme="" weight="0.4000000059604645">
+          <conclusion statement="s3"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s5"/>
+          </premises>
+        </argument>
+        <argument direction="con" id="a4" scheme="" weight="0.7300000190734863">
+          <conclusion statement="s3"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s6"/>
+          </premises>
+        </argument>
+        <argument direction="con" id="a5" scheme="" weight="0.5">
+          <conclusion statement="s3"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s7"/>
+          </premises>
+        </argument>
+        <argument direction="con" id="a6" scheme="" weight="0.5">
+          <conclusion statement="s6"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s8"/>
+          </premises>
+        </argument>
+        <argument direction="pro" id="a7" scheme="" weight="0.5">
+          <conclusion statement="s7"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s9"/>
+            <premise exception="true" polarity="positive" role="" statement="s13"/>
+          </premises>
+        </argument>
+        <argument direction="pro" id="a8" scheme="" weight="0.5">
+          <conclusion statement="s7"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s11"/>
+          </premises>
+        </argument>
+        <argument direction="pro" id="a9" scheme="" weight="0.5">
+          <conclusion statement="s11"/>
+          <premises>
+            <premise exception="false" polarity="positive" role="" statement="s12"/>
+          </premises>
+        </argument>
+      </arguments>
+    </argument-graph>
+  </argument-graphs>
+</lkif>
