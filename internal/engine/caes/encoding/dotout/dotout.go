@@ -134,7 +134,7 @@ func calculateWidth(l int) string {
 
 func pNodes(w io.Writer, nodes []gmlNode) {
 
-	p(w, "node [shape=box, style=filled, style=\"setlinewidth(4)\"]")
+	p(w, "node [shape=box, style=filled, penwidth = 1 fillcolor = \"white\" fontname = \"Courier New\" ]")
 
 	for _, node := range nodes {
 
@@ -145,13 +145,20 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 
 		shape := "box"
 		if node.shapeType == "roundrectangle" {
-			shape = "ellipse"
+			shape = "Mrecord"
 		} else if node.shapeType == "hexagon" {
 			shape = "hexagon"
 		}
 
+		label := ""
+		if node.underlinedLabel {
+			label = "<<u>" + node.nodeLabel + "</u>>"
+		} else {
+			label = "\"" + node.nodeLabel + "\""
+		}
+
 		p(w, "node"+node.id+
-			" [label="+"\""+node.nodeLabel+"\""+
+			" [label="+label+
 			// "shape=box"+
 			//			", height="+height+
 			//			", width="+width+
