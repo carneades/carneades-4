@@ -157,34 +157,22 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			label = "\"" + node.nodeLabel + "\""
 		}
 
+		// height := "30.0"
+		// width := calculateWidth(len(node.nodeLabel))
+
 		p(w, "node"+node.id+
 			" [label="+label+
-			// "shape=box"+
 			//			", height="+height+
 			//			", width="+width+
+			", penwidth="+node.borderWidth+
 			", color=\""+color+"\""+
 			", shape=\""+shape+"\""+
 			"]")
 
 		/*
-			height := "30.0"
-			width := calculateWidth(len(node.nodeLabel))
-
 			p(w, "         <y:BorderStyle color=\"#000000\" type=\""+
 				node.borderLine+
-				"\" width=\""+
-				node.borderWidth+
 				"\"/>")
-
-			if node.underlinedLabel {
-				p(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">"+node.nodeLabel+"</y:NodeLabel>")
-			} else {
-				p(w, "      <y:NodeLabel fontFamily=\""+font+"\" >"+node.nodeLabel+"</y:NodeLabel>")
-			}
-			p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
-				"       </y:ShapeNode>",
-				"       </data>",
-				"   </node>")
 		*/
 	}
 }
