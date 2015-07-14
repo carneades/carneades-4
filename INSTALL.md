@@ -35,7 +35,7 @@ For further information about how to use the `carneades` command, type
 
     $ carneades help
 
-Example argument graphs, in YAML format, can be found in the `$GOPATH/src/github.com/carneades/carneades-4/examples/AGs` directory.
+Example argument graphs, in YAML format, can be found in the `$GOPATH/src/github.com/carneades/carneades-4/examples/AGs/YAML` directory.
 
 ## Building and Running the Carneades ICCMA Entry
 
@@ -54,11 +54,11 @@ You can execute the program using this full path. If you have added
 $GOPATH/bin to your PATH environment, you can then execute the command
 directly, as in
 
-    $ carneades-iccma -p EE-GR -f `$GOPATH/src/github.com/carneades/carneades-4/internal/test/AFs/bas1.tgf
+    $ carneades-iccma -p EE-GR -f `$GOPATH/src/github.com/carneades/carneades-4/examples/AFs/TGF/bas1.tgf
 
 See the [ICCMA supplementary notes](http://argumentationcompetition.org/2015/iccma15notes_v3.pdf) for further instructions about the flags and parameters, which are the same for all ICCMA entries.
 
-Example abstract argumentation frameworks can be found in the ``$GOPATH/src/github.com/carneades/carneades-4/examples/AFs` directory.
+Example abstract argumentation frameworks can be found in the ``$GOPATH/src/github.com/carneades/carneades-4/examples/AFs/TGF` directory.
 
 Dung abstract argumentation frameworks can also be evaluated and visualized using the `carneades` command. For instructions, execute:
 
