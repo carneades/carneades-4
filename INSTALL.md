@@ -3,7 +3,7 @@ These are instructions for building and running Carneades-4.
 
 ## Prerequisites
 
-A binary distribution for Microsoft Windows (64 bit) is available on the [releases] page. No further software needs to be installed to use this binary distribution.
+A binary distribution for Microsoft Windows (64 bit) is available on the [releases](https://github.com/carneades/carneades-4/releases) page. No further software needs to be installed to use this binary distribution.
 
 For building the system from the source files, the following are required:
 
