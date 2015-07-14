@@ -15,6 +15,8 @@ import (
 	"testing"
 )
 
+const dungDir = "../../examples/AFs/TGF/"
+
 const a1 = dung.Arg("1")
 const a2 = dung.Arg("2")
 const a3 = dung.Arg("3")
@@ -105,7 +107,7 @@ func TestEqualArgSets(t *testing.T) {
 }
 
 func TestAf2Import(t *testing.T) {
-	inFile, err := os.Open("../../examples/AFs/reinstatement1.tgf")
+	inFile, err := os.Open(dungDir + "reinstatement1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +123,7 @@ func TestAf2Import(t *testing.T) {
 }
 
 func TestAf2GroundedLabelling(t *testing.T) {
-	inFile, err := os.Open("../../examples/AFs/reinstatement1.tgf")
+	inFile, err := os.Open(dungDir + "reinstatement1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,7 +136,7 @@ func TestAf2GroundedLabelling(t *testing.T) {
 }
 
 func TestEvenCycle1PreferredLabelling(t *testing.T) {
-	inFile, err := os.Open("../../examples/AFs/even_cycle1.tgf")
+	inFile, err := os.Open(dungDir + "even_cycle1.tgf")
 	if err != nil {
 		log.Fatal(err)
 	}

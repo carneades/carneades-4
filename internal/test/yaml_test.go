@@ -10,6 +10,9 @@ import (
 	"testing"
 )
 
+const yamlDir = "../../examples/AGs/YAML/"
+const yamlTmp = "/tmp"
+
 func check(t *testing.T, e error) {
 	if e != nil {
 		t.Errorf(e.Error())
@@ -18,27 +21,27 @@ func check(t *testing.T, e error) {
 }
 
 func TestIOTandem(t *testing.T) {
-	ioTest(t, "../../examples/AGs/tandem.yml", "../../examples/AGs/TempTandem.yml")
+	ioTest(t, "tandem.yml", "TempTandem.yml")
 }
 
 func TestIOBachelor(t *testing.T) {
-	ioTest(t, "../../examples/AGs/bachelor.yml", "../../examples/AGs/TempBachelor.yml")
+	ioTest(t, "bachelor.yml", "TempBachelor.yml")
 }
 
 func TestIOFrisan(t *testing.T) {
-	ioTest(t, "../../examples/AGs/frisian.yml", "../../examples/AGs/TempFrisian.yml")
+	ioTest(t, "frisian.yml", "TempFrisian.yml")
 }
 
 func TestIOJogging(t *testing.T) {
-	ioTest(t, "../../examples/AGs/jogging.yml", "../../examples/AGs/TempJogging.yml")
+	ioTest(t, "jogging.yml", "TempJogging.yml")
 }
 
 func TestIOSherlock(t *testing.T) {
-	ioTest(t, "../../examples/AGs/sherlock.yml", "../../examples/AGs/TempSherlock.yml")
+	ioTest(t, "sherlock.yml", "TempSherlock.yml")
 }
 
 func TestIOVacation(t *testing.T) {
-	ioTest(t, "../../examples/AGs/vacation.yml", "../../examples/AGs/TempVacation.yml")
+	ioTest(t, "vacation.yml", "TempVacation.yml")
 }
 
 func checkLabeling(l caes.Labelling, stats []*caes.Statement) error {
@@ -71,7 +74,7 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 
 	var ag *caes.ArgGraph
 	var err error
-	file, err := os.Open(filename1)
+	file, err := os.Open(yamlDir + filename1)
 	check(t, err)
 	ag, err = yaml.Import(file)
 
@@ -90,11 +93,11 @@ func ioTest(t *testing.T, filename1 string, filename2 string) {
 	//	yaml.Export(os.Stdout, ag)
 	//	fmt.Printf("---------- End: Write ArgGraph 2 Yaml: %s ----------\n", filename1)
 
-	// f, err := os.Create(filename2)
+	// f, err := os.Create(yamlTmp + filename2)
 	// check(t, err)
 	// yaml.Export(f, ag)
 
-	// file, err = os.Open(filename2)
+	// file, err = os.Open(yamlTmp + filename2)
 	// check(t, err)
 	// ag, err = yaml.Import(file)
 	// check(t, err)

@@ -11,6 +11,9 @@ import (
 	"testing"
 )
 
+const aifDir = "../../examples/AGs/YAML/"
+const aifTmp = "/tmp"
+
 func gmlcheck(t *testing.T, e error) {
 	if e != nil {
 		t.Errorf(e.Error())
@@ -19,27 +22,27 @@ func gmlcheck(t *testing.T, e error) {
 }
 
 func TestIOGmlTandem(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/tandem.yml", "../../examples/AGs/TempTandem.graphml")
+	ioGmlTest(t, "tandem.yml", "TempTandem.graphml")
 }
 
 func TestIOGmlBachelor(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/bachelor.yml", "../../examples/AGs/TempBachelor.graphml")
+	ioGmlTest(t, "bachelor.yml", "TempBachelor.graphml")
 }
 
 func TestIOGmlFrisan(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/frisian.yml", "../../examples/AGs/TempFrisian.graphml")
+	ioGmlTest(t, "frisian.yml", "TempFrisian.graphml")
 }
 
 func TestIOGmlJogging(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/jogging.yml", "../../examples/AGs/TempJogging.graphml")
+	ioGmlTest(t, "jogging.yml", "TempJogging.graphml")
 }
 
 func TestIOGmlSherlock(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/sherlock.yml", "../../examples/AGs/TempSherlock.graphml")
+	ioGmlTest(t, "sherlock.yml", "TempSherlock.graphml")
 }
 
 func TestIOGmlVacation(t *testing.T) {
-	ioGmlTest(t, "../../examples/AGs/vacation.yml", "../../examples/AGs/TempVacation.graphml")
+	ioGmlTest(t, "vacation.yml", "TempVacation.graphml")
 }
 
 func ioGmlTest(t *testing.T, filename1 string, filename2 string) {
@@ -47,7 +50,7 @@ func ioGmlTest(t *testing.T, filename1 string, filename2 string) {
 	var ag *caes.ArgGraph
 	var err error
 
-	file, err := os.Open(filename1)
+	file, err := os.Open(aifDir + filename1)
 	gmlcheck(t, err)
 	ag, err = yaml.Import(file)
 	file.Close()
@@ -60,7 +63,7 @@ func ioGmlTest(t *testing.T, filename1 string, filename2 string) {
 	//	fmt.Printf("---------- printLabeling %s ----------\n", filename1)
 	//	printLabeling(l)
 	//	fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
-	//file, err = os.Create(filename2)
+	//file, err = os.Create(aifTmp + filename2)
 	//gmlcheck(t, err)
 	//graphml.Export(file, *ag)
 
