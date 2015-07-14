@@ -143,12 +143,20 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			color = node.color
 		}
 
+		shape := "box"
+		if node.shapeType == "roundrectangle" {
+			shape = "ellipse"
+		} else if node.shapeType == "hexagon" {
+			shape = "hexagon"
+		}
+
 		p(w, "node"+node.id+
 			" [label="+"\""+node.nodeLabel+"\""+
 			// "shape=box"+
 			//			", height="+height+
 			//			", width="+width+
 			", color=\""+color+"\""+
+			", shape=\""+shape+"\""+
 			"]")
 
 		/*
@@ -196,9 +204,6 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 				edge.lineType+"\" width=\""+edge.width+"\"/>")
 			p(w, "            <y:Arrows source=\"none\" target=\""+
 				edge.lineTarget+"\"/>")
-			if edge.edgeLabel != "" {
-				p(w, "		        <y:EdgeLabel>"+edge.edgeLabel+"</y:EdgeLabel>")
-			}
 
 			p(w, "         </y:PolyLineEdge>",
 				"      </data>",
