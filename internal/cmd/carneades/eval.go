@@ -6,6 +6,7 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/aif"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
@@ -53,7 +54,7 @@ tool with a graphical user interface. Also known as the Carneades Editor.
 https://github.com/carneades/carneades-2
 
 The -t flag ("to") specifies the output format of the evaluated argument
-graph. Currently graphml and yaml are supported. (default: graphml)	
+graph. Currently graphml, dot, and yaml are supported. (default: graphml)	
 
 GraphML is an XML schema for directed graphs.  Graphml is supported by 
 several graph editors and visualizations tools.  For further information see:
@@ -64,13 +65,18 @@ The graphml produced by Carneades is intended for use with the yEd
 graph editor. For more information about yEd, see:
 
     https://www.yworks.com/en/products/yfiles/yed/
+	
+The "dot" format is the native format of the open source GraphViz network
+visualization project. For further information see:
+
+	http://graphviz.org/
 
 The -o flag specifies the output file name. If the -o flag is not used, 
 output goes to stdout.
 `
 
 var inputFormats = []string{"yaml", "aif", "agxml", "lkif"}
-var outputFormats = []string{"graphml", "yaml"}
+var outputFormats = []string{"graphml", "yaml", "dot"}
 
 func contains(l []string, s1 string) bool {
 	for _, s2 := range l {
@@ -173,6 +179,13 @@ func evalCmd() {
 		outFile.Close()
 	case "graphml":
 		err = graphml.Export(outFile, ag)
+		outFile.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "dot":
+		err = dot.Export(outFile, *ag)
 		outFile.Close()
 		if err != nil {
 			log.Fatal(err)

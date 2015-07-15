@@ -1,0 +1,13 @@
+digraph G1 {
+rankdir=RL
+node [shape=box, style=filled, penwidth=1, fontname=Arial, fontsize=16]
+edge [fontsize=16, color=black]
+node_n1 [label="P", penwidth=1.0, fillcolor="#FCEE21", shape="box", style="filled" ]
+node_n2 [label="Q", penwidth=1.0, fillcolor="#FCEE21", shape="box", style="filled" ]
+node_n3 [label="a1", penwidth=1.0, fillcolor="#FFFFFF", shape="Mrecord", style="filled" ]
+node_n4 [label="a2", penwidth=1.0, fillcolor="#FFFFFF", shape="Mrecord", style="filled" ]
+node_n1 -> node_n3 [label="", penwidth=1.0, style=filled, color="#000000", arrowhead=none ]
+node_n3 -> node_n2 [label="0", penwidth=1.0, style=filled, color="#000000", arrowhead=normal ]
+node_n2 -> node_n4 [label="", penwidth=1.0, style=filled, color="#000000", arrowhead=none ]
+node_n4 -> node_n1 [label="0", penwidth=1.0, style=filled, color="#000000", arrowhead=normal ]
+}
