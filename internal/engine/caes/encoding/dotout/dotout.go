@@ -19,10 +19,9 @@ const (
 	red    = "#FF0000"
 	green  = "#3AB54A"
 	yellow = "#FCEE21"
-
-	white = "#008000"
-	// line type
-	line   = "line"
+	white  = "#FFFFFF"
+	// line types
+	line   = "filled"
 	dashed = "dashed"
 	//
 	thinLine   = "1.0"
@@ -30,14 +29,15 @@ const (
 	boldLine   = "3.0"
 	//
 	noArrow   = "none"
-	withArrow = "standard"
+	withArrow = "normal"
 	// font
-	font = "Dialog"
+	font     = "Arial"
+	fontsize = "16"
 	// shapeType
 	// diamond   = "diamond"
-	rectangle = "rectangle"
+	rectangle = "box"
 	// ellipse   = "ellipse"
-	roundrectangle = "roundrectangle"
+	roundrectangle = "Mrecord"
 	hexagon        = "hexagon"
 )
 
@@ -97,13 +97,12 @@ func p(w io.Writer, strs ...string) {
 	}
 }
 
-func pHead(w io.Writer) {
-	//	p(w, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?> ")
-	graphNr++
+func pHead(w io.Writer, number int) {
+	p(w, "digraph G"+fmt.Sprintf("%d", number)+" {", "rankdir=RL")
 }
 
 func pFoot(w io.Writer) {
-	//	p(w, "</graphml>")
+	p(w, "}")
 }
 
 func calculateWidth(l int) string {
@@ -134,20 +133,14 @@ func calculateWidth(l int) string {
 
 func pNodes(w io.Writer, nodes []gmlNode) {
 
-	p(w, "node [shape=box, style=filled, penwidth = 1 fontname = \"Courier New\" ]")
+	p(w, "node [shape=box, style=filled, penwidth=1, fontname="+font+", fontsize="+fontsize+"]")
+	p(w, "edge [fontsize="+fontsize+", color=black]")
 
 	for _, node := range nodes {
 
-		color := "white"
+		fillcolor := white
 		if node.color != "" {
-			color = node.color
-		}
-
-		shape := "box"
-		if node.shapeType == "roundrectangle" {
-			shape = "Mrecord"
-		} else if node.shapeType == "hexagon" {
-			shape = "hexagon"
+			fillcolor = node.color
 		}
 
 		label := ""
@@ -160,20 +153,15 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 		// height := "30.0"
 		// width := calculateWidth(len(node.nodeLabel))
 
-		p(w, "node"+node.id+
+		p(w, "node_"+node.id+
 			" [label="+label+
+			", penwidth="+node.borderWidth+
+			", fillcolor=\""+fillcolor+"\""+
+			", shape=\""+node.shapeType+"\""+
+			", style=\""+node.borderLine+"\""+
 			//			", height="+height+
 			//			", width="+width+
-			", penwidth="+node.borderWidth+
-			", fillcolor=\""+color+"\""+
-			", shape=\""+shape+"\""+
-			"]")
-
-		/*
-			p(w, "         <y:BorderStyle color=\"#000000\" type=\""+
-				node.borderLine+
-				"\"/>")
-		*/
+			" ]")
 	}
 }
 
@@ -181,28 +169,23 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 
 	for _, edge := range edges {
 
-		p(w, "node"+edge.source+" -> node"+edge.target+
-			" [label=\""+edge.edgeLabel+"\"]")
+		color := black
+		if edge.color != "" {
+			color = edge.color
+		}
+
+		p(w, "node_"+edge.source+" -> node_"+edge.target+
+			" [label=\""+edge.edgeLabel+"\""+
+			", penwidth="+edge.width+
+			", style="+edge.lineType+
+			", color=\""+color+"\""+
+			", arrowhead="+edge.lineTarget+
+			" ]")
 
 		/*
-			p(w, "   <edge id=\""+
-				edge.id+
-				"\" source=\""+
-				edge.source+
-				"\" target=\""+
-				edge.target+"\">")
-
+			p(w, "   <edge id=\""+edge.id+
 			p(w, "      <data key=\"d9\"/>",
 				"      <data key=\"d10\">",
-				"         <y:PolyLineEdge>")
-			p(w, "            <y:LineStyle color=\"#000000\" type=\""+
-				edge.lineType+"\" width=\""+edge.width+"\"/>")
-			p(w, "            <y:Arrows source=\"none\" target=\""+
-				edge.lineTarget+"\"/>")
-
-			p(w, "         </y:PolyLineEdge>",
-				"      </data>",
-				"   </edge>")
 		*/
 	}
 }
@@ -357,16 +340,14 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 }
 
 func Export(w io.Writer, ag caes.ArgGraph) error {
-	pHead(w)
-	p(w, "digraph G"+fmt.Sprintf("%d", graphNr)+" {", "rankdir=LR")
-	graphNr++
 	nodes, edges, err := mkNodesAndEdges(ag)
 	if err != nil {
 		return err
 	}
+	graphNr++
+	pHead(w, graphNr)
 	pNodes(w, nodes)
 	pEdges(w, edges)
-	p(w, "}")
 	pFoot(w)
 	return nil
 }
