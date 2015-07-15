@@ -1,0 +1,29 @@
+meta: 
+  title: The Unreliable Witness Example
+  note: > 
+    Illustrates a kind of self defeat, where the argument undercuts itself. 
+    ¬app(a1)See also the even loop example.
+
+statements:
+  saysUnreliable:  Witness John says he is unreliable.
+  unreliable: Witness John is unreliable.
+  reliable: Witness John is reliable.
+  ¬app(a1): Argument a1 is not applicable.
+
+issues:
+  i1: 
+    positions: [reliable, unreliable]
+
+arguments:
+  a1:
+    conclusion: unreliable
+    premises: [saysUnreliable]
+    undercutter: ¬app(a1)
+  a2:
+    conclusion: ¬app(a1)
+    premises: [unreliable]
+
+assumptions: [saysUnreliable]
+
+labels:
+  out: [reliable,unreliable,¬app(a1)]

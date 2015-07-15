@@ -1,0 +1,47 @@
+meta: 
+  title: The Library Example
+  source: > 
+   van Gijzel, Bas and Prakken, Henry. "Relating Carneades with abstract 
+   argumentation" Proceedings of the Twenty-Second International Joint
+   Conference on Artificial Intelligence (IJCAI-2011), (2011), pp. 1113-1119.
+
+
+statements: 
+  snores: 
+    text: Henry is snoring in the library.
+    label: in
+  professor: 
+    text: Henry is a professor.
+    label: in
+  misbehaves: 
+    text: Henry is misbehaving
+    label: in
+  accessDenied: 
+    text: Henry is denied access to the library.
+    label: out
+  accessNotDenied: 
+    text: Henry is not denied access to the library.
+    label: in
+
+assumptions: [snores, professor]
+
+issues: 
+  i1: 
+    positions: 
+      - accessDenied
+      - accessNotDenied
+
+arguments:
+  a1: 
+    conclusion: misbehaves
+    premises: [snores]
+  a2:
+    scheme: factorized
+    conclusion: accessDenied
+    premises: [misbehaves]
+  a3:
+    scheme: factorized
+    conclusion: accessNotDenied
+    premises: [misbehaves, professor]
+
+

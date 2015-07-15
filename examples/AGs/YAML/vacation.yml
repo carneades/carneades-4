@@ -1,8 +1,10 @@
 meta:
   title: The Vacation Example
   source: > 
-    Prakken, H. An abstract framework for argumentation with 
-    structured arguments. Argument & Computation 1, (2010), 93-124.
+source: > 
+   van Gijzel, Bas and Prakken, Henry. "Relating Carneades with abstract 
+   argumentation" Proceedings of the Twenty-Second International Joint
+   Conference on Artificial Intelligence (IJCAI-2011), (2011), pp. 1113-1119.
 
 statements: 
   italy: 
