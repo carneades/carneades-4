@@ -21,6 +21,7 @@
 - Export
     * GraphML
     * YAML
+    * dot (GraphViz)
 
 # v4.2
 
