@@ -357,12 +357,12 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	return
 }
 
-func Export(w io.Writer, ag caes.ArgGraph) error {
+func Export(w io.Writer, ag *caes.ArgGraph) error {
 	pHead(w)
 	p(w, "<graph edgedefault=\"directed\" id=\"G"+
 		fmt.Sprintf("%d", graphNr)+"\">")
 	graphNr++
-	nodes, edges, err := mkNodesAndEdges(ag)
+	nodes, edges, err := mkNodesAndEdges(*ag)
 	if err != nil {
 		return err
 	}

@@ -8,9 +8,10 @@ package test
 
 import (
 	"github.com/carneades/carneades-4/internal/engine/caes"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	// "log"
-	// "os"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -185,7 +186,7 @@ func TestVacation(t *testing.T) {
 //	var a1, a2, a3 caes.Argument
 //	var i1 caes.Issue
 //	var snores = caes.Statement{
-//		Text:    "The person is snooring in the library.",
+//		Text:    "The person is snoring in the library.",
 //		Assumed: true}
 //	var professor = caes.Statement{
 //		Text:    "The person is a professor.",
@@ -281,8 +282,8 @@ func TestSelfDefeat(t *testing.T) {
 
 func TestEvenLoop(t *testing.T) {
 	var a1, a2 caes.Argument
-	var P = caes.Statement{Text: "P"}
-	var Q = caes.Statement{Text: "Q"}
+	var P = caes.Statement{Id: "P", Text: "P"}
+	var Q = caes.Statement{Id: "Q", Text: "Q"}
 	a1 = caes.Argument{
 		Conclusion: &Q,
 		Premises:   []caes.Premise{caes.Premise{Stmt: &P}}}
@@ -294,6 +295,7 @@ func TestEvenLoop(t *testing.T) {
 		Arguments:  []*caes.Argument{&a1, &a2}}
 	l := ag.GroundedLabelling()
 	expected := l[&P] == caes.Out && l[&Q] == caes.Out
+
 	if !expected {
 		t.Errorf("TestEvenLoop failed\n")
 		fmt.Printf("label(P)=%v\n", l[&P])
@@ -476,5 +478,32 @@ func TestIndependentSupportLoop(t *testing.T) {
 		fmt.Printf("label(P)=%v\n", l[&P])
 		fmt.Printf("label(Q)=%v\n", l[&Q])
 		fmt.Printf("label(R)=%v\n", l[&R])
+	}
+}
+
+func TestApplyLabelling(t *testing.T) {
+	var a1, a2 caes.Argument
+	var P = caes.Statement{Id: "P", Text: "P"}
+	var Q = caes.Statement{Id: "Q", Text: "Q"}
+	a1 = caes.Argument{
+		Id:         "a1",
+		Conclusion: &Q,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &P}}}
+	a2 = caes.Argument{
+		Id:         "a2",
+		Conclusion: &P,
+		Premises:   []caes.Premise{caes.Premise{Stmt: &Q}}}
+	var ag = caes.ArgGraph{
+		Statements: []*caes.Statement{&P, &Q},
+		Arguments:  []*caes.Argument{&a1, &a2}}
+	l := ag.GroundedLabelling()
+	ag.ApplyLabelling(l)
+	expected := l[&P] == P.Label && l[&Q] == Q.Label
+	yaml.Export(os.Stdout, &ag)
+
+	if !expected {
+		t.Errorf("TestApplyLabelling failed\n")
+		fmt.Printf("l[P]=%v; P.Label=%v\n", l[&P], P.Label)
+		fmt.Printf("l[Q]=%v; Q.Label=%v\n", l[&Q], Q.Label)
 	}
 }

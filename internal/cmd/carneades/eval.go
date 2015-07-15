@@ -171,7 +171,7 @@ func evalCmd() {
 		yaml.Export(outFile, ag)
 		outFile.Close()
 	case "graphml":
-		err = graphml.Export(outFile, *ag)
+		err = graphml.Export(outFile, ag)
 		outFile.Close()
 		if err != nil {
 			log.Fatal(err)
