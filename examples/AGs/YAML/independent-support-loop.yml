@@ -1,0 +1,23 @@
+meta:
+  title: Indepedent Support Loop Example
+
+statements:
+  P: P
+  Q: Q
+  R: R
+
+arguments:
+  a1:
+    conclusion: P
+    premises: [Q]
+  a2:
+    conclusion: Q
+    premises: [P]
+  a3:
+    conclusion: P
+    premises: [R]
+
+assumptions: [R]
+
+labels:
+  in: [P,Q,R]

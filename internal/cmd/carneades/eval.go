@@ -164,6 +164,7 @@ func evalCmd() {
 	// evaluate the argument graph, using grounded semantics
 	// and update the labels of the statements in the argument graph
 	l := ag.GroundedLabelling()
+	fmt.Printf("labelling=%v\n", l)
 	ag.ApplyLabelling(l)
 
 	switch *toFlag {

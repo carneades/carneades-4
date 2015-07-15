@@ -1,0 +1,17 @@
+meta:
+  title: Support Loop Example
+
+statements:
+  P: P
+  Q: Q
+
+arguments:
+  a1:
+    conclusion: P
+    premises: [Q]
+  a2:
+    conclusion: Q
+    premises: [P]
+
+labels:
+  out: [P,Q]

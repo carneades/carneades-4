@@ -482,6 +482,7 @@ func TestIndependentSupportLoop(t *testing.T) {
 }
 
 func TestApplyLabelling(t *testing.T) {
+	// same AG as in the even-loop test
 	var a1, a2 caes.Argument
 	var P = caes.Statement{Id: "P", Text: "P"}
 	var Q = caes.Statement{Id: "Q", Text: "Q"}
@@ -497,6 +498,7 @@ func TestApplyLabelling(t *testing.T) {
 		Statements: []*caes.Statement{&P, &Q},
 		Arguments:  []*caes.Argument{&a1, &a2}}
 	l := ag.GroundedLabelling()
+	fmt.Printf("labelling=%v\n", l)
 	ag.ApplyLabelling(l)
 	expected := l[&P] == P.Label && l[&Q] == Q.Label
 	yaml.Export(os.Stdout, &ag)
