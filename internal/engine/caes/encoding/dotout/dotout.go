@@ -134,11 +134,11 @@ func calculateWidth(l int) string {
 
 func pNodes(w io.Writer, nodes []gmlNode) {
 
-	p(w, "node [shape=box, style=filled, penwidth = 1 fillcolor = \"white\" fontname = \"Courier New\" ]")
+	p(w, "node [shape=box, style=filled, penwidth = 1 fontname = \"Courier New\" ]")
 
 	for _, node := range nodes {
 
-		color := black
+		color := "white"
 		if node.color != "" {
 			color = node.color
 		}
@@ -165,7 +165,7 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			//			", height="+height+
 			//			", width="+width+
 			", penwidth="+node.borderWidth+
-			", color=\""+color+"\""+
+			", fillcolor=\""+color+"\""+
 			", shape=\""+shape+"\""+
 			"]")
 
