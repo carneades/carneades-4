@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
-	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dotout"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	"log"
@@ -128,7 +128,7 @@ func evalCmd() {
 			return
 		}
 	case "dot":
-		err = dotout.Export(outFile, *ag)
+		err = dot.Export(outFile, *ag)
 		outFile.Close()
 		if err != nil {
 			log.Fatal(err)

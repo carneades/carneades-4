@@ -5,7 +5,7 @@
 // at http://mozilla.org/MPL/2.0/.
 
 // Visualizing CAES AG using [Dot](http://www.graphviz.org/Documentation.php)
-package dotout
+package dot
 
 import (
 	"errors"
