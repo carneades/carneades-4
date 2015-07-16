@@ -9,6 +9,7 @@ statements:
   flies: Tweety flies.
   ¬flies: Tweety does not fly.
   bird: Tweety is a bird.
+  birdsFly: Birds fly.
   penguin: Tweety is a penguin.
   ostrich: Tweety is an ostrich.
   ill: Tweety is ill.
@@ -21,7 +22,9 @@ issues:
 arguments:
   a1:
     conclusion: flies
-    premises: [bird]
+    premises: 
+      minor: bird
+      major: birdsFly
     undercutter: ¬app(a1)
   a2:
     conclusion: ¬flies
@@ -35,6 +38,7 @@ arguments:
 
 assumptions:
   - bird
+  - birdsFly
   - ill
 
 labels:

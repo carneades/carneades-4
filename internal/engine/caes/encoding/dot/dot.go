@@ -198,7 +198,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	for _, stat := range ag.Statements {
 		nNode := newGmlNode() // shapeType [] (rectangle)
 		stat2Node[stat.Id] = nNode.id
-		nNode.nodeLabel = stat.Id
+		nNode.nodeLabel = stat.Text
 		if stat.Assumed {
 			nNode.underlinedLabel = true
 		}
