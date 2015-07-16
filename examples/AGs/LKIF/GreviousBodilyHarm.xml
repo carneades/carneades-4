@@ -1,0 +1,76 @@
+
+<lkif>
+   <argument-graphs>
+      <argument-graph id="NewGraph" title="New Graph" main-issue="">
+         <statements>
+            <statement id="s1472" value="true" assumption="true" standard="BA">
+               <s>Case 1</s>
+            </statement>
+            <statement id="s1468" value="true" assumption="true" standard="BA">
+               <s>Section 302 of the Dutch Civil Code</s>
+            </statement>
+            <statement id="s1471" value="unknown" assumption="true" standard="BA">
+               <s>Inflicting grevious bodily harm is punishable by up to 8 years in prison.</s>
+            </statement>
+            <statement id="s1463" value="unknown" assumption="true" standard="BA">
+               <s>The accused was not involved in the fight.</s>
+            </statement>
+            <statement id="s1473" value="true" assumption="true" standard="BA">
+               <s>10 pub customers testified they saw the accused fighting.</s>
+            </statement>
+            <statement id="s1466" value="unknown" assumption="true" standard="BA">
+               <s>The accused is punishable by up to 8 years in prison.</s>
+            </statement>
+            <statement id="s1465" value="unknown" assumption="true" standard="BA">
+               <s>Several broken ribs with complications is serious bodily harm.</s>
+            </statement>
+            <statement id="s1467" value="unknown" assumption="false" standard="BA">
+               <s>The accused inflicted grevious bodily harm upon the victim.</s>
+            </statement>
+            <statement id="s1469" value="true" assumption="true" standard="BA">
+               <s>The victim has several broken ribs, with complications.</s>
+            </statement>
+         </statements>
+         <arguments>
+            <argument id="a9" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s1465"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1472"/>
+               </premises>
+            </argument>
+            <argument id="a6" title="" direction="con" scheme="" weight="0.5">
+               <conclusion statement="s1463"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1473"/>
+               </premises>
+            </argument>
+            <argument id="a4" title="" direction="con" scheme="" weight="0.73">
+               <conclusion statement="s1467"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1463"/>
+               </premises>
+            </argument>
+            <argument id="a3" title="" direction="pro" scheme="" weight="0.4">
+               <conclusion statement="s1467"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1469"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1465"/>
+               </premises>
+            </argument>
+            <argument id="a2" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s1471"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1468"/>
+               </premises>
+            </argument>
+            <argument id="a1" title="" direction="pro" scheme="" weight="0.5">
+               <conclusion statement="s1466"/>
+               <premises>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1471"/>
+                  <premise polarity="positive" type="ordinary" role="" statement="s1467"/>
+               </premises>
+            </argument>
+         </arguments>
+      </argument-graph>
+   </argument-graphs>
+</lkif>

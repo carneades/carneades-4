@@ -4,7 +4,7 @@ meta:
   note: This example illustrates support for IBIS and cumulative arguments.
 
 statements: 
-  enact-mandatory-sentences: Enacting mandatory minimum sentences for serious crimes .
+  enact-mandatory-sentences: Enact mandatory minimum sentences for serious crimes .
   increase-social-justice: Increase social justice.
   ms-reduce-crime: Enacting mandatory sentences would reduce crime.
   ¬ms-reduce-crime: Enacting manadatory sentences would not reduce crime.
@@ -60,5 +60,19 @@ assumptions:
   - ms-reduce-discretion
   - success-return-reduced
 
-
-
+labels:
+  in: 
+    - ms-satisfy-public
+    - isj-crime-reduction
+    - ¬isj-harden-relationship
+    - ms-reduce-discretion
+    - success-return-reduced
+    - ¬ms-reduce-recidivism
+    - ¬ms-reduce-crime
+    - ms-satisfy-public
+    - increase-social-justice
+  out:
+    - ms-reduce-crime
+    - ¬ms-harden-relationship
+    - isj-satisfy-public
+    - enact-mandatory-sentences

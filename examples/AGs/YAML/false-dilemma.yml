@@ -15,4 +15,8 @@ issues:
       - ¬stopped beating
       - loaded question
 
-  
+labels:
+  out: 
+    - stopped beating
+    - ¬stopped beating
+    - loaded question

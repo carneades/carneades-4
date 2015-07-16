@@ -71,7 +71,7 @@ func DefaultValidityCheck(*Argument) bool {
 
 func LinkedArgument(arg *Argument, l Labelling) float64 {
 	for _, p := range arg.Premises {
-		if l.Get(p.Stmt) != In {
+		if l[p.Stmt] != In {
 			return 0.0
 		}
 	}
@@ -80,7 +80,7 @@ func LinkedArgument(arg *Argument, l Labelling) float64 {
 
 func ConvergentArgument(arg *Argument, l Labelling) float64 {
 	for _, p := range arg.Premises {
-		if l.Get(p.Stmt) == In {
+		if l[p.Stmt] == In {
 			return 1.0
 		}
 	}
@@ -91,7 +91,7 @@ func CumulativeArgument(arg *Argument, l Labelling) float64 {
 	n := len(arg.Premises)
 	m := 0
 	for _, p := range arg.Premises {
-		if l.Get(p.Stmt) == In {
+		if l[p.Stmt] == In {
 			m++
 		}
 	}
@@ -122,7 +122,7 @@ func FactorizedArgument(arg *Argument, l Labelling) float64 {
 	n := premiseCount(arg.Conclusion.Issue)
 	m := 0
 	for _, p := range arg.Premises {
-		switch l.Get(p.Stmt) {
+		switch l[p.Stmt] {
 		case In:
 			m++
 		case Out:
@@ -184,9 +184,9 @@ func NewArgGraph() ArgGraph {
 type Label int
 
 const (
-	Out Label = iota
+	Undecided Label = iota
 	In
-	Undecided
+	Out
 )
 
 func (l Label) String() string {
@@ -206,14 +206,16 @@ func NewLabelling() Labelling {
 	return Labelling(make(map[*Statement]Label))
 }
 
-func (l Labelling) Get(stmt *Statement) Label {
-	v, found := l[stmt]
-	if found {
-		return v
-	} else {
-		return Undecided
-	}
-}
+//func (l Labelling) Get(stmt *Statement) Label {
+//	//	v, found := l[stmt]
+//	//	if found {
+//	//		return v
+//	//	} else {
+//	//		return Undecided
+//	//	}
+//	return l[stmt]
+//	// ToDo: replace calls to l.Get(s) with l[s] and then delete this method
+//}
 
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
@@ -240,14 +242,14 @@ func (l Labelling) init(ag *ArgGraph) {
 		// is some position in?
 		somePositionIn := false
 		for _, p := range i.Positions {
-			if l.Get(p) == In {
+			if l[p] == In {
 				somePositionIn = true
 				break
 			}
 		}
 		if somePositionIn {
 			for _, p := range i.Positions {
-				if l.Get(p) == Undecided {
+				if l[p] == Undecided {
 					l[p] = Out
 				}
 			}
@@ -262,7 +264,7 @@ func (l Labelling) init(ag *ArgGraph) {
 // in the labeling.
 func (ag ArgGraph) ApplyLabelling(l Labelling) {
 	for _, s := range ag.Statements {
-		s.Label = l.Get(s)
+		s.Label = l[s]
 	}
 	for _, arg := range ag.Arguments {
 		arg.Weight = arg.GetWeight(l)
@@ -276,7 +278,7 @@ func (arg *Argument) Undercut(l Labelling) Label {
 	if arg.Undercutter == nil {
 		return Out // because there is no undercutter
 	} else {
-		return l.Get(arg.Undercutter)
+		return l[arg.Undercutter]
 	}
 }
 
@@ -289,7 +291,7 @@ func (arg *Argument) Applicable(l Labelling) bool {
 		return false
 	}
 	for _, p := range arg.Premises {
-		if l.Get(p.Stmt) == Undecided {
+		if l[p.Stmt] == Undecided {
 			return false
 		}
 	}
@@ -397,6 +399,17 @@ func (stmt *Statement) Supported(l Labelling) bool {
 	return false
 }
 
+// A statement is unsupported if it has no arguments or
+// all of its arguments are applicable but none has weight greater than 0
+func (stmt *Statement) Unsupported(l Labelling) bool {
+	for _, arg := range stmt.Args {
+		if !arg.Applicable(l) || arg.GetWeight(l) > 0 {
+			return false
+		}
+	}
+	return true
+}
+
 // Returns the grounded labelling of an argument graph. The argument
 // graph is assumed to be consistent. The argument graph is not modified.
 func (ag *ArgGraph) GroundedLabelling() Labelling {
@@ -407,11 +420,15 @@ func (ag *ArgGraph) GroundedLabelling() Labelling {
 		changed = false // assumption
 		// Try to label Undecided statements
 		for _, stmt := range ag.Statements {
-			if l.Get(stmt) == Undecided {
+			if l[stmt] == Undecided {
 				if stmt.Issue == nil {
 					if stmt.Supported(l) {
-						// Make supported nonissues In
+						// make supported nonissues In
 						l[stmt] = In
+						changed = true
+					} else if stmt.Unsupported(l) {
+						// make unsupported nonissues Out
+						l[stmt] = Out
 						changed = true
 					}
 				} else if stmt.Issue.ReadyToBeResolved(l) {

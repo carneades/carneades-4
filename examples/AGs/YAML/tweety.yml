@@ -1,5 +1,9 @@
 meta:
   title: The Classic Tweety Example
+  note: > 
+    Need to revise this example to use a scheme which orders arguments 
+    by specificity. The example currently only illustrates undercutters.
+    
   
 statements:
   flies: Tweety flies.
@@ -32,3 +36,8 @@ arguments:
 assumptions:
   - bird
   - ill
+
+labels:
+  in: [bird, ill, ¬app(a1)]
+  out: [penguin, ostrich, ¬flies, flies]
+

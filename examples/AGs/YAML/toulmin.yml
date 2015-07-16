@@ -1,0 +1,51 @@
+meta: 
+    title: Toulmin's Standard Example
+    main: 
+statements: 
+    s11520: 
+        text: Harry was born in Bermuda. 
+        assumed: true
+        label: in
+    s11519: 
+        text: A man born in Bermuda will generally be a British subject. 
+        label: in
+    s11518: 
+        text: Harry has become an American and thus is no longer a British subject. 
+        label: in
+    s11517: 
+        text: Civil Code Section 123 
+        assumed: true
+        label: in
+    s11516: 
+        text: Harry has become an American citizen. 
+        assumed: true
+        label: in
+    s11515: 
+        text: Persons who become American citizens are no longer British subjects. 
+        assumed: true
+        label: in
+    ¬app(a1): 
+        text: ¬app(a1) 
+        label: in
+    s11521: 
+        text: Harry is a British subject. 
+        label: undecided
+arguments: 
+    a1:
+        premises:
+            datum: s11520
+            warrant: s11519
+        conclusion: s11521
+        undercutter: ¬app(a1)
+    a1.2:
+        premises: [s11518]
+        conclusion: ¬app(a1)
+    a3:
+        premises: [s11516,s11515]
+        conclusion: s11518
+    a2:
+        premises:
+            backing: s11517
+        conclusion: s11519
+
+

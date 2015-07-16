@@ -6,7 +6,7 @@
             <statement id="s11521" value="unknown" assumption="true" standard="BA">
                <s>Harry is a British subject.</s>
             </statement>
-            <statement id="s11520" value="unknown" assumption="true" standard="BA">
+            <statement id="s11520" value="true" assumption="true" standard="BA">
                <s>Harry was born in Bermuda.</s>
             </statement>
             <statement id="s11519" value="unknown" assumption="true" standard="BA">
@@ -15,13 +15,13 @@
             <statement id="s11518" value="unknown" assumption="true" standard="BA">
                <s>Harry has become an American and thus is no longer a British subject.</s>
             </statement>
-            <statement id="s11517" value="unknown" assumption="true" standard="BA">
+            <statement id="s11517" value="true" assumption="true" standard="BA">
                <s>Civil Code Section 123</s>
             </statement>
-            <statement id="s11516" value="unknown" assumption="true" standard="BA">
+            <statement id="s11516" value="true" assumption="true" standard="BA">
                <s>Harry has become an American citizen.</s>
             </statement>
-            <statement id="s11515" value="unknown" assumption="true" standard="BA">
+            <statement id="s11515" value="true" assumption="true" standard="BA">
                <s>Persons who become American citizens are no longer British subjects.</s>
             </statement>
          </statements>

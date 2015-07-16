@@ -14,4 +14,4 @@ arguments:
     premises: [P]
 
 labels:
-  out: [P,Q]
+  undecided: [P,Q]

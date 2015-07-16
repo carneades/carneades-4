@@ -17,3 +17,6 @@ arguments:
     conclusion: R
     premises: [Q]
 
+labels:
+  undecided: [P,Q,R]
+

@@ -52,4 +52,16 @@ assumptions:
   - interface(Ace)=best
   - learning-ease(Ace)=6
 
-
+labels:
+  in: 
+    - features(Apex)=9
+    - learning-ease(Apex)=5
+    - interface(Apex)=better
+    - features(Ace)=7
+    - interface(Ace)=best
+    - learning-ease(Ace)=6
+    - Ace
+  out:
+    - interface(Apex)=good
+    - interface(Apex)=best
+    - Apex

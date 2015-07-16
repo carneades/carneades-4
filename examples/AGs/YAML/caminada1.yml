@@ -31,7 +31,6 @@ arguments:
 
 assumptions: [j, m, wf]
 
-
-
-
-
+labels:
+  in: [j, m, wf, r]
+  out: [¬s, s, ¬r]

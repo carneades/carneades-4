@@ -1,0 +1,95 @@
+meta: 
+    title: "Prakken and Sartor's Murder Example"
+issues: 
+    i1: 
+        positions: [s11469,¬s11469]
+        standard: PE
+statements: 
+    s11470: 
+        text: murder 
+        label: in
+    s11467: 
+        text: malice 
+        assumed: true
+        label: in
+    s11463: 
+        text: Section 197 of the Criminal Code 
+        label: out
+    ¬s11469: 
+        text: ¬self defense 
+        label: in
+    ¬app(a3): 
+        text: ¬app(a3) 
+        label: in
+    s11464: 
+        text: killing 
+        assumed: true
+        label: in
+    s11460: 
+        text: "W2's testimony"
+        assumed: true
+        label: in
+    s11468: 
+        text: Section 187 is excluded. 
+        label: out
+    ¬app(a2): 
+        text: ¬app(a2) 
+        label: out
+    s11461: 
+        text: "W1's testimony"
+        assumed: true
+        label: in
+    s11469: 
+        text: self defense 
+        label: out
+    s11465: 
+        text: W1 is not credible. 
+        assumed: true
+        label: in
+    ¬app(a1): 
+        text: ¬app(a1) 
+        label: out
+    s11471: 
+        text: W2 is not credible. 
+        label: out
+    s11462: 
+        text: Section 197 is excluded. 
+        label: out
+    s11466: 
+        text: Section 187 of the Criminal Code 
+        assumed: true
+        label: in
+    ¬app(a4): 
+        text: ¬app(a4) 
+        label: out
+arguments: 
+    a1.3:
+        premises: [s11468]
+        conclusion: ¬app(a1)
+    a4:
+        premises: [s11460]
+        conclusion: ¬s11469
+        undercutter: ¬app(a4)
+    a4.1:
+        premises: [s11471]
+        conclusion: ¬app(a4)
+    a3:
+        premises: [s11461]
+        conclusion: s11469
+        undercutter: ¬app(a3)
+    a3.1:
+        premises: [s11465]
+        conclusion: ¬app(a3)
+    a2:
+        premises: [s11469,s11463]
+        conclusion: s11468
+        undercutter: ¬app(a2)
+    a2.2:
+        premises: [s11462]
+        conclusion: ¬app(a2)
+    a1:
+        premises: [s11464,s11467,s11466]
+        conclusion: s11470
+        undercutter: ¬app(a1)
+
+

@@ -3,19 +3,19 @@
    <argument-graphs>
       <argument-graph id="NewGraph" title="New Graph" main-issue="">
          <statements>
-            <statement id="s1439" value="unknown" assumption="true" standard="BA">
+            <statement id="s1439" value="true" assumption="true" standard="BA">
                <s>The press need not keep quiet about Simon Jone&apos;s private life.</s>
             </statement>
             <statement id="s1438" value="unknown" assumption="true" standard="BA">
                <s>Simon Jones is a Member of Parliament.</s>
             </statement>
-            <statement id="s1437" value="unknown" assumption="true" standard="BA">
+            <statement id="s1437" value="true" assumption="true" standard="BA">
                <s>The press need not keep quiet the private life of Members of Parliament.</s>
             </statement>
-            <statement id="s1436" value="unknown" assumption="true" standard="BA">
+            <statement id="s1436" value="true" assumption="true" standard="BA">
                <s>Simon Jones just resigned from the House of Commons.</s>
             </statement>
-            <statement id="s1435" value="unknown" assumption="true" standard="BA">
+            <statement id="s1435" value="true" assumption="true" standard="BA">
                <s>Persons who resign from the House of Commons are no longer Members of Parliament. </s>
             </statement>
          </statements>

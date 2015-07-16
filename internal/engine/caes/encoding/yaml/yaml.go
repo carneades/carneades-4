@@ -323,7 +323,7 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 
 func writeMetaData(f io.Writer, sp1 string, sp2 string, md caes.Metadata) {
 	if md != nil {
-		fmt.Fprintf(f, "%smetadata: \n", sp1)
+		fmt.Fprintf(f, "%smeta: \n", sp1)
 		for md_key, md_val := range md {
 			fmt.Fprintf(f, "%s%s: %s\n", sp2, md_key, md_val)
 		}
@@ -944,20 +944,8 @@ func iface2premises(inArg interface{}) ([]umPremis, error) {
 				keyStr = iface2string(key)
 			}
 			keyStr = strings.ToLower(keyStr)
-			switch keyStr {
-			case "major":
-				premis.role = keyStr
-				premis.stmt = valStr
-				// log.Printf("      major: %s\n", valStr)
-			case "minor":
-				premis.role = keyStr
-				premis.stmt = valStr
-				// log.Printf("      minor: %s\n", valStr)
-			default:
-				return outArg,
-					errors.New("*** ERROR: minor/majo expected and not" + keyStr + ": (value " + valStr + ")")
-
-			}
+			premis.role = keyStr
+			premis.stmt = valStr
 			if outArg == nil {
 				outArg = []umPremis{premis}
 			} else {

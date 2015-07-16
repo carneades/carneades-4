@@ -1,0 +1,42 @@
+meta: 
+    main: 
+    id: NewGraph
+    title: New Graph
+issues: 
+statements: 
+    s11393: 
+        meta: 
+        text: Things which look red are normally red. 
+        assumed: true
+        label: in
+    s11392: 
+        meta: 
+        text: The object is illuminated by a red light. 
+        assumed: true
+        label: in
+    ¬app(a1): 
+        meta: 
+        text: ¬app(a1) 
+        label: out
+    s11395: 
+        meta: 
+        text: The object is red. 
+        label: in
+    s11394: 
+        meta: 
+        text: The object looks red. 
+        assumed: true
+        label: in
+arguments: 
+    a1:
+        meta: 
+            title: 
+        premises: [s11394,s11393]
+        conclusion: s11395
+        weight: 1
+        undercutter: ¬app(a1)
+    a1.2:
+        meta: 
+        premises: [s11392]
+        conclusion: ¬app(a1)
+        weight: 1

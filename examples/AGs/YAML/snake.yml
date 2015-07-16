@@ -49,3 +49,15 @@ assumptions:
   - looks like rope
   - didn't move when jumped over
   - did not move when prodded
+
+labels:
+  in: 
+    - looks like snake
+    - looks like rope
+    - didn't move when jumped over
+    - did not move when prodded
+    - rope
+  out:
+    - moved when jumped over
+    - moved when prodded
+    - snake
