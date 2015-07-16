@@ -27,4 +27,3 @@ arguments:
     a1.2:
         premises: [s11392]
         conclusion: ¬app(a1)
-

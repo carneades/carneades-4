@@ -42,6 +42,6 @@ assumptions:
   - ill
 
 labels:
-  in: [bird, ill, ¬app(a1)]
+  in: [bird, ill, ¬app(a1), birdsFly]
   out: [penguin, ostrich, ¬flies, flies]
 
