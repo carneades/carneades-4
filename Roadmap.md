@@ -16,8 +16,9 @@
     * Multicriteria Decision-Making (MCDM)
 - Import
     * Simple, plain text format, based on YAML
-    * Carneades Argument Format (CAF), extended to handle the new model
-    * Argument Interchange Format (AIF), JSON serialization
+    * The Legal Knowledge Interchange Format (LKIF), used by Carneades 2
+    * The Carneades Argument Format (CAF), used by Carneades 3
+    * The JSON serialization of the Argument Interchange Format (AIF)
 - Export
     * GraphML
     * YAML
