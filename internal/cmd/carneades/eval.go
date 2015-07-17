@@ -28,7 +28,7 @@ The "yaml" format is the native format of Carneades 4.x.  YAML is a schemeless
 data interchange format. See http://yaml.org/ for general information about
 YAML.  For examples of Carneades argument graphs in this format, see
 
-    https://github.com/carneades/carneades-4/tree/master/internal/test/AGs
+    https://github.com/carneades/carneades-4/examples/AGs/YAML
 
 The "aif" format is the JSON serialization of the Argument Interchange 
 Format (AIF).  For further information about AIF, see:
