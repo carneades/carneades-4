@@ -9,9 +9,9 @@ the code in:
 
     github.com/carneades/carneades-4/internal/test/caes_test.go
 
-These tests evaluate all the argument graphs in this folder, 
-compare the computed labels with the labels asserted in these 
-files and reported any discrepencies. 
+This code evaluates all the argument graphs in this folder, 
+compares the computed labels with the labels asserted in these 
+files and reports any discrepencies. 
 
 
 
