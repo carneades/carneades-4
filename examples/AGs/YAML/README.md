@@ -7,7 +7,7 @@ The statement labels in these argument graphs have been asserted
 manually and are used to test the CAES argument graph evaluator by 
 the code in:
 
-github.com/carneades/carneades-4/internal/test/caes_test.go
+    github.com/carneades/carneades-4/internal/test/caes_test.go
 
 These tests evaluate all the argument graphs in this folder, 
 compare the computed labels with the labels asserted in these 
