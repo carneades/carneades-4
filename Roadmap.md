@@ -47,7 +47,7 @@
 
 # v4.5
 
-- Static website generator, for browsing argument graphs
+- Static website generator, for browsing large argument graphs
 - Views: hypertext and argument maps in SVG
 - No Carneades web services will be required
 - Static pages may be uploaded to any Web server, e.g. via FTP
