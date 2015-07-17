@@ -1,5 +1,5 @@
 These YAML files represent Carneades 4.x argument graphs.
-The YAML format (scheme) illustrated here is the native and preferred 
+The YAML format (scheme) used here is the native and preferred 
 text format for representing and interchanging argument 
 graphs in Carneades 4.x.
 
