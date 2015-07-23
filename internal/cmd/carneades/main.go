@@ -25,6 +25,7 @@ The commands are:
 
 eval - evaluate a structured argument graph
 dung - compute extensions of a Dung abstract argumentation framework
+server - start the Carneades web service
 help - displays instructions
 
 Execute "carneades help [command]" for further information.
@@ -50,6 +51,8 @@ func main() {
 					fmt.Printf("%s\n", helpEval)
 				case "dung":
 					fmt.Printf("%s\n", helpDung)
+				case "server":
+					fmt.Printf("%s\n", helpServer)
 				default:
 					fmt.Printf("%s\n", help)
 				}
