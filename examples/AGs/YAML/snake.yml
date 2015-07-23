@@ -47,7 +47,6 @@ arguments:
 assumptions:
   - looks like snake
   - looks like rope
-  - didn't move when jumped over
   - did not move when prodded
 
 labels:

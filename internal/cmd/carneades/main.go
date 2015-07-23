@@ -39,6 +39,8 @@ func main() {
 			evalCmd()
 		case "dung":
 			dungCmd()
+		case "server":
+			webServerCmd()
 		default:
 			if len(os.Args) == 2 {
 				fmt.Printf("%s\n", help)
