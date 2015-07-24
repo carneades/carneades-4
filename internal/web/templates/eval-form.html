@@ -1,0 +1,65 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Carneades 4.1</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+<div data-role="page" id="EvalForm">
+
+	<div data-role="header">
+		<h1>Evaluate Argument Graph</h1>
+	</div>
+	
+	<div role="main" class="ui-content">
+
+	<p>Evaluates a structured argument graph and prints or displays it in the selected output format.</p>
+		<form action="/eval" enctype="multipart/form-data" target="_blank" data-ajax="false" method="post">
+			<legend>File:</legend>
+			<input type="file" name="datafile" size="40">
+		    <fieldset data-role="controlgroup" data-type="horizontal">
+		        <legend>Input Format:</legend>
+				<input name="input-format" id="caf" value="caf" type="radio"/>
+		        <label for="caf">CAF</label>
+				<input name="input-format" id="agxml" value="agxml" type="radio"/>
+		        <label for="agxml">AGXML</label>
+		        <input name="input-format" id="aif" value="aif" type="radio"/>
+		        <label for="aif">AIF</label>
+		        <input name="input-format" id="lkif" value="lkif" type="radio"/>
+		        <label for="lkif">LKIF</label>
+		 		<input name="input-format" id="yamli" value="yaml" checked="checked" type="radio"/>
+		        <label for="yamli">YAML</label>
+		    </fieldset>
+		    <fieldset data-role="controlgroup" data-type="horizontal">
+		        <legend>Output Format:</legend>
+				<input name="output-format" id="dot" value="dot" type="radio"/>
+		        <label for="dot">DOT</label>
+				<input name="output-format" id="graphml" value="graphml"  type="radio"/>
+		        <label for="graphml">GraphML</label>
+				<input name="output-format" id="png" value="png" type="radio"/>
+		        <label for="png">PNG</label>
+		        <input name="output-format" id="svg" value="svg" checked="checked" type="radio"/>
+		        <label for="svg">SVG</label>
+				<input name="output-format" id="yamlo" value="yaml" type="radio"/>
+		        <label for="yamlo">YAML</label>
+		    </fieldset>
+			<button class="ui-shadow ui-btn ui-corner-all" type="submit" id="submit-eval">Submit</button>
+		</form>
+	</div>
+
+	<div data-role="footer" data-id="main-footer" data-position="fixed">
+		<div data-role="navbar">
+	  		<ul>
+	    			<li><a href="/" class="ui-btn-active" data-icon="home">Home</a></li>
+	   			<li><a href="/eval-help" data-icon="info">Help</a></li>
+	  		</ul>
+		</div>
+	</div>
+</div> <!-- Eval Page -->
+</body>
+</html>

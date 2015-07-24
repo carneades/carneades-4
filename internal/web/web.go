@@ -10,12 +10,16 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
+	"github.com/carneades/carneades-4/internal/engine/dung"
+	dgml "github.com/carneades/carneades-4/internal/engine/dung/encoding/graphml"
+	"github.com/carneades/carneades-4/internal/engine/dung/encoding/tgf"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -125,13 +129,126 @@ func CarneadesServer(port string, templatesDir string) {
 			return
 		}
 	}
-	// root
+
+	dungHandler := func(w http.ResponseWriter, req *http.Request) {
+		semantics := req.FormValue("semantics")
+		outputFormat := req.FormValue("output-format")
+		file, _, err := req.FormFile("datafile")
+		if err != nil {
+			errorTemplate.Execute(w, err.Error())
+			return
+		}
+		data, err := ioutil.ReadAll(file)
+		if err != nil {
+			errorTemplate.Execute(w, err.Error())
+			return
+		}
+
+		var af dung.AF
+		rd := bytes.NewReader(data)
+
+		af, err = tgf.Import(rd)
+		if err != nil {
+			errorTemplate.Execute(w, err.Error())
+			return
+		}
+
+		// evaluate the argumentation framework, using the selected semantics
+		var extensions []dung.ArgSet
+
+		switch semantics {
+		case "complete":
+			if outputFormat == "text" {
+				extensions = af.CompleteExtensions()
+			} else {
+				e, ok := af.SomeExtension(dung.Complete)
+				if ok {
+					extensions = []dung.ArgSet{e}
+				} else {
+					extensions = []dung.ArgSet{}
+				}
+			}
+		case "preferred":
+			if outputFormat == "text" {
+				extensions = af.PreferredExtensions()
+			} else {
+				e, ok := af.SomeExtension(dung.Preferred)
+				if ok {
+					extensions = []dung.ArgSet{e}
+				} else {
+					extensions = []dung.ArgSet{}
+				}
+			}
+		case "stable":
+			if outputFormat == "text" {
+				extensions = af.StableExtensions()
+			} else {
+				e, ok := af.SomeExtension(dung.Stable)
+				if ok {
+					extensions = []dung.ArgSet{e}
+				} else {
+					extensions = []dung.ArgSet{}
+				}
+			}
+		default:
+			extensions = []dung.ArgSet{af.GroundedExtension()}
+		}
+
+		printExtensions := func(extensions []dung.ArgSet) {
+			s := []string{}
+			for _, E := range extensions {
+				s = append(s, E.String())
+			}
+			fmt.Fprintf(w, "[%s]\n", strings.Join(s, ","))
+		}
+
+		switch outputFormat {
+		case "graphml":
+			var as dung.ArgSet
+			if len(extensions) == 0 {
+				as = dung.NewArgSet()
+			} else {
+				as = extensions[0]
+			}
+			dgml.Export(w, af, as)
+
+			//		case "dot":
+			//			err = dot.Export(w, *ag)
+			//			if err != nil {
+			//				errorTemplate.Execute(w, err.Error())
+			//				return
+			//			}
+			//		case "png", "svg":
+			//			cmd := exec.Command("dot", "-T"+outputFormat)
+			//			w2 := bytes.NewBuffer([]byte{})
+			//			cmd.Stdin = w2
+			//			cmd.Stdout = w
+			//			err = dot.Export(w2, *ag)
+			//			if err != nil {
+			//				errorTemplate.Execute(w, err.Error())
+			//				return
+			//			}
+			//			err = cmd.Run()
+			//			if err != nil {
+			//				errorTemplate.Execute(w, err.Error())
+			//				return
+			//			}
+		default: // text
+			printExtensions(extensions)
+		}
+	}
+
 	http.Handle("/", &templateHandler{filename: "carneades.html", templatesDir: templatesDir})
-	http.Handle("/eval-form", &templateHandler{filename: "eval.html", templatesDir: templatesDir})
-	http.Handle("/dung-form", &templateHandler{filename: "dung.html", templatesDir: templatesDir})
+	http.Handle("/help", &templateHandler{filename: "help.html", templatesDir: templatesDir})
+	http.Handle("/eval-form", &templateHandler{filename: "eval-form.html", templatesDir: templatesDir})
+	http.Handle("/eval-help", &templateHandler{filename: "eval-help.html", templatesDir: templatesDir})
 	http.HandleFunc("/eval", evalHandler)
+	http.Handle("/dung-form", &templateHandler{filename: "dung-form.html", templatesDir: templatesDir})
+	http.Handle("/dung-help", &templateHandler{filename: "dung-help.html", templatesDir: templatesDir})
+	http.HandleFunc("/dung", dungHandler)
+
 	// start the web server
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("CarneadesServer:", err)
+		log.Fatal("carneades:", err)
 	}
 }

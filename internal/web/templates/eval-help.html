@@ -1,0 +1,80 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Carneades 4.1 Evaluate Argument Graph Help</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+<div data-role="page" id="EvalHelpPage">
+
+	<div data-role="header">
+		<h1>Evaluate Argument Graph - Help Page</h1>
+	</div>
+	
+	<div role="main" class="ui-content">
+
+
+	<p>Evaluates a structured argument graph and prints or displays it in the selected output format.</p>
+
+    <h2>Input Formats</h2> 
+
+
+    <p> The <a href="http://yaml.org/">YAML</a> format is the native format of Carneades 4.x.  
+	YAML is a schemeless data interchange format. See the  
+	<a href="https://github.com/carneades/carneades-4/tree/master/examples/AGs/YAML">examples</a>.</p>
+
+    <p>The <a href="http://www.argumentinterchange.org/developers">Argument Interchange Format</a> (AIF) 
+	format is serialized using <a href="">JSON</a>.  See the  
+	<a href="https://github.com/carneades/carneades-4/tree/master/examples/AGs/AIF">examples</a>.</p>
+
+    <p>The AGXML format is the XML schema used by the annotated corpus of 
+	<a href="https://github.com/peldszus/arg-microtexts">argumentative 
+	microtexts</a> project.</p>
+
+	<p>The <a href="http://www.tfgordon.de/publications/files/GordonLKIF2008.pdf">
+	Legal Knowledge Interchange Format</a> (LKIF) is an XML schema developed in the
+	European <a href="http://www.policy-impact.eu/">IMPACT</a> project. LKIF is 
+	the native format of <a href="https://github.com/carneades/carneades-2">Carneades 2</a>, 
+	a desktop argument mapping tool with a graphical user interface. 
+	Also known as the Carneades Editor.</p>
+
+	<h2>Output Formats</h2>
+
+	<p><a href="http://graphml.graphdrawing.org/">GraphmL</a> is an XML schema 
+	for directed graphs. Graphml is supported by several graph editors and 
+	visualizations tools.  The graphml produced by Carneades is intended for 
+	use with the <a href="https://www.yworks.com/en/products/yfiles/yed/">yEd</a>
+	graph editor.</p>
+
+    <p>The <a href="http://graphviz.org/content/dot-language">DOT</a> format 
+	is the native format of the open source <a href="http://graphviz.org/">GraphViz</a> 
+	network visualization project.</p>
+	
+	<p>The <a href="http://yaml.org/">YAML</a> format is the native format of Carneades 4.x.  
+	YAML is a schemeless data interchange format. When used as an output format,
+	the arguments and statements in the graph are annotated with their calculated
+	weights and labels (in, out, undecided), respectively. See the 
+	<a href="https://github.com/carneades/carneades-4/tree/master/examples/AGs/YAML">examples</a>.</p>
+	
+	<p>The <a href="https://en.wikipedia.org/wiki/Portable_Network_Graphics">Portable
+	Network Graphics</a> format (PNG) is a standardized raster graphics file format.</p>
+	
+	<p>The <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a> 
+	format (SVG) is a XML-based standard for vector graphics supported by web browsers.</p>
+
+	<div data-role="footer" data-id="main-footer" data-position="fixed">
+		<div data-role="navbar">
+	  		<ul>
+	    			<li><a href="/" class="ui-btn-active" data-icon="home">Home</a></li>
+	   			<li><a href="/help" data-icon="info">Help</a></li>
+	  		</ul>
+		</div>
+	</div>
+</div> <!-- Eval Page -->
+</body>
+</html>

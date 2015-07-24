@@ -1,0 +1,69 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Carneades 4.1 Evaluate Abstract Argumentation Framework Help</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+<div data-role="page" id="DungHelpPage">
+
+	<div data-role="header">
+		<h1>Computing Extensions of Dung Abstract Argumentation Frameworks - Help Page</h1>
+	</div>
+	
+	<div role="main" class="ui-content">
+
+	<p>Compute an extension of a Dung abstract argumentation framework, represented using 
+	the <a href="https://en.wikipedia.org/wiki/Trivial_Graph_Format">Trivial Graph Format</a> (TGF), 
+	using the selected semantics (grounded, complete, preferred, and stable), and output the extension in the selected format. If there are
+	multiple extensions, all extensions are listed in the textual output but one 
+	extension is selected to be displayed in diagrams. If the framework has no extensions,
+	the textual output will be "NO" and the diagrams will show the framework with none of the arguments
+	highlighted". ("In" arguments are shown filled with green color in the diagrams.)</p>
+
+    	<h2>Using the Trivial Graph Format</h2>
+	
+	<p>Representing Dung abstract argumentation frameworks using the 
+	<a href="https://en.wikipedia.org/wiki/Trivial_Graph_Format">Trivial Graph Format</a>
+	is very simple. Take a look at the <a href="https://github.com/carneades/carneades-4/tree/master/examples/AFs/TGF">examples</a>, and perhaps use the tool to
+	compute and visualize some of their extensions, to see how it is done.</p>
+	
+
+	<h2>Output Formats</h2>
+	
+	<p>The <b>text</b> output format lists the extensions of the argumentation framework
+	in a plain text format.</p>
+
+	<p>The <a href="http://graphml.graphdrawing.org/">GraphmL</a> format is an XML schema 
+	for directed graphs. Graphml is supported by several graph editors and 
+	visualizations tools.  The Graphml produced by Carneades is intended for 
+	use with the <a href="https://www.yworks.com/en/products/yfiles/yed/">yEd</a>
+	graph editor.</p>
+
+<!--
+    <p>The <a href="http://graphviz.org/content/dot-language">DOT</a> format 
+	is the native format of the open source <a href="http://graphviz.org/">GraphViz</a> 
+	network visualization project.</p>
+	
+	<p>The <a href="https://en.wikipedia.org/wiki/Portable_Network_Graphics">Portable
+	Network Graphics</a> format (PNG) is a standardized raster graphics file format.</p>
+	
+	<p>The <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a> 
+	format (SVG) is a XML-based standard for vector graphics supported by web browsers.</p>
+-->
+	<div data-role="footer" data-id="main-footer" data-position="fixed">
+		<div data-role="navbar">
+	  		<ul>
+	    			<li><a href="/" class="ui-btn-active" data-icon="home">Home</a></li>
+	   			<li><a href="/help" data-icon="info">Help</a></li>
+	  		</ul>
+		</div>
+	</div>
+</div> <!-- DungHelpPage -->
+</body>
+</html>

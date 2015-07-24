@@ -1,0 +1,72 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Carneades 4.1</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+
+<div data-role="page" id="DungForm">
+
+	<div data-role="header">
+		<h1>Evaluate Abstract Argumentation Framework</h1>
+	</div>
+
+	<div role="main" class="ui-content">
+			<p>Compute an extension of a Dung abstract argumentation framework, represented using 
+			the <a href="https://en.wikipedia.org/wiki/Trivial_Graph_Format">Trivial Graph Format</a> (TGF), 
+			using the selected semantics, and output the extension in the selected format. If there are
+			multiple extensions, one is selected. If the framework has no extensions,
+			the text output will be "NO" and the diagrams will show the framework with none of the arguments
+			labelled "in". ("In" arguments are shown filled with green color in the diagrams.)</p>
+	
+			<form action="/dung" enctype="multipart/form-data" target="_blank" data-ajax="false" method="post">
+			<legend><a href="https://en.wikipedia.org/wiki/Trivial_Graph_Format">Trivial Graph Format</a> (TGF) File:</legend>
+			<input type="file" name="datafile" size="40">
+		    
+			<fieldset data-role="controlgroup" data-type="horizontal">
+		        <legend>Semantics:</legend>
+				<input name="semantics" id="grounded" value="grounded" checked="checked" type="radio"/>
+		        <label for="grounded">Grounded</label>
+				<input name="semantics" id="complete" value="complete"  type="radio"/>
+		        <label for="complete">Complete</label>
+				<input name="semantics" id="preferred" value="preferred" type="radio"/>
+		        <label for="preferred">Preferred</label>
+		        <input name="semantics" id="stable" value="stable" type="radio"/>
+		        <label for="stable">Stable</label>
+		    </fieldset>
+		    <fieldset data-role="controlgroup" data-type="horizontal">
+		        <legend>Output Format:</legend>
+			<!--	 <input name="output-format" id="dot" value="dot" type="radio"/>
+		        <label for="dot">DOT</label> -->
+				<input name="output-format" id="graphml" value="graphml"  type="radio"/>
+		        <label for="graphml">GraphML</label>
+			<!-- <input name="output-format" id="png" value="png" type="radio"/>
+				<label for="png">PNG</label>
+		        <input name="output-format" id="svg" value="svg" type="radio"/>
+		        <label for="svg">SVG</label> -->
+				<input name="output-format" id="text" value="text" checked="checked" type="radio"/>
+		        <label for="text">Text</label>
+		    </fieldset>
+			<button class="ui-shadow ui-btn ui-corner-all" type="submit" id="submit-eval">Submit</button>
+		</form>
+	</div>
+
+	<div data-role="footer" data-id="main-footer" data-position="fixed">
+		<div data-role="navbar">
+	  		<ul>
+	    			<li><a href="/" class="ui-btn-active" data-icon="home">Home</a></li>
+	   			<li><a href="/dung-help" data-icon="info">Help</a></li>
+	  		</ul>
+		</div>
+	</div>
+</div> <!-- Dung Page -->
+
+
+</body>
+</html>
