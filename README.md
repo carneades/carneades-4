@@ -11,7 +11,7 @@ This version of Carneades consists of:
 
 - An implementation of a solver for Dung abstract argumentation frameworks,
 using grounded, complete, preferred and stable semantics. Argumentation Frameworks
-can be represented using the [Trivial Graph Format](https://en.wikipedia.org/wiki/Trivial_Graph_Format). The computed extensions can be exported to [DOT](http://www.graphviz.org/content/dot-language) , [GraphML](https://en.wikipedia.org/wiki/GraphML) and plain text.
+can be represented using the [Trivial Graph Format](https://en.wikipedia.org/wiki/Trivial_Graph_Format). The computed extensions can be exported to DOT, GraphML and plain text.
 - An evaluator for structured arguments, based on a new version of the 
 Carneades Argument Evaluation Structures (CAES) formal model of argument. 
 New in this version of CAES is support for cyclic argument graphs, cumulative
