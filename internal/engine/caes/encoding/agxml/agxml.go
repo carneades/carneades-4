@@ -79,7 +79,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 		s.Id = a.Id
 		s.Assumed = true // overridden below if supported by arguments
 		s.Metadata["type"] = a.Type
-		stmts[a.Id] = &s
+		stmts[a.Id] = s
 	}
 
 	// first pass
@@ -179,7 +179,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 		}
 	}
 
-	return &cag
+	return cag
 }
 
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {

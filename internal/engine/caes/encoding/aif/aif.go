@@ -75,16 +75,16 @@ func (ag AIF) Caes() *caes.ArgGraph {
 			s.Id = node.Id
 			s.Text = node.Text
 			s.Assumed = true // may be overridden below
-			stmts[s.Id] = &s
+			stmts[s.Id] = s
 		case "CA":
 			i := caes.NewIssue()
 			i.Id = node.Id
-			issues[i.Id] = &i
+			issues[i.Id] = i
 		case "RA":
 			arg := caes.NewArgument()
 			arg.Id = node.Id
 			arg.Scheme = node.Scheme
-			args[arg.Id] = &arg
+			args[arg.Id] = arg
 		default:
 			continue
 		}
@@ -149,7 +149,7 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		cag.Arguments = append(cag.Arguments, arg)
 	}
 
-	return &cag
+	return cag
 }
 
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {

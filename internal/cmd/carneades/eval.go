@@ -6,6 +6,7 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/aif"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/caf"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/lkif"
@@ -42,6 +43,12 @@ For further information about the agxml XML schema, see:
 
     https://github.com/peldszus/arg-microtext
 
+The "caf" format is the Carneades Argument Format (CAF), the native format of 
+Carneades 3. For further information about the CAF and Carneades 3, see::
+
+	https://github.com/carneades/carneades-3/blob/master/schemas/CAF.rnc
+	https://github.com/carneades/carneades-3
+	
 The "lkif" format is the Legal Knowledge Interchange Format
 (LKIF) XML schema. Only the first argument graph in the LKIF file
 is translated. For more information about LKIF, see:
@@ -75,7 +82,7 @@ The -o flag specifies the output file name. If the -o flag is not used,
 output goes to stdout.
 `
 
-var inputFormats = []string{"yaml", "aif", "agxml", "lkif"}
+var inputFormats = []string{"caf", "yaml", "aif", "agxml", "lkif"}
 var outputFormats = []string{"graphml", "yaml", "dot"}
 
 func contains(l []string, s1 string) bool {
@@ -157,6 +164,13 @@ func evalCmd() {
 		}
 	case "lkif":
 		ag, err = lkif.Import(inFile)
+		inFile.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	case "caf":
+		ag, err = caf.Import(inFile)
 		inFile.Close()
 		if err != nil {
 			log.Fatal(err)

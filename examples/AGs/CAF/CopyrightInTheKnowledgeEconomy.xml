@@ -1,0 +1,634 @@
+<?xml version="1.0"?>
+<caf version="1.3">
+  <metadata creator="IMPACT Project" date="2011" title="Reconstruction of Comments on the EU Green Paper ?Copyright in the Knowledge Economy? ">
+    <descriptions>
+      <description lang="en">The purpose of the [Green Paper](http://ec.europa.eu/internal_market/copyright/docs/copyright-infso/greenpaper_en.pdf) on ?Copyright in the Knowledge Economy? is to ?foster a debate on how knowledge for research, science 
+and education can best be disseminated in the online environment.? [@GreenPaper, p. 3].
+
+The Green Paper has two parts.  The first deals with general issues and the second deals with ?specific issues related to the exceptions
+and limitations which are most relevant for the dissemination of knowledge and whether these exceptions should evolve
+in the era of digital dissemination.? [@GreenPaper, p. 3].
+
+Here, we present a reconstruction of some of the policies and arguments put forward in the comments submitted in reponse to the Green Paper.
+Our aim is not to comprehensively model all the policies and arguments submitted, but rather to model a sufficient number of
+representative arguments and policies for the purpose of illustrating features of the IMPACT argument toolbox.
+
+The Corpus Selection Working Group of the IMPACT project has chosen 4 of the 25 questions raised in the Green Paper, as well as
+12 of the 323 comments submitted, representing a wide range of stakeholders, to be used for the research and development purposes of the project.
+
+        The four questions covered by this model are listed below.  Click on a question for further information.
+      </description>
+    </descriptions>
+  </metadata>
+  <statements>
+    <statement standard="PE" atom="urn:uuid:bc4c9f3b-59a4-47c6-a77c-7e18fcc2a48f" main="false" id="urn:uuid:bc4c9f3b-59a4-47c6-a77c-7e18fcc2a48f">
+      <descriptions>
+        <description lang="en">Currently, the lack of harmonization of copyright exceptions faciliates the freedom of contract.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:811c3a42-389e-476d-8a17-09e457a08eac" main="false" id="urn:uuid:811c3a42-389e-476d-8a17-09e457a08eac">
+      <descriptions>
+        <description lang="en">The permitted exceptions should be harmonised so that they are available in all Member States.
+        </description>
+        <description lang="de">Die zulässigen Ausnahmen sollten harmonisiert, so dass sie in allen Mitgliedstaaten sein.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:eb623073-74b6-4f35-9714-39b6c70ab1b4" main="false" id="urn:uuid:eb623073-74b6-4f35-9714-39b6c70ab1b4">
+      <descriptions>
+        <description lang="en">Achieving the goal of making it easier for researchers and students to work in more than one Member State would promote the values of efficiency, legal certainty, scientific research and education.
+        </description>
+        <description lang="de">Die Erreichung des Ziels der Erleichterung für Forscher und Studenten in mehr als einem Mitgliedstaat arbeiten würden die Werte Effizienz, Rechtssicherheit, wissenschaftliche Forschung und Bildung.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="(undercut urn:uuid:f9af4dd3-6dc8-4855-bcad-9546dba86e09)" main="false" id="urn:uuid:60b7c23f-643b-4a0c-9830-e781584fa486">
+      <descriptions/>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:406489b4-f35a-40a8-908b-b390959aa6dc" main="false" id="urn:uuid:406489b4-f35a-40a8-908b-b390959aa6dc">
+      <descriptions>
+        <description lang="en">It is essential that the basic principle of freedom of contract be recognized and preserved by any 
+          copyright legislation.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:b2c569ab-bcc8-4b37-a3bf-3f08e32f6869" main="false" id="urn:uuid:b2c569ab-bcc8-4b37-a3bf-3f08e32f6869">
+      <metadata>
+        <descriptions>
+          <description lang="en">The German Action Alliance for Copyright in Education and Science has proposed the following policy for orphaned works [@Aktionsbündnis, p. 6-7].  
+
+- Orphaned works may be published for noncommercial and private purposes, especially for archiving, research and educational purposes, if the copyright owner was not found after a documented standard search.
+
+- Orphaned works may be published for commercial purposes, if the copyright owner was not able to be found after a documented, professional search and a public announcement of the search.
+
+This policy has been modeled and can be simulated using the Policy Modeling tool of the IMPACT system.  (Click [here]() to view the model of this policy and simulate the effects of this policy in test cases.)
+
+            To do: add the URL pointing to the policy model in the above link.
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">The policy proposed by the German Action Alliance should be adopted to address the cross-border aspects of orphaned works.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:d67734d0-e74b-4007-bb38-74703c55d50e" main="false" id="urn:uuid:d67734d0-e74b-4007-bb38-74703c55d50e">
+      <descriptions>
+        <description lang="en">Clarifying the law to allow works held in libraries for the purpose of making the resulting content searchable on the Internet would have a transformative effect on research, learning and teaching.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:e45a68cd-1640-47b3-ae11-c051aef576d2" main="false" id="urn:uuid:e45a68cd-1640-47b3-ae11-c051aef576d2">
+      <descriptions>
+        <description lang="en">Harmonizing copyright exceptions would impair the freedom of contract.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:ad4092a0-85a1-4e3e-b2f3-640e5d47561a" main="false" id="urn:uuid:ad4092a0-85a1-4e3e-b2f3-640e5d47561a">
+      <descriptions>
+        <description lang="en">Realizing a transformative effect on research, learning and teaching is an important social goal.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:a2af0c71-8be3-4cee-8af7-7147d019de14" main="true" id="urn:uuid:a2af0c71-8be3-4cee-8af7-7147d019de14">
+      <metadata>
+        <descriptions>
+          <description lang="en">(24) Should there be more precise rules regarding
+what acts end users can or cannot do when making use of materials protected by
+            copyright? [@GreenPaper, p. 20]
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">Q24. Should there be more precise rules regarding what acts end users can or
+          cannot do when making use of materials protected by copyright?
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:0c0bf363-765a-4171-8d59-81332950ee7d" main="false" id="urn:uuid:0c0bf363-765a-4171-8d59-81332950ee7d">
+      <descriptions>
+        <description lang="en">It is not known that the rules regulating the scanning of works in libraries are unclear.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:6321ac2e-d364-4c28-8835-ddaa82b945bf" main="false" id="urn:uuid:6321ac2e-d364-4c28-8835-ddaa82b945bf">
+      <descriptions>
+        <description lang="en">Harmonizing the copyright exceptions would make it easier for researchers and students to work in more than one Member State.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:79c9504e-0257-4a67-a871-36996120b5d1" main="false" id="urn:uuid:79c9504e-0257-4a67-a871-36996120b5d1">
+      <descriptions>
+        <description lang="en">While we do not support such an approach, to the extent that an orphan works standard is 
+adopted throughout the EU, we recommend that a Community statutory instrument dealing with 
+          the problem of orphan works should be a stand-alone instrument. [@SIIA, p. 9]
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:eb7a4418-9b7f-473a-927a-e369eea9302a" main="false" id="urn:uuid:eb7a4418-9b7f-473a-927a-e369eea9302a">
+      <descriptions>
+        <description lang="en">Impairing the freedom of contract would demote the values of innovation and the dissemination of knowledge and information.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:92e73724-cd29-4a2a-9830-c2fe9084ecf0" main="false" id="urn:uuid:92e73724-cd29-4a2a-9830-c2fe9084ecf0">
+      <descriptions>
+        <description lang="en">Separate legal topics should be regulated by separate instruments.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:234784fb-9a86-434a-8c26-6632983be2cf" main="false" id="urn:uuid:234784fb-9a86-434a-8c26-6632983be2cf">
+      <descriptions>
+        <description lang="en">No. Further restrictions on the end users of copyrighted materials should not be enacted.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:513ebad9-288d-4b21-a393-8e5ae1d73bd2" main="false" id="urn:uuid:513ebad9-288d-4b21-a393-8e5ae1d73bd2">
+      <descriptions>
+        <description lang="en">The essence of copyright legislation is the maintenance of a balance between the rights of the rights holders and the legitimate needs of users.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:af1cd610-c8b2-4fcb-84ab-76bfdff22e7d" main="false" id="urn:uuid:af1cd610-c8b2-4fcb-84ab-76bfdff22e7d">
+      <descriptions>
+        <description lang="en">Using a stand-alone instrument to regulate orphaned works, instead of amending the 2001 Copyright Directive, would cause the separate topic of remedies for copyright violations to be regulated by a separate instrument.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:8d6c1485-dd64-4064-ae1e-1e06455c405b" main="false" id="urn:uuid:8d6c1485-dd64-4064-ae1e-1e06455c405b">
+      <descriptions>
+        <description lang="en">No. The rules about which uses of copyrighted materials create derivate works, and thus require a license from the copyright owner, are already precise.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:8ff27770-f3d3-4ec0-8bbb-1e864c2713bd" main="false" id="urn:uuid:8ff27770-f3d3-4ec0-8bbb-1e864c2713bd">
+      <descriptions>
+        <description lang="en">The 2001 EU Copyright Directive regards copyrights and exceptions, but not remedies for violations of copyrights.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:76a418c1-0765-4bd7-863e-8cb27450fe2d" main="false" id="urn:uuid:76a418c1-0765-4bd7-863e-8cb27450fe2d">
+      <descriptions>
+        <description lang="en">The introduction of more restrictions on the end users would create an imbalance between the interests of copyright owners and end users and make it more difficult for users of copyright material in their legitimate pursuits in teaching, learning and research in the European Community.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:c73705d6-f027-41f9-a3fc-ea6024e1c9d3" main="false" id="urn:uuid:c73705d6-f027-41f9-a3fc-ea6024e1c9d3">
+      <descriptions>
+        <description lang="en">In the circumstances: Researchers and students increasingly work in more than one Member State. The patchy availability of exceptions makes their work difficult, because what is lawful in one country is probably unlawful in another. The situation is made worse by the provision of most Member States that contracts, governing the use of digital material, automatically overrides statute law.
+        </description>
+        <description lang="de">Unter diesen Umständen: Forscher und Studenten zunehmend in mehr als einem Mitgliedstaat zu arbeiten Die lückenhafte Verfügbarkeit von Ausnahmen macht ihre Arbeit schwierig, weil das, was in einem Land rechtmäßig ist wahrscheinlich rechtswidrig in einem anderen die Situation noch schlimmer wird durch die Bereitstellung der meisten gemacht.. Mitgliedstaaten, dass die Verträge, die die Verwendung von digitalem Material, automatisch außer Kraft Gesetzesrecht.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:51c16641-67cb-4fea-b3d6-4582f3198ef5" main="false" id="urn:uuid:51c16641-67cb-4fea-b3d6-4582f3198ef5">
+      <descriptions>
+        <description lang="en">Regulating separate legal topics with separate instruments promotes the value of legal clarity.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:4fad97bc-91a5-43da-8eaa-856290a7c1a5" main="false" id="urn:uuid:4fad97bc-91a5-43da-8eaa-856290a7c1a5">
+      <descriptions>
+        <description lang="en">Public libraries have the right, indeed the responsibility, to publish digital copies of their collections for the purpose of preserving and distributing online the cultural heritage of Europe. [Aktionsbündnis, p. 6]
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:deedbb2e-9e7a-4b2b-9e79-0c1cac76c61d" main="false" id="urn:uuid:deedbb2e-9e7a-4b2b-9e79-0c1cac76c61d">
+      <descriptions>
+        <description lang="en">If the rules regulating the scanning of works held in libraries were unclear, this would be known.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:0e0ab30b-c4b5-4a66-b140-720be5d9f38d" main="false" id="urn:uuid:0e0ab30b-c4b5-4a66-b140-720be5d9f38d">
+      <metadata>
+        <descriptions>
+          <description lang="en">The cross-border aspects of the orphaned works should be handled through an amendment to Directive 2011/29/EC [@Google, pg. 14].
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">The cross-border aspects of the orphaned works should be handled through an amendment to Directive 2011/29/EC.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:4c584ad4-0607-4513-8653-5289807005e6" main="false" id="urn:uuid:4c584ad4-0607-4513-8653-5289807005e6">
+      <descriptions>
+        <description lang="en">Performing the action of harmonizing the exceptions and giving precedence to community law over contracts would  achieve a state in which it easier for researchers and students to work in more than one Member State.
+        </description>
+        <description lang="de">Performing the Aktion der Harmonisierung der Ausnahmen und den Vorrang zu geben Gemeinschaftsrechts über Verträge würde ein Zustand, in dem es einfacher für Forscher und Studenten in mehr als einem Mitgliedstaat zu arbeiten.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:21f3b361-abb2-4c59-9537-e0d0962ab713" main="false" id="urn:uuid:21f3b361-abb2-4c59-9537-e0d0962ab713">
+      <metadata>
+        <descriptions>
+          <description lang="en">The cross-border aspects of the orphaned works issue are already provided for by the proposal of
+            High Level Expert group, which recommends mutual recognition by Member States of each other's copryight exceptions. [@UKPA pg.12]
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">The cross-border aspects of the orphaned works issue are already provided for by the proposal of
+          High Level Expert group, which recommends mutual recognition by Member States of each other's copryight exceptions.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:86cf149a-54c1-4abf-b80c-e82ccec2be54" main="true" id="urn:uuid:86cf149a-54c1-4abf-b80c-e82ccec2be54">
+      <metadata>
+        <descriptions>
+          <description lang="en">(4) Should certain categories of exceptions be made mandatory to ensure more legal certainty and better protection of beneficiaries of exceptions? [@GreenPaper, p. 6]
+          </description>
+          <description lang="de">(4) Sollten bestimmte Ausnahmekategorien verbindlich ausgestaltet werden, um ein größeres Maß an Rechtssicherheit zu gewährleisten und die Nutznießer dieser Ausnahmen besser zu schützen? [@GreenPaper, p. 6]
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">Q4. Should certain categories of exceptions be made mandatory to ensure more legal 
+          certainty and better protection of beneficiaries of exceptions?
+        </description>
+        <description lang="de">Q4. Sollten bestimmte Kategorien von Ausnahmen zur Pflicht gemacht werden, um sicherzustellen, mehr Rechtssicherheit und einen besseren Schutz der Empfänger von Ausnahmen?
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:71a19756-3794-442a-b4b0-e0613165179c" main="false" id="urn:uuid:71a19756-3794-442a-b4b0-e0613165179c">
+      <descriptions>
+        <description lang="en">Yes. The exceptions should be clarified to allow works held in libraries to be scanned for the purpose of making their content searchable on the Internet.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:9646885a-ba49-461d-b4a3-37e73b95a884" main="false" id="urn:uuid:9646885a-ba49-461d-b4a3-37e73b95a884">
+      <descriptions>
+        <description lang="en">Creating an imbalance between the interests of copyright owners and end users and making it more difficult for users of copyright material in their legitimate pursuits in teaching, learning and research in the European Community should be avoided.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:e1ff189b-00f1-4458-9b6c-a5a6cf0b223c" main="true" id="urn:uuid:e1ff189b-00f1-4458-9b6c-a5a6cf0b223c">
+      <metadata>
+        <descriptions>
+          <description lang="en">(9) Should the law be clarified with respect to whether the scanning of works held in 
+libraries for the purpose of making their content searchable on the Internet goes beyond the scope of current
+            exceptions to copyright? [@GreenPaper, p. 12]
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">Q9. Should the law be clarified with respect to whether the scanning of works held in 
+libraries for the purpose of making their content searchable on the Internet goes beyond the scope of current
+          exceptions to copyright?
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:04cba02f-8eba-4dd8-af8f-de15dc9242cc" main="false" id="urn:uuid:04cba02f-8eba-4dd8-af8f-de15dc9242cc">
+      <descriptions>
+        <description lang="en">Not all the material digitised by publishers is scanned with OCR (Optical Character Recognition) with the purpose of making the resulting content searchable.
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91" main="true" id="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91">
+      <metadata>
+        <descriptions>
+          <description lang="en">(12) How should the cross-border aspects of the orphan works issue be tackled to ensure EU-wide recognition of the solutions adopted in different Member States? [@GreenPaper, p. 12]
+          </description>
+          <description lang="de">(12) Wie sollten die grenzu?bergreifenden Aspekte, die sich im Zusammenhang mit verwaisten Werken stellen, in Angriff genommen werden, um die EU-weite Anerkennung der Regelungen der einzelnen Mitgliedstaaten zu gewa?hrleisten?
+          </description>
+        </descriptions>
+      </metadata>
+      <descriptions>
+        <description lang="en">Q12. How should the cross-border aspects of the orphan works issue be tackled to 
+          ensure EU-wide recognition of the solutions adopted in different Member States?
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:95a1471c-3abf-4469-ba1d-6b206162b59b" main="false" id="urn:uuid:95a1471c-3abf-4469-ba1d-6b206162b59b">
+      <descriptions>
+        <description lang="en">Question 9 is irrelevant
+        </description>
+      </descriptions>
+    </statement>
+    <statement standard="PE" atom="urn:uuid:78b7d76d-b3e7-4d1e-9456-9667284985aa" main="false" id="urn:uuid:78b7d76d-b3e7-4d1e-9456-9667284985aa">
+      <descriptions>
+        <description lang="en">There are better ways to promote efficiency, legal certainty, research and education than making it easier for researchers and students to work in more than one Member State.
+        </description>
+        <description lang="de">Es gibt bessere Wege, um die Effizienz, Rechtssicherheit, Forschung und Bildung als erleichtert es Forschern und Studenten in mehr als einem Mitgliedstaat Arbeit zu fördern.
+        </description>
+      </descriptions>
+    </statement>
+  </statements>
+  <arguments>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:37c986ac-b88d-4de8-9cbc-c03e972928c9">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 12, the policy proposed by the High Level Exprt Group of Germany should be adopted to handle the the cross-border aspects of orphaned works.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91"/>
+      <premises>
+        <premise statement="urn:uuid:21f3b361-abb2-4c59-9537-e0d0962ab713" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:2b9f1cc6-a5cf-49c3-8927-1aaa4e875a2f">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 12, the cross-border aspects of the orphaned works should be handled through an amendment to Directive 2011/29/EC.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91"/>
+      <premises>
+        <premise statement="urn:uuid:0e0ab30b-c4b5-4a66-b140-720be5d9f38d" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Practical" pro="true" weight="0.5" strict="false" id="urn:uuid:f9af4dd3-6dc8-4855-bcad-9546dba86e09">
+      <metadata source="Aktionsbündnis;Aston2008">
+        <descriptions>
+          <description lang="en">Aston University argues that the permitted copyright exceptions should be harmonized:
+
+&gt; Researchers and students increasingly work in more than one Member State, successively or concurrently. The patchy availability of the exceptions makes their work difficult, because what is lawful in one country (for example copying a small portion of a work for critical illustration) is probably unlawful in another. This is particularly the case at Aston where there are opportunities for students to work in a variety of countries on placement and therefore could potentially experience a range of legislation. We also welcome students on exchange from various countries.The situation is made worse by the provision in most Member States that contracts, governing the use of digital material, automatically override statute law. The supremacy of contracts means that statutory exceptions are probably unavailable even in the State that enacted them. This is potentially confusing for users of copyright material as well as information professionals supporting them, where detailed knowledge of specific contracts is required. It is vital that the research and teaching community in Higher Education the right to use copyright material in the context of ?fair dealing? to ensure that academics, librarians and other information professionals are not tied up with recording and monitoring activity within a regulatory framework which is already complex. This situation of legal uncertainty needs legislative action by the European institutions. [@Aston2008, p. 1]
+
+The Action Alliance for Copyright in Education and Science formulated this argument as follows:
+
+            &gt; Different copyright exceptions have always been a hindrance for international, cross-border science and resarch. Binding harmoninzed copryight exceptions for all Member States are therefore desirable. [@Aktionsbündnis, p. 5]
+          </description>
+          <description lang="de">Aston Universität argumentiert wie folgt:
+
+&gt; Forscher und Studenten zunehmend in mehr als einem Mitgliedstaat zu arbeiten, nacheinander oder gleichzeitig. Die lückenhafte Verfügbarkeit der Ausnahmen macht ihre Arbeit schwierig, weil, was in einem Land rechtmäßig (z. B. Kopieren von einem kleinen Teil eines Werkes für kritische Grafik) wahrscheinlich rechtswidrig in ein anderes. Dies ist insbesondere der Fall bei Aston in denen es Möglichkeiten für Studenten, um in einer Vielzahl von Ländern zur Platzierung der Arbeit und damit potenziell Erfahrung eine Reihe von Rechtsvorschriften. Wir begrüßen auch Schüler zum Austausch aus verschiedenen Ländern. Die Situation wird durch die Bereitstellung in den meisten Mitgliedstaaten, dass die Verträge, die die Verwendung von digitalem Material, automatisch überschreiben Gesetzesrecht gemacht. Die Überlegenheit der Verträge bedeutet, dass die gesetzlichen Ausnahmen wahrscheinlich nicht zur Verfügung stehen, auch in dem Staat, der sie erlassen. Das ist verwirrend für die Nutzer von urheberrechtlich geschütztem Material sowie Informationen Profis unterstützen sie, wo genaue Kenntnis der spezifischen Vertrügen erforderlich ist. Es ist wichtig, dass die Forschung und Lehre Gemeinde in Higher Education das Recht vor, urheberrechtlich geschütztes Material im Rahmen der ?Fair Dealing? verwenden, um die Wissenschaftler, Bibliothekare und andere Informationsspezialisten sicher nicht mit Aufzeichnung und Überwachung Aktivität in einem Rechtsrahmen gebunden, die ist schon komplex. Diese Situation der Rechtsunsicherheit muss legislative Maßnahmen der europäischen Institutionen. [@Aston2008, S. 1]
+
+Das Aktionsbündnis ?Urheberrecht fu?r Bildung und Wissenschaft? in Deutschland hat die gleiche Argument so formuliert:
+
+            &gt;Es ist fu?r die immer schon grenzu?berschreitend international arbeitende Wissenschaft hinderlich, wenn Ausnahmen, z.B. fu?r die Nutzung urheberrechtsgeschu?tzten Materials in international verteilten Arbeitsgruppen, in verschiedenen La?ndern unterschiedlich geregelt sind. Eine fu?r alle Mitgliedsla?nder verbindliche Ausgestaltung zentraler Ausnahmekategorien ist daher erwu?nscht. [@Aktionsbündnis, p. 5]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:811c3a42-389e-476d-8a17-09e457a08eac"/>
+      <premises>
+        <premise statement="urn:uuid:4c584ad4-0607-4513-8653-5289807005e6" positive="true" role="Goal" implicit="false"/>
+        <premise statement="urn:uuid:6321ac2e-d364-4c28-8835-ddaa82b945bf" positive="true" role="Action" implicit="false"/>
+        <premise statement="urn:uuid:eb623073-74b6-4f35-9714-39b6c70ab1b4" positive="true" role="Values Promoted" implicit="false"/>
+        <premise statement="urn:uuid:c73705d6-f027-41f9-a3fc-ea6024e1c9d3" positive="true" role="Circumstances" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:028890b7-1c80-45b7-bec9-27740ff8520a">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 12, the policy proposed by the Action Alliance of Germany should be adopted to handle the the cross-border aspects of orphaned works..
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91"/>
+      <premises>
+        <premise statement="urn:uuid:b2c569ab-bcc8-4b37-a3bf-3f08e32f6869" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:a4ec7350-edab-45f9-8bcf-bc0f5673de66">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 24, No. Further restrictions on the end users of copyrighted materials should not be enacted.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:a2af0c71-8be3-4cee-8af7-7147d019de14"/>
+      <premises>
+        <premise statement="urn:uuid:234784fb-9a86-434a-8c26-6632983be2cf" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="" pro="true" weight="0.5" strict="false" id="urn:uuid:dab222b3-063a-43cc-8356-a5f8246803b9">
+      <metadata source="Aktionsbündnis">
+        <descriptions>
+          <description lang="en">Question 9 is irrelevant if, as proposed by the Action Alliance in Germany, public libraries have the right, indeed the responsibility, to publish digital copies of their collections for the purpose of preserving and distributing online the cultural heritage of Europe. [Aktionsbündnis, p. 6]
+          </description>
+          <description lang="de">&gt; Ein weiterer Kla?rungsbedarf, bei Sicherung der unter (6) und (7) generellen Forderung einer informationellen Grundversorgung mit den urspru?nglichen Werken, wird nicht gesehen. Das Einscannen ganzer Bibliotheksbesta?nde und deren o?ffentliche Bereitstellung sollten dann selbstversta?ndlich sein. [Aktionsbündnis, p. 6]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:95a1471c-3abf-4469-ba1d-6b206162b59b"/>
+      <premises>
+        <premise statement="urn:uuid:4fad97bc-91a5-43da-8eaa-856290a7c1a5" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Practical" pro="true" weight="0.5" strict="false" id="urn:uuid:0c66b8f4-f4c7-4952-955d-aebce6d5195e">
+      <metadata source="LIBER">
+        <descriptions>
+          <description lang="en">The Association of European Research Libraries (LIBER), in response to Question 9 of the Green Paper, argues that, yes, the law should the law be clarified with respect to whether the scanning of works held in libraries for the purpose of making their content searchable on the Internet goes beyond the scope of current exceptions to copyright, as follows:
+
+            &gt; Not all the material digitised by publishers is scanned with OCR (Optical Character Recognition) with the purpose of making the resulting content searchable. If the rights holders will not do this, libraries should be able to offer this service. It would have a transformative effect on research, learning and teaching by opening up a mass of content to users which can be searched using search engines. The interests of copyright holders will not be harmed, because the resulting output will act as marketing material for their materials. [@LIBER, p. 3]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:71a19756-3794-442a-b4b0-e0613165179c"/>
+      <premises>
+        <premise statement="urn:uuid:04cba02f-8eba-4dd8-af8f-de15dc9242cc" positive="true" role="Circumstances" implicit="false"/>
+        <premise statement="urn:uuid:d67734d0-e74b-4007-bb38-74703c55d50e" positive="true" role="Action" implicit="false"/>
+        <premise statement="urn:uuid:ad4092a0-85a1-4e3e-b2f3-640e5d47561a" positive="true" role="Goal" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:91177d88-4645-44ab-ab7b-b4ae57f1249d">
+      <metadata source="SIIA">
+        <descriptions>
+          <description lang="en">In response to Question 24, No. The rules about which uses of copyrighted materials create derivate works, and thus require a license from the copyright owner, are already precise.
+
+This position was formulated by the Sofware and Information Industry Association (SIIA) as follows:
+
+&gt; The issue of user-created content is primarily one of education.  Until recently,
+most people did not have the capability to use someone else?s creation to create a new work.
+Copying was too difficult or expensive.  As a result, your average person did not need to have
+even a rudimentary understanding of copyright rules.  But now, anyone can be a publisher.
+It?s easy and inexpensive.  While this presents great new possibilities, it also poses great
+challenges and risks for copyright owners.  Governments and educators need to do a better job
+educating the public on what they can and cannot do with copyrighted works.  The public needs to better understand the purpose and goals of the copyright law and the sanctions for violating it.
+In short, the rules of the road do not need to be changed, the people who drive on the road
+            need to better understand the rules. [@SIIA, pp. 15-16.]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:a2af0c71-8be3-4cee-8af7-7147d019de14"/>
+      <premises>
+        <premise statement="urn:uuid:8d6c1485-dd64-4064-ae1e-1e06455c405b" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:7bd8a20c-e91e-4415-ad1b-266d7ca3d60a">
+      <metadata>
+        <descriptions>
+          <description lang="en">Question 9 is irrelevant.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:e1ff189b-00f1-4458-9b6c-a5a6cf0b223c"/>
+      <premises>
+        <premise statement="urn:uuid:95a1471c-3abf-4469-ba1d-6b206162b59b" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:9520e78b-d77a-46f2-8069-bb0f248cc863">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 12, a Community statutory instrument dealing with 
+            the problem of orphan works should be a stand-alone instrument.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:4e7bd694-d481-4125-a820-a1e317bd0a91"/>
+      <premises>
+        <premise statement="urn:uuid:79c9504e-0257-4a67-a871-36996120b5d1" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Practical" pro="true" weight="0.5" strict="false" id="urn:uuid:4d0757fb-0818-48ad-aee4-a8bc58447ee6">
+      <metadata source="LIBER">
+        <descriptions>
+          <description lang="en">The Association of European Research Libraries (LIBER), in response to Question 24 of the Green Paper, argues that, no, the rules regarding what acts end users can or cannot do when making use of materials protected by copyright should not be made more precise:
+
+            &gt; The essence of copyright legislation is the maintenance of a balance between the rights of the rights holders and the legitimate needs of users.The introduction of more restrictions will blur this distinction and make it more difficult for users of copyright material in their legitimate pursuits in teaching, learning and research in the European Community. [@LIBER, p. 5]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:234784fb-9a86-434a-8c26-6632983be2cf"/>
+      <premises>
+        <premise statement="urn:uuid:513ebad9-288d-4b21-a393-8e5ae1d73bd2" positive="true" role="Circumstances" implicit="false"/>
+        <premise statement="urn:uuid:76a418c1-0765-4bd7-863e-8cb27450fe2d" positive="true" role="Action" implicit="false"/>
+        <premise statement="urn:uuid:9646885a-ba49-461d-b4a3-37e73b95a884" positive="true" role="Goal" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:1ab589f4-fec0-467d-b7d1-db31aeaa948a">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 4, yes, the permitted copyright exceptions should be harmonized.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:86cf149a-54c1-4abf-b80c-e82ccec2be54"/>
+      <premises>
+        <premise statement="urn:uuid:811c3a42-389e-476d-8a17-09e457a08eac" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Argument" pro="false" weight="0.5" strict="false" id="urn:uuid:4b05c9f5-d2ea-499d-a379-0426e81fb48d">
+      <metadata source="SIIA">
+        <descriptions>
+          <description lang="en">There is no need to clarify copyright law regarding whether the scanning of works held in 
+libraries for the purpose of making their content searchable on the Internet goes beyond the scope of current exceptions to copyright, since the law is already clear on this issue. Scanning is a form of copying which requires the authorization of the copyright owner.  No court has ever held otherwise.
+
+The Software and Information Industry (SIIA) formulated this argument as follows in its comment:
+
+&gt; Scanning of copyright works is a form of copying and as such is generally prohibited under the Berne Convention and copyright laws of countries around the globe unless the copier has first 
+obtained the copyright owner?s authorization to scan the work(s).  The ultimate purpose of the 
+scanning  -- e.g., for indexing, cataloguing, searching or some other purpose -- should have no 
+bearing on the ultimate determination that a copy is being made and that such activity requires 
+the authorization of the copyright owner.  As a result, any public or private initiative to scan 
+entire collections of works must require that the copyright owner opt-in, rather than putting the 
+onus on the copyright owner to opt-out of the initiative.  We do not believe that there needs to be 
+any further clarification in the law in this area.  To the best of our knowledge no court has ever 
+            held that such large-scale scanning activities are not prohibited under copyright law. [@SIIA, p. 7]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:71a19756-3794-442a-b4b0-e0613165179c"/>
+      <premises>
+        <premise statement="urn:uuid:deedbb2e-9e7a-4b2b-9e79-0c1cac76c61d" positive="true" role="" implicit="false"/>
+        <premise statement="urn:uuid:0c0bf363-765a-4171-8d59-81332950ee7d" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Negative" pro="false" weight="0.5" strict="false" id="urn:uuid:dbb53fe7-c24f-4a78-8004-336f49ff74d8">
+      <metadata source="SIIA">
+        <descriptions>
+          <description lang="en">The Software &amp; Information Industry Association (SIIA) opposes making certain categories of copyright exceptions mandatory:
+
+            &gt; In sum, we are of the strong belief that government involvement in licensing, whether it be through guidelines or model agreements or through legislative mandates, would hinder innovation and dissemination.  Accordingly, we do not believe that such government involvement is not appropriate. [@SIIA, pp. 3-4]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:811c3a42-389e-476d-8a17-09e457a08eac"/>
+      <premises>
+        <premise statement="urn:uuid:406489b4-f35a-40a8-908b-b390959aa6dc" positive="true" role="Goal" implicit="false"/>
+        <premise statement="urn:uuid:e45a68cd-1640-47b3-ae11-c051aef576d2" positive="true" role="Action" implicit="false"/>
+        <premise statement="urn:uuid:eb7a4418-9b7f-473a-927a-e369eea9302a" positive="true" role="Values Demoted" implicit="false"/>
+        <premise statement="urn:uuid:bc4c9f3b-59a4-47c6-a77c-7e18fcc2a48f" positive="true" role="Circumstances" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Practical" pro="true" weight="0.5" strict="false" id="urn:uuid:9a746f05-8d58-46f6-a43d-0048806d7fee">
+      <metadata source="SIIA">
+        <descriptions>
+          <description lang="en">The Software and Information Industry Association expressed this argument as follows:
+
+&gt; Because the 2001 Copyright Directive relates to rights and exceptions, but not remedies, it would be inappropriate for the 
+            Directive to be amended to include a provision relating to orphan works. [@SIIA, p. 9]
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:79c9504e-0257-4a67-a871-36996120b5d1"/>
+      <premises>
+        <premise statement="urn:uuid:8ff27770-f3d3-4ec0-8bbb-1e864c2713bd" positive="true" role="Circumstances" implicit="false"/>
+        <premise statement="urn:uuid:af1cd610-c8b2-4fcb-84ab-76bfdff22e7d" positive="true" role="Action" implicit="false"/>
+        <premise statement="urn:uuid:92e73724-cd29-4a2a-9830-c2fe9084ecf0" positive="true" role="Goal" implicit="false"/>
+        <premise statement="urn:uuid:51c16641-67cb-4fea-b3d6-4582f3198ef5" positive="true" role="Values Promoted" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="CQ1." pro="true" weight="0.5" strict="false" id="urn:uuid:665e4468-3942-4b21-95f1-0ebef4bf5928">
+      <metadata>
+        <descriptions>
+          <description lang="en">There are better ways to help researchers and students to work in more than one Member
+            State than harmonizing copyright exceptions.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:60b7c23f-643b-4a0c-9830-e781584fa486"/>
+      <premises>
+        <premise statement="urn:uuid:78b7d76d-b3e7-4d1e-9456-9667284985aa" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+    <argument scheme="Position" pro="true" weight="0.5" strict="false" id="urn:uuid:cc4aaad2-a090-4fde-b8af-8f272badc48b">
+      <metadata>
+        <descriptions>
+          <description lang="en">In response to Question 9, Yes. The exceptions should be clarified to allow works held in libraries to be scanned for the purpose of making their content searchable on the Internet.
+          </description>
+        </descriptions>
+      </metadata>
+      <conclusion statement="urn:uuid:e1ff189b-00f1-4458-9b6c-a5a6cf0b223c"/>
+      <premises>
+        <premise statement="urn:uuid:71a19756-3794-442a-b4b0-e0613165179c" positive="true" role="" implicit="false"/>
+      </premises>
+    </argument>
+  </arguments>
+  <references>
+    <metadata creator="Conference of European National Librarians" date="2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/a149d7ef-17f7-4dd8-b105-6d0b0055aefd/cenl_conference_of_european_national_librarians.pdf" key="CENL" title="Green Paper ?Copyright in the Knowledge Economy? ? Response of the Conference of European National Librarians">
+      <descriptions/>
+    </metadata>
+    <metadata creator="GIART International Organisation of Performing Artists" date="January 26, 2009" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/89cbf2e7-a9eb-4489-ad90-8061a87e4092/giart_international_organisation_of_performing_artists.pdf" key="GIART" title="GIART Answer to the Commission's Green Paper on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="National Archives of the United Kingdom" date="September 12, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/552bbafd-da1c-4c0e-9f37-f294b3e54acc/national_archives_of_the_united_kingdom.pdf" key="NationalArchives" title="European Commission Green Paper: Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Dr. Nick Smith, Director of of Library and Information Services, Aston University" date="2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/c2a76b48-fb92-4a63-aab4-4acbeb419dbf/aston_university.pdf" key="Aston2008" title="Comment on the EU Green Paper ?Copyright in the Knowledge Economy?">
+      <descriptions/>
+    </metadata>
+    <metadata creator="UK Publishers Association" date="November, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/1d65c2f1-5d99-4a10-8d97-0301e8e01e4c/uk_publishers_association.pdf" key="UKPA" title="Consultation on Copyright in the Knowledge Economy European Commission Green Paper">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Commission of the European Communities" date="2008" identifier="http://ec.europa.eu/internal_market/copyright/docs/copyright-infso/greenpaper_en.pdf" key="GreenPaper" title="Green Paper on Copyright in the Knowledge Economy" format="pdf">
+      <descriptions/>
+    </metadata>
+    <metadata creator="European Federation of Journalists" date="2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/e25b57c6-ceef-40ca-af1a-58d218a22614/EFJ-%20European%20Federation%20of%20Journalists.pdf" key="EFJ" title="Response to the Green Paper on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Software and Information Industry Association" date="November 24, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/1ef2b5d8-22ae-41c0-9b97-ac65b2d171fb/siia-software_and_information_industry_association.pdf" key="SIIA" title="Comments on the EC Green Paper on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Faber and Faber Ltd" date="November, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/c0a2fb15-0db9-44b8-b92a-376852035cbe/faber_and_faber_ltd.pdf" key="FaberAndFaber" title="Consultation on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Association of European Research Libraries" date="2009" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/84235a12-f544-48e4-9a95-7b75565337aa/liber_ligue_des_bibliothtques_europuennes_de_recherche.pdf" key="LIBER" title="Green Paper Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Aktionsbu?ndnisses Urheberrecht fu?r Bildung und Wissenschaft" date="November 25, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/3b68d963-7d0f-4a3a-8b89-4ecfae2557c0/aktionsbundnis_urheberrecht_fur_bildung_und_wissenschaft_de.pdf" key="Aktionsbündnis" title="Stellungnahme zum Grünbuch Urheberrechte in der wissensbestimmten Wirtschaft">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Copenhagen Business School" date="2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/15ccd770-b60f-45ab-97c8-0ee2e59cc676/CBS-Copenhagen_Business_School.pdf" key="CBS" title="Comments on the Commission's Green Paper on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Google" date="November, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/fd166f67-d9bd-4e30-baa4-6867250341f8/google.pdf" key="Google" title="Google's Contribution to the European Commission public consultation on ?Copyright in the Knowledge Society?">
+      <descriptions/>
+    </metadata>
+    <metadata creator="Mediaset S.p.A." date="November 28, 2008" identifier="https://circabc.europa.eu/d/d/workspace/SpacesStore/96fb4b45-5ed9-400d-aa8f-bb618c6fd3d7/mediaset.pdf" key="MediaSet" title="Green Paper on Copyright in the Knowledge Economy">
+      <descriptions/>
+    </metadata>
+  </references>
+</caf>

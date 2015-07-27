@@ -6,6 +6,7 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/aif"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/caf"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/lkif"
@@ -22,6 +23,8 @@ import (
 	"strings"
 	"sync"
 )
+
+const afLimit = 20 // max number of arguments handled by the Dung solver
 
 type templateHandler struct {
 	once         sync.Once
@@ -79,6 +82,12 @@ func CarneadesServer(port string, templatesDir string) {
 			}
 		case "lkif":
 			ag, err = lkif.Import(rd)
+			if err != nil {
+				errorTemplate.Execute(w, err.Error())
+				return
+			}
+		case "caf":
+			ag, err = caf.Import(rd)
 			if err != nil {
 				errorTemplate.Execute(w, err.Error())
 				return
@@ -150,6 +159,9 @@ func CarneadesServer(port string, templatesDir string) {
 		af, err = tgf.Import(rd)
 		if err != nil {
 			errorTemplate.Execute(w, err.Error())
+			return
+		} else if len(af.Args()) > afLimit {
+			errorTemplate.Execute(w, fmt.Sprintf("Argumentation frameworks with more than %v arguments are not supported by this server.\n", afLimit))
 			return
 		}
 

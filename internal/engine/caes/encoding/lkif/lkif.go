@@ -12,7 +12,7 @@
 
 // LKIF is the native format of Carneades 2, a desktop argument mapping
 // tool with a graphical user interface. Also known as the Carneades Editor.
-// https://github.com/carneades/carneades-2
+// https://github.com/carneades/carneades-2/blob/master/schemas/LKIF.rnc
 
 package lkif
 
@@ -132,7 +132,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 				neg := caes.NewStatement()
 				neg.Id = "¬" + s.Id
 				neg.Text = "¬" + s.Text
-				stmts[neg.Id] = &neg
+				stmts[neg.Id] = neg
 				return neg.Id
 			} else {
 				return "" // shouldn't happen
@@ -153,7 +153,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 			standards[stmt.Id] = caes.PE
 		}
 
-		stmts[stmt.Id] = &stmt
+		stmts[stmt.Id] = stmt
 		// s.Assumption ignored as CAES does not distinguish
 		// between facts and assumptions
 		switch s.Value {
@@ -173,14 +173,14 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 		arg.Metadata["title"] = a.Title
 		arg.Scheme = a.Scheme
 		arg.Weight = a.Weight
-		args[arg.Id] = &arg
+		args[arg.Id] = arg
 		switch a.Direction {
 		case "con":
 			arg.Conclusion = stmts[complement(a.Conclusion.Statement)]
 		default:
 			arg.Conclusion = stmts[a.Conclusion.Statement]
 		}
-		arg.Conclusion.Args = append(arg.Conclusion.Args, &arg)
+		arg.Conclusion.Args = append(arg.Conclusion.Args, arg)
 		i := 0 // premise index
 		for _, p := range a.Premises.Content {
 			var s *caes.Statement
@@ -200,7 +200,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 					us = s
 				} else {
 					s2 := caes.NewStatement()
-					us = &s2
+					us = s2
 					us.Id = uid
 					us.Text = uid
 					stmts[us.Id] = us
@@ -210,7 +210,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 				e.Id = arg.Id + "." + fmt.Sprintf("%v", i)
 				e.Conclusion = us
 				e.Premises = []caes.Premise{pr}
-				args[e.Id] = &e
+				args[e.Id] = e
 			case "assumption":
 				arg.Premises = append(arg.Premises, pr)
 				pr.Stmt.Assumed = true
@@ -230,9 +230,9 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 			issue.Standard = standards[sid]
 			issue.Positions = []*caes.Statement{s, stmts[complement(sid)]}
 			for _, p := range issue.Positions {
-				p.Issue = &issue
+				p.Issue = issue
 			}
-			issues[issue.Id] = &issue
+			issues[issue.Id] = issue
 		}
 	}
 	for _, issue := range issues {
@@ -242,7 +242,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 	for _, arg := range args {
 		cag.Arguments = append(cag.Arguments, arg)
 	}
-	return &cag
+	return cag
 }
 
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {
