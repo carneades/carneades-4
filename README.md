@@ -13,7 +13,7 @@ This version of Carneades consists of:
 Carneades Argument Evaluation Structures (CAES) formal model of argument. 
 New in this version of CAES is support for cyclic argument graphs, cumulative
 arguments, issue-based information systems (IBIS) and multicriteria decision analysis.
-Argument graphs can be represented in YAML, AIF, LKIF, and CAF and exported to DOT, GraphML and YAML.
+Argument graphs can be represented in AGXML, AIF, LKIF, CAF and YAML and exported to DOT, GraphML and YAML.
 - An implementation of a solver for Dung abstract argumentation frameworks,
 using grounded, complete, preferred and stable semantics. Argumentation Frameworks
 can be represented using the [Trivial Graph Format](https://en.wikipedia.org/wiki/Trivial_Graph_Format). The computed extensions can be exported to DOT, GraphML and plain text.
