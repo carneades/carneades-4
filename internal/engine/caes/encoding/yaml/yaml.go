@@ -322,7 +322,7 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 }
 
 func writeMetaData(f io.Writer, sp1 string, sp2 string, md caes.Metadata) {
-	if md != nil {
+	if md != nil && len(md) != 0 {
 		fmt.Fprintf(f, "%smeta: \n", sp1)
 		for md_key, md_val := range md {
 			fmt.Fprintf(f, "%s%s: %s\n", sp2, md_key, md_val)

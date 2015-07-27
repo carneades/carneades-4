@@ -182,7 +182,7 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 	cag := caes.NewArgGraph()
 	cag.Metadata = caf.Metadata.toMap()
 	for _, md := range caf.References.Content {
-		cag.Metadata[md.Key] = md.toMap()
+		cag.References[md.Key] = md.toMap()
 	}
 
 	stmts := make(map[string]*caes.Statement)
