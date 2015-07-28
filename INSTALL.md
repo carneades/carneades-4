@@ -3,7 +3,7 @@ These are instructions for building and running Carneades-4.
 
 ## Carneades Web Service
 
-You can use Carneades without having to install any software, via the [Carneades web service](http://carneades.fokus.fraunhofer.de).
+Hint: You can use Carneades without having to install any software, via the [Carneades web service](http://carneades.fokus.fraunhofer.de).
 
 ## Prerequisites
 
