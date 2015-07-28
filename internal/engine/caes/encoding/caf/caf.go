@@ -20,6 +20,7 @@ import (
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"io"
 	"io/ioutil"
+	"regexp"
 )
 
 type CAF struct {
@@ -177,6 +178,8 @@ type References struct {
 	Content []Metadata `xml:"metadata"`
 }
 
+var undercutRegExp = regexp.MustCompile(`^\((undercut|valid)[[:blank:]]+([^\)]*)\)$`)
+
 // Convert to an CAF argument graph to a CAES argument graph
 func (caf *CAF) Caes() *caes.ArgGraph {
 	cag := caes.NewArgGraph()
@@ -224,22 +227,23 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 	}
 
 	// isUndercutter: checks whether the atom of the statement with the given id
-	// has the form (undercut X). Returns the value of X, i.e. the UID of the
-	// argument claimed to be undercut in the first result parameter
-	isUndercutter := func(id string) (string, bool) {
+	// has the form (undercut X) or (valid X). Returns the predicate of the
+	// undercutter, "valid" or "undercut", in the first result parameter and
+	// the UID of the argument undercut in the second result parameter.
+	// The boolean result parameter is true only if the atom of the
+	// statement is an undercutter.
+	isUndercutter := func(id string) (string, string, bool) {
 		if stmt, ok := stmts[id]; ok {
 			if atom, ok := stmt.Metadata["atom"]; ok {
-				var uid string
-				// To Do: replace Sccanf with a regular expression
-				_, err := fmt.Sscanf(atom.(string), "(undercut %s)", uid)
-				if err != nil {
-					return "", false
+				v := undercutRegExp.FindStringSubmatch(atom.(string))
+				if len(v) != 3 {
+					return "", "", false
 				} else {
-					return uid, true
+					return v[1], v[2], true
 				}
 			}
 		}
-		return "", false
+		return "", "", false
 	}
 
 	sid := 0 // counter for generating short statement ids
@@ -319,11 +323,12 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 		arg.Conclusion.Args = append(arg.Conclusion.Args, arg)
 
-		// handle undercutters
-		uid, ok := isUndercutter(arg.Conclusion.Id)
-		if ok && a.Pro {
-			// the argument is an undercutter, since its
-			// conclusion is con the validity of some argument
+		// handle undercutters for both Carneades 3.5 (not valid)
+		// and Carneades 3.7 (undercut) versions of CAF
+		pred, uid, ok := isUndercutter(arg.Conclusion.Id)
+		if ok && ((pred == "undercut" && a.Pro) ||
+			(pred == "valid" && !a.Pro)) {
+			// the conclusion undercuts some argument
 			var arg2 *caes.Argument
 			if uids[uid] == "" {
 				arg2 := caes.NewArgument()
