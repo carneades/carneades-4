@@ -258,6 +258,7 @@ func CarneadesServer(port string, templatesDir string) {
 	http.Handle("/dung-form", &templateHandler{filename: "dung-form.html", templatesDir: templatesDir})
 	http.Handle("/dung-help", &templateHandler{filename: "dung-help.html", templatesDir: templatesDir})
 	http.HandleFunc("/dung", dungHandler)
+	http.Handle("/imprint", &templateHandler{filename: "imprint.html", templatesDir: templatesDir})
 
 	// start the web server
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
