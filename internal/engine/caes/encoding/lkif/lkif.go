@@ -100,9 +100,15 @@ type Premise struct {
 // Convert to an LKIF argument graph to a CAES argument graph
 func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 	cag := caes.NewArgGraph()
-	cag.Metadata["id"] = lag.Id
-	cag.Metadata["title"] = lag.Title
-	cag.Metadata["main"] = lag.Main
+	if lag.Id != "" {
+		cag.Metadata["id"] = lag.Id
+	}
+	if lag.Title != "" {
+		cag.Metadata["title"] = lag.Title
+	}
+	if lag.Main != "" {
+		cag.Metadata["main-issue"] = lag.Main
+	}
 	stmts := make(map[string]*caes.Statement)
 	standards := make(map[string]caes.Standard) // proof standards
 	args := make(map[string]*caes.Argument)
@@ -169,10 +175,18 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 
 	for _, a := range lag.Arguments.Content {
 		arg := caes.NewArgument()
-		arg.Id = a.Id
-		arg.Metadata["title"] = a.Title
-		arg.Scheme = a.Scheme
-		arg.Weight = a.Weight
+		if a.Id != "" {
+			arg.Id = a.Id
+		}
+		if a.Title != "" {
+			arg.Metadata["title"] = a.Title
+		}
+		if a.Scheme != "" {
+			arg.Scheme = a.Scheme
+		}
+		if a.Weight != 0.0 {
+			arg.Weight = a.Weight
+		}
 		args[arg.Id] = arg
 		switch a.Direction {
 		case "con":

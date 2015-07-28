@@ -18,6 +18,7 @@ import (
 	"io"
 	"io/ioutil"
 	//	"log"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -466,7 +467,7 @@ func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 				fmt.Fprintf(f, "%sconclusion: %s\n", sp2, ref_arg.Conclusion.Id)
 			}
 			if ref_arg.Weight != 0.0 {
-				fmt.Fprintf(f, "%sweight: %v\n", sp2, ref_arg.Weight)
+				fmt.Fprintf(f, "%sweight: %4.2f\n", sp2, ref_arg.Weight)
 			}
 			if ref_arg.Scheme != "" {
 				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_arg.Scheme)
@@ -565,7 +566,18 @@ func iface2metadata(value interface{}, meta caes.Metadata) (caes.Metadata, error
 	switch subT := value.(type) {
 	case mapIface:
 		for metakey, metavalue := range value.(mapIface) {
-			meta[metakey.(string)] = metavalue
+			if metakey == nil || metavalue == nil {
+				continue
+			}
+			switch reflect.TypeOf(metavalue).Kind() {
+			case reflect.String:
+				if metavalue.(string) != "" {
+					meta[metakey.(string)] = metavalue.(string)
+				}
+			default:
+				meta[metakey.(string)] = metavalue
+			}
+
 			// log.Printf("         %s: %s\n", metakey.(string), meta[metakey.(string)])
 		}
 	default:
