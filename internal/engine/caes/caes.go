@@ -220,9 +220,7 @@ func NewLabelling() Labelling {
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
 // and unassumed statements without arguments Out.
-// The argument graph is assumed to be consistent. If it
-// is not consistent, the resulting labelling will depend
-// on the order in which the assumptions are initialized.
+// The argument graph is assumed to be consistent. 
 func (l Labelling) init(ag *ArgGraph) {
 	// first make all assumed statements In and all unsupported
 	// statements out
