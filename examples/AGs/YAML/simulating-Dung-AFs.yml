@@ -1,0 +1,80 @@
+meta:
+  title: Simulating Dung abstract argumentation frameworks with CAES structured arguments
+  source: >
+    This example illustrates how any Dung AF can be simulated using CAES structured arguments.
+    Both the arguments and the attacks of the Dung AF are modeled by CAES arguments. 
+    Attacks are modelled as undercutters. 
+    CAES Statements model the conclusion and undercutter of each Dung argument.  
+    The Dung AF simulated here is:
+       Args = {a,b,c,d,e,f,g}
+       Attacks = {(a,b),(c,b),(c,d),(d,c),(d,e),(e,g),(f,e),(g,f)}
+    The example Dung AF is from Bas van Gijzel. 
+        
+
+statements:
+  sa: a
+  sb: b
+  sc: c
+  sd: d
+  se: e
+  sf: f
+  sg: g
+  ua: ¬app(a)
+  ub: ¬app(b)
+  uc: ¬app(c)
+  ud: ¬app(d)
+  ue: ¬app(e)
+  uf: ¬app(f)
+  ug: ¬app(g)
+
+arguments:
+  a: 
+    conclusion: sa
+    undercutter: ua
+  b:
+    conclusion: sb
+    undercutter: ub
+  c: 
+    conclusion: sc
+    undercutter: uc
+  d:
+    conclusion: sd
+    undercutter: ud
+  e: 
+    conclusion: se
+    undercutter: ue
+  f:
+    conclusion: sf
+    undercutter: uf
+  g:
+    conclusion: sg
+    undercutter: ug
+  a1: 
+    conclusion: ub
+    premises: [sa]
+  a2:
+    conclusion: ub
+    premises: [sc]
+  a3:
+    conclusion: ud
+    premises: [sc]
+  a4:
+    conclusion: uc
+    premises: [sd]
+  a5:
+    conclusion: ue
+    premises: [sd]
+  a6:
+    conclusion: ug
+    premises: [se]
+  a7:
+    conclusion: ue
+    premises: [sf]
+  a8:
+    conclusion: uf
+    premises: [sg]
+
+
+      
+      
+  
