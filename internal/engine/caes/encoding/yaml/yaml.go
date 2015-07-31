@@ -862,22 +862,22 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					// log.Printf(" %s \n", outArg.undercutter)
 				case "scheme":
 					outArg.scheme = iface2string(attValue)
-					_, isIn := caes.BasicSchemes[outArg.scheme]
-					if isIn == false {
-						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
-						first := true
-						for schemeKey, _ := range caes.BasicSchemes {
-							if first {
-								errStr = errStr + schemeKey
-								first = false
-							} else {
-								errStr = errStr + ", " + schemeKey
-							}
-						}
-						return outArg,
-							errors.New(errStr + ")\n")
-					}
-					// log.Printf(" %s \n", outArg.scheme)
+					//					_, isIn := caes.BasicSchemes[outArg.scheme]
+					//					if isIn == false {
+					//						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
+					//						first := true
+					//						for schemeKey, _ := range caes.BasicSchemes {
+					//							if first {
+					//								errStr = errStr + schemeKey
+					//								first = false
+					//							} else {
+					//								errStr = errStr + ", " + schemeKey
+					//							}
+					//						}
+					//						return outArg,
+					//							errors.New(errStr + ")\n")
+					//					}
+					//					// log.Printf(" %s \n", outArg.scheme)
 				default:
 					return outArg,
 						errors.New("*** ERROR: Wrong argument attribut: " + attName.(string) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
