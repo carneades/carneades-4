@@ -385,7 +385,7 @@ func (arg *Argument) GetWeight(l Labelling) float64 {
 	}
 }
 
-// An statement is supported if it is the conclusion of at least one
+// A statement is supported if it is the conclusion of at least one
 // argument with weight greater than 0.0.
 func (stmt *Statement) Supported(l Labelling) bool {
 	for _, arg := range stmt.Args {
@@ -407,8 +407,8 @@ func (stmt *Statement) Unsupported(l Labelling) bool {
 	return true
 }
 
-// Returns the grounded labelling of an argument graph. The argument
-// graph is assumed to be consistent. The argument graph is not modified.
+// Returns the grounded labelling of an argument graph.
+// The argument graph is not modified.
 func (ag *ArgGraph) GroundedLabelling() Labelling {
 	l := NewLabelling()
 	l.init(ag)
