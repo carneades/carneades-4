@@ -1,0 +1,77 @@
+meta:
+  title: The Risky Operation Example
+  source: >
+    Prakken, Henry, "Relating Various Ways to Instantiate 
+    Abstract Argumentation Frameworks", From Knowledge Representation
+    to Argumentation in AI, Law and Policy Making, College Publications, 
+    (2013), pp. 167-189.
+
+statements:
+  injury: injury
+  negligence: negligence
+  compensation: compensation
+  appendicitis: appendicitis
+  riskyOperation: risky operation
+  ¬riskyOperation: ¬risky operation
+  badCirculation: bad circulation
+  ¬badCirculation: ¬bad circulation
+  medicalTest1: medical test 1
+  medicalTest2: medical test 2
+
+issues:
+  i1:
+    positions: 
+      - badCirculation
+      - ¬badCirculation
+  i2:
+    positions:
+      - riskyOperation
+      - ¬riskyOperation
+
+arguments:
+  a3: 
+    conclusion: ¬riskyOperation
+    premises: 
+      - appendicitis
+  a4:
+    conclusion: negligence
+    premises: 
+      - injury
+      - ¬riskyOperation
+  a5:
+    conclusion: compensation
+    premises:
+      - injury
+      - negligence
+  b2:
+    conclusion: badCirculation
+    premises:
+      - medicalTest1
+  b3:
+    conclusion: riskyOperation
+    premises:
+      - badCirculation
+  c2:
+    conclusion: ¬badCirculation
+    premises: 
+      - medicalTest2
+      
+assumptions:
+  - injury
+  - appendicitis
+  - medicalTest1
+  - medicalTest2
+  
+labels:
+  in: 
+    - compensation
+    - negligence
+    - injury
+    - ¬riskyOperation
+    - appendicitis
+    - medicalTest1
+    - medicalTest2
+  out:
+    - ¬badCirculation
+    - badCirculation
+    - riskyOperation

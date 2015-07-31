@@ -12,7 +12,7 @@ statements:
   looks like snake:  It looks like a snake.
   looks like rope: It looks like a coil of rope.
   moved when jumped over: It moved when it was jumped over..
-  didn't move when jumped over: It did not move when it was jumped over.
+  did not move when jumped over: It did not move when it was jumped over.
   moved when prodded: It moved when it was prodded with a stick.
   did not move when prodded: It did not move when it was prodded with a stick.
 
@@ -22,7 +22,7 @@ issues:
   i2:
     positions: 
       - moved when jumped over
-      - didn't move when jumped over
+      - did not move when jumped over
   i3:
     positions: 
       - moved when prodded
@@ -41,19 +41,19 @@ arguments:
     conclusion: rope
     premises:
       - looks like rope
-      - didn't move when jumped over
+      - did not move when jumped over
       - did not move when prodded
 
 assumptions:
   - looks like snake
   - looks like rope
   - did not move when prodded
-
+  - did not move when jumped over
 labels:
   in: 
     - looks like snake
     - looks like rope
-    - didn't move when jumped over
+    - did not move when jumped over
     - did not move when prodded
     - rope
   out:
