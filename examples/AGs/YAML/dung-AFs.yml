@@ -7,6 +7,8 @@ meta:
     CAES Statements model the conclusion and undercutter of each Dung argument. 
     If the Dung AF has m arguments and n attacks, the CAES translation has
     2*m statements and m+n arguments.  Thus the translation has polynomial complexity.
+    The translation is not limited to grounded semantics, since other Dung semantics have analogues in CAES. 
+    (Carneades 4.1 only *implements* grounded semantics currently.)
     The Dung AF simulated here is:
        Args = {a,b,c,d,e,f,g}
        Attacks = {(a,b),(c,b),(c,d),(d,c),(d,e),(e,g),(f,e),(g,f)}
