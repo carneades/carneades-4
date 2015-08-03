@@ -4,7 +4,9 @@ meta:
     This example illustrates how any Dung AF can be simulated using CAES structured arguments.
     Both the arguments and the attacks of the Dung AF are modeled by CAES arguments. 
     Attacks are modelled as undercutters. 
-    CAES Statements model the conclusion and undercutter of each Dung argument.  
+    CAES Statements model the conclusion and undercutter of each Dung argument. 
+    If the Dung AF has m arguments and n attacks, the CAES translation has
+    2*m statements and m+n arguments.  Thus the translation has polynomial complexity.
     The Dung AF simulated here is:
        Args = {a,b,c,d,e,f,g}
        Attacks = {(a,b),(c,b),(c,d),(d,c),(d,e),(e,g),(f,e),(g,f)}
