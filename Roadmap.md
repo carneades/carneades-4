@@ -42,7 +42,7 @@
 - Interactive, web-based argument browser and structured survey tool
 - The browser will provide "guided tours" of argument graphs, to help users to understand the arguments, taking into    consideration their interests and assumptions or beliefs.
 - The structured survey tool is inspired by Parmenides: K Atkinson, T Bench-Capon, P McBurney, 
-  "PARMENIDES: facilitating deliberation in democracies", Artificial Intelligence and Law, 2006
+  "PARMENIDES: facilitating deliberation in democracies", Artificial Intelligence and Law, 2006,
   and will be based on the design in: Gordon, T. F. (2013). Structured Consultation
   with Argument Graphs. In K. Atkinson, H. Prakken & A. Wyner (ed.),
   From Knowledge Representation to Argumentation in AI, Law and Policy
