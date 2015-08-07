@@ -32,25 +32,23 @@
 
 # v4.3
 
-- Language for representing argumentation schemes, based on Datalog
-- Argument construction, via a Datalog inference engine
+- Language for representing argumentation schemes, based on Datalog or, perhaps, Constraint Handling Rules (CHR)
+- Argument construction, via an inference engine
 - Argument validation, by matching arguments to schemes
-- Goal selection, based on: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
+- Goal selection, using abduction, continuing our prior work: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
 
 # v4.4
 
-- Structured survey tool, similar to Parmenides
-- Based on design in: Gordon, T. F. (2013). Structured Consultation
+- Interactive, web-based argument browser and structured survey tool
+- The browser will provide "guided tours" of argument graphs, to help users to understand the arguments, taking into    consideration their interests and assumptions or beliefs.
+- The structured survey tool is inspired by Parmenides: K Atkinson, T Bench-Capon, P McBurney, 
+  "PARMENIDES: facilitating deliberation in democracies", Artificial Intelligence and Law, 2006
+  and will be based on the design in: Gordon, T. F. (2013). Structured Consultation
   with Argument Graphs. In K. Atkinson, H. Prakken & A. Wyner (ed.),
   From Knowledge Representation to Argumentation in AI, Law and Policy
   Making (pp. 115–134). College Publications.
 
-# v4.5
 
-- Static website generator, for browsing large argument graphs
-- Views: hypertext and argument maps in SVG
-- No Carneades web services will be required
-- Static pages may be uploaded to any Web server, e.g. via FTP
 
 
 
