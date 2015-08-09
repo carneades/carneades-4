@@ -32,7 +32,7 @@
 
 # v4.3
 
-- Language for representing argumentation schemes, based on Datalog, Answer Set Programming (ASP) or, perhaps, Constraint Handling Rules (CHR)
+- Language for representing argumentation schemes, based on Datalog or, perhaps, Constraint Handling Rules (CHR)
 - Argument construction, via an inference engine
 - Argument validation, by matching arguments to schemes
 - Goal selection, using abduction, continuing our prior work: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
