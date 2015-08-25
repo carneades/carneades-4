@@ -17,8 +17,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
-	//	"log"
-	"reflect"
+	// "log"
 	"strconv"
 	"strings"
 )
@@ -60,6 +59,8 @@ type (
 		Labels     mapLabels
 	}
 )
+
+const spPlus = "    "
 
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {
 
@@ -322,11 +323,48 @@ func iface2caes(m mapIface) (ag *caes.ArgGraph, err error) {
 
 }
 
+func mkYamlString(str string) string {
+	if strings.Contains(str, ":") {
+		str = "\"" + str + "\""
+	}
+	return str
+}
+
 func writeMetaData(f io.Writer, sp1 string, sp2 string, md caes.Metadata) {
 	if md != nil && len(md) != 0 {
 		fmt.Fprintf(f, "%smeta: \n", sp1)
-		for md_key, md_val := range md {
-			fmt.Fprintf(f, "%s%s: %s\n", sp2, md_key, md_val)
+		writeKeyValue(f, sp2, md)
+	}
+}
+
+func writeKeyValue(f io.Writer, sp string, keyVal caes.Metadata) {
+	for md_key, md_val := range keyVal {
+		switch md_val.(type) {
+		case string:
+			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, mkYamlString(md_val.(string)))
+		case int, float32, float64, bool:
+			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, iface2string(md_val))
+
+		case caes.Metadata:
+			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
+			writeKeyValue(f, sp+spPlus, md_val.(caes.Metadata))
+		case mapIface:
+			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
+			writeKeyValue1(f, sp+spPlus, md_val.(mapIface))
+		}
+	}
+}
+
+func writeKeyValue1(f io.Writer, sp string, keyVal mapIface) {
+	for md_key, md_val := range keyVal {
+		switch md_val.(type) {
+		case string:
+			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, mkYamlString(md_val.(string)))
+		case int, float32, float64, bool:
+			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, iface2string(md_val))
+		case mapIface:
+			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
+			writeKeyValue1(f, sp+spPlus, md_val.(mapIface))
 		}
 	}
 }
@@ -341,9 +379,9 @@ func Export(f io.Writer, ag *caes.ArgGraph) {
 
 func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 	sp0 := ""
-	sp1 := "    "
-	sp2 := "        "
-	sp3 := "            "
+	sp1 := spPlus
+	sp2 := sp1 + spPlus
+	sp3 := sp2 + spPlus
 
 	writeMetaData(f, sp0, sp1, ag.Metadata)
 
@@ -569,16 +607,18 @@ func iface2metadata(value interface{}, meta caes.Metadata) (caes.Metadata, error
 			if metakey == nil || metavalue == nil {
 				continue
 			}
-			switch reflect.TypeOf(metavalue).Kind() {
-			case reflect.String:
+			switch metavalue.(type) {
+			case string:
 				if metavalue.(string) != "" {
 					meta[metakey.(string)] = metavalue.(string)
 				}
-			default:
-				meta[metakey.(string)] = metavalue
+			case int, float32, float64, bool:
+				meta[metakey.(string)] = iface2string(metavalue)
+			case mapIface:
+				var err error
+				meta[metakey.(string)], err = iface2metadata(metavalue, caes.Metadata{})
+				return meta, err
 			}
-
-			// log.Printf("         %s: %s\n", metakey.(string), meta[metakey.(string)])
 		}
 	default:
 		return meta, errors.New("*** Error metadata (Type):" + subT.(string) + "\n")
@@ -880,11 +920,11 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					//					// log.Printf(" %s \n", outArg.scheme)
 				default:
 					return outArg,
-						errors.New("*** ERROR: Wrong argument attribut: " + attName.(string) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
+						errors.New("*** ERROR: Wrong argument attribute: " + attName.(string) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
 				}
 			default:
 				return outArg,
-					errors.New("*** ERROR: Wrong argument attribut type (string expected): " + ant.(string) + "\n")
+					errors.New("*** ERROR: Wrong argument attribute type (string expected): " + ant.(string) + "\n")
 			}
 		}
 	}
