@@ -338,34 +338,33 @@ func writeMetaData(f io.Writer, sp1 string, sp2 string, md caes.Metadata) {
 }
 
 func writeKeyValue(f io.Writer, sp string, keyVal caes.Metadata) {
-	for md_key, md_val := range keyVal {
-		switch md_val.(type) {
-		case string:
-			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, mkYamlString(md_val.(string)))
-		case int, float32, float64, bool:
-			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, iface2string(md_val))
 
-		case caes.Metadata:
-			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
-			writeKeyValue(f, sp+spPlus, md_val.(caes.Metadata))
-		case mapIface:
-			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
-			writeKeyValue1(f, sp+spPlus, md_val.(mapIface))
-		}
+	for md_key, md_val := range keyVal {
+		writeKeyValue1(f, sp, md_key, md_val)
 	}
 }
 
-func writeKeyValue1(f io.Writer, sp string, keyVal mapIface) {
-	for md_key, md_val := range keyVal {
-		switch md_val.(type) {
-		case string:
-			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, mkYamlString(md_val.(string)))
-		case int, float32, float64, bool:
-			fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, iface2string(md_val))
-		case mapIface:
-			fmt.Fprintf(f, "%s%s: \n", sp, md_key)
-			writeKeyValue1(f, sp+spPlus, md_val.(mapIface))
+func writeKeyValue1(f io.Writer, sp string, md_key string, md_val interface{}) {
+
+	switch md_val.(type) {
+	case string:
+		fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, mkYamlString(md_val.(string)))
+	case int, float32, float64, bool:
+		fmt.Fprintf(f, "%s%s: %s\n", sp, md_key, md_val)
+	case map[string]string:
+		fmt.Fprintf(f, "%s%s: \n", sp, md_key)
+		sp = sp + spPlus
+		for key02, val02 := range md_val.(map[string]string) {
+			fmt.Fprintf(f, "%s%s: %s\n", sp, key02, mkYamlString(val02))
 		}
+	case map[string]interface{}:
+		fmt.Fprintf(f, "%s%s: \n", sp, md_key)
+		for key02, val02 := range md_val.(map[string]interface{}) {
+			writeKeyValue1(f, sp+spPlus, key02, val02)
+		}
+	default:
+		fmt.Fprintf(f, "%s%s: %v\n", sp, md_key, md_val)
+		fmt.Fprintf(f, "--- Key: TYPE >> %s: %T << TYPE\n   VALU >> %s << VALU\n", md_key, md_val, md_val)
 	}
 }
 
@@ -428,14 +427,14 @@ func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 		for _, ref_stat := range std {
 
 			if ref_stat.Metadata == nil && ref_stat.Assumed == false && ref_stat.Label == caes.Undecided && (noRefs == true || (ref_stat.Issue == nil && ref_stat.Args == nil)) {
-				fmt.Fprintf(f, "%s%s: %s\n", sp1, ref_stat.Id, ref_stat.Text)
+				fmt.Fprintf(f, "%s%s: %s\n", sp1, ref_stat.Id, mkYamlString(ref_stat.Text))
 			} else {
 
 				fmt.Fprintf(f, "%s%s: \n", sp1, ref_stat.Id)
 				writeMetaData(f, sp2, sp3, ref_stat.Metadata)
 
 				if ref_stat.Text != "" {
-					fmt.Fprintf(f, "%stext: %s \n", sp2, ref_stat.Text)
+					fmt.Fprintf(f, "%stext: %s \n", sp2, mkYamlString(ref_stat.Text))
 				}
 				if ref_stat.Assumed == true {
 					fmt.Fprintf(f, "%sassumed: true\n", sp2)
@@ -523,7 +522,7 @@ func writeArgGraph1(noRefs bool, f io.Writer, ag *caes.ArgGraph) {
 		}
 		fmt.Fprintf(f, "%s%s:\n", sp2, key)
 		for md_key, md_val := range md {
-			fmt.Fprintf(f, "%s%s: %v\n", sp3, md_key, md_val)
+			writeKeyValue1(f, sp3, md_key, md_val)
 		}
 	}
 
