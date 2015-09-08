@@ -12,13 +12,16 @@ import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"io"
+	"strings"
 )
 
 const (
-	black  = "#000000"
-	red    = "#FF0000"
-	green  = "#3AB54A"
-	yellow = "#FCEE21"
+	MaxCharsPerRow  = 30
+	MaxRowsPerShape = 3
+	black           = "#000000"
+	red             = "#FF0000"
+	green           = "#3AB54A"
+	yellow          = "#FCEE21"
 
 	white = "#008000"
 	// line type
@@ -97,6 +100,16 @@ func p(w io.Writer, strs ...string) {
 	}
 }
 
+func p1(w io.Writer, strs ...string) {
+	for _, s := range strs {
+		fmt.Fprint(w, s)
+	}
+}
+
+func p2(w io.Writer, r rune) {
+	fmt.Fprintf(w, "%c", r)
+}
+
 func pHead(w io.Writer) {
 	p(w, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?> ",
 		"<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" ",
@@ -144,6 +157,90 @@ func calculateWidth(l int) string {
 
 }
 
+func pGeometry(w io.Writer, strLen int) int {
+	height := "30.0"
+	width := "200.0"
+	rows := 1
+
+	if strLen <= MaxCharsPerRow {
+		width = fmt.Sprintf("%f", float32(strLen)*6.5+6.5)
+	} else {
+		rows = (strLen + MaxCharsPerRow - 1) / MaxCharsPerRow
+		if rows > MaxRowsPerShape {
+			rows = MaxRowsPerShape
+		}
+		height = fmt.Sprintf("%f", float32(rows)*15.0+15.0)
+	}
+	p(w, "      <y:Geometry height=\""+height+
+		"\" width=\""+width+"\"/>")
+	return rows
+}
+
+func pTrimmString(w io.Writer, maxRows int, maxCharsPerRow int, s string) {
+	cChars := 0
+	cRows := 0
+	clStr := strings.Split(s, " ")
+	lenClStr := len(clStr)
+	for idx, str := range clStr {
+		//p1(w, fmt.Sprintf("%v", cChars))
+		if cChars+len(str) > maxCharsPerRow {
+			//p1(w, "[GtC]")
+			cRows = cRows + 1
+			if cRows >= maxRows {
+				// p1(w, "[GtR]")
+				// rest String drucken
+				for ix, c := range str {
+					if cChars+ix+1 >= maxCharsPerRow {
+						break
+					} else {
+						p2(w, c)
+					}
+				}
+				p1(w, "..")
+				break
+			} else {
+				if (float32(len(str)) > 0.5*float32(maxCharsPerRow)) &&
+					(float32(maxCharsPerRow-cChars) > 0.7*float32(len(str))) {
+					// rest String drucken, kommt nicht vor (log. Fehler)
+					for ix, c := range str {
+						if cChars+ix+2 >= maxCharsPerRow {
+							break
+						} else {
+							p2(w, c)
+						}
+					}
+					p(w, "..")
+				} else {
+					// p1(w, "*")
+					p(w, "")
+					p1(w, str)
+					p1(w, " ")
+					cChars = len(str)
+
+				}
+			}
+		} else {
+			//p1(w, "[LoC]")
+			if idx+1 >= lenClStr {
+				//p1(w, "[Last]")
+				p1(w, str)
+			} else {
+				if cChars+len(clStr[idx+1]) > maxCharsPerRow {
+					// p1(w, "[NxGt]")
+					p(w, str)
+					cChars = 0
+					cRows += 1
+				} else {
+					//p1(w, "[]")
+					p1(w, str)
+					p1(w, " ")
+					cChars += len(str)
+				}
+			}
+		}
+	}
+}
+
 func pNodes(w io.Writer, nodes []gmlNode) {
 
 	for _, node := range nodes {
@@ -152,10 +249,16 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			"      <data key=\"d6\">",
 			"      <y:ShapeNode>")
 
-		height := "30.0"
-		width := calculateWidth(len(node.nodeLabel))
+		/*	height := "30.0"
+			width := calculateWidth(len(node.nodeLabel))
 
-		p(w, "         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
+			p(w, "         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
+		*/
+		runeLen := 0
+		for _ = range node.nodeLabel {
+			runeLen += 1
+		}
+		rows := pGeometry(w, runeLen)
 		if node.color == "" {
 			p(w, "         <y:Fill hasColor=\"false\" transparent=\"false\"/>")
 		} else {
@@ -169,9 +272,15 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			"\"/>")
 
 		if node.underlinedLabel {
-			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">"+node.nodeLabel+"</y:NodeLabel>")
+			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">")
+			pTrimmString(w, rows, MaxCharsPerRow, node.nodeLabel)
+
+			p(w, "</y:NodeLabel>")
 		} else {
-			p(w, "      <y:NodeLabel fontFamily=\""+font+"\" >"+node.nodeLabel+"</y:NodeLabel>")
+			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" >")
+			pTrimmString(w, rows, MaxCharsPerRow, node.nodeLabel)
+
+			p(w, "</y:NodeLabel>")
 		}
 		p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
 			"       </y:ShapeNode>",
