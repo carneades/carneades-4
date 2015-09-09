@@ -12,9 +12,13 @@ import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"io"
+	"strings"
 )
 
 const (
+	maxCharsPerRow = 30
+	maxRows        = 3
+	//
 	black  = "#000000"
 	red    = "#FF0000"
 	green  = "#3AB54A"
@@ -105,7 +109,7 @@ func pFoot(w io.Writer) {
 	p(w, "}")
 }
 
-func calculateWidth(l int) string {
+/* func calculateWidth(l int) string {
 	width := "30.0"
 	switch l {
 	case 0, 1, 2, 3:
@@ -129,6 +133,55 @@ func calculateWidth(l int) string {
 	}
 	return width
 
+} */
+
+func trimmString(inStr string, underlined bool) string {
+	outStr := ""
+	cChars := 0
+	cRows := 0
+	cliStr := strings.Split(inStr, " ")
+	//	lenCliStr := len(cliStr)
+	for _, str := range cliStr {
+		//p1(w, fmt.Sprintf("%v", cChars))
+		if cChars+len(str) > maxCharsPerRow {
+			//p1(w, "[GtC]")
+			cRows += 1
+			if cRows >= maxRows {
+				// p1(w, "[GtR]")
+				// rest String
+				if maxCharsPerRow-cChars-1 > 0 {
+					outStr += str[:maxCharsPerRow-cChars-1] + "\u2026"
+				} else {
+					outStr += "\u2026"
+				}
+				return outStr
+			} else {
+				if (float32(len(str)) > 0.5*float32(maxCharsPerRow)) &&
+					(float32(maxCharsPerRow-cChars) > 0.7*float32(len(str))) {
+					// rest String drucken,
+					if underlined {
+						outStr += str[:maxCharsPerRow-cChars-1] + "\u2025<br/>"
+					} else {
+						outStr += str[:maxCharsPerRow-cChars-1] + "\u2025\\n"
+					}
+					cChars = 0
+				} else {
+					// p1(w, "*")
+					if underlined {
+						outStr += "<br/>" + str + " "
+					} else {
+						outStr += "\\n" + str + " "
+					}
+
+					cChars = len(str) + 1
+				}
+			}
+		} else {
+			outStr += str + " "
+			cChars += len(str) + 1
+		}
+	}
+	return outStr
 }
 
 func pNodes(w io.Writer, nodes []gmlNode) {
@@ -142,12 +195,12 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 		if node.color != "" {
 			fillcolor = node.color
 		}
-
+		nodeLabel := trimmString(node.nodeLabel, node.underlinedLabel)
 		label := ""
 		if node.underlinedLabel {
-			label = "<<u>" + node.nodeLabel + "</u>>"
+			label = "<<u>" + nodeLabel + "</u>>"
 		} else {
-			label = "\"" + node.nodeLabel + "\""
+			label = "\"" + nodeLabel + "\""
 		}
 
 		// height := "30.0"
