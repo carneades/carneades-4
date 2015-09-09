@@ -12,16 +12,18 @@ import (
 	"fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
 	"io"
-	"strings"
 )
 
 const (
-	MaxCharsPerRow  = 30
-	MaxRowsPerShape = 3
-	black           = "#000000"
-	red             = "#FF0000"
-	green           = "#3AB54A"
-	yellow          = "#FCEE21"
+	MaxPixelPerRow    = 200
+	MaxPixelPerRowStr = "200"
+	MaxRowsPerShape   = 3
+	FontSize          = 12
+	FontSizeStr       = "12"
+	black             = "#000000"
+	red               = "#FF0000"
+	green             = "#3AB54A"
+	yellow            = "#FCEE21"
 
 	white = "#008000"
 	// line type
@@ -131,114 +133,49 @@ func pFoot(w io.Writer) {
 	p(w, "</graphml>")
 }
 
-func calculateWidth(l int) string {
-	width := "30.0"
-	switch l {
-	case 0, 1, 2, 3:
-	case 4, 5, 6:
-		width = "60.0"
-		// dheight = "45.0"
-	case 7, 8, 9:
-		width = "80.0"
-		// dheight = "67,5"
-	case 10, 11, 12:
-		width = "100.0"
-		// dheight = "90"
-	case 13, 14, 15:
-		width = "120.0"
-		// dheight = "112,5"
-	case 16, 17, 18:
-		width = "140"
-	default:
-		width = "200.0"
-		// dheight = "150.0"
-	}
-	return width
-
-}
-
-func pGeometry(w io.Writer, strLen int) int {
-	height := "30.0"
-	width := "200.0"
+func pGeometry(w io.Writer, lbl string) {
+	height := fmt.Sprintf("%.1f", float32(FontSize)+4.0)
+	width := fmt.Sprintf("%.1f", MaxPixelPerRow+4.0)
 	rows := 1
 
-	if strLen <= MaxCharsPerRow {
-		width = fmt.Sprintf("%f", float32(strLen)*6.5+6.5)
+	l := 0
+	for _, c := range lbl {
+		switch c {
+		case 'i', 'j', 'l', '!':
+			l += 3
+		case 'r', 't', 'f', ' ', '.', '-', ')', 'L', 'I':
+			l += 4
+		case 'J':
+			l += 6
+		case 'A', 'B', 'E', 'F', 'K', 'P', 'S', 'v', 'X', 'Y', 'Z', 'T':
+			l += 8
+		case 'w', 'C', 'D', 'H', 'N', 'R', 'U':
+			l += 9
+		case 'm', 'Q', 'O', 'G', 'M':
+			l += 10
+		case 'W':
+			l += 13
+		default:
+			if c > ' ' && c < '~' {
+				l += 7
+			} else {
+				l += 13
+			}
+
+		}
+	}
+	l = int(float32(FontSize) * float32(l) / 12.0)
+	if l <= MaxPixelPerRow {
+		width = fmt.Sprintf("%.1f", float32(l)+8.0)
 	} else {
-		rows = (strLen + MaxCharsPerRow - 1) / MaxCharsPerRow
+		rows = (l + MaxPixelPerRow - 1) / MaxPixelPerRow
 		if rows > MaxRowsPerShape {
 			rows = MaxRowsPerShape
 		}
-		height = fmt.Sprintf("%f", float32(rows)*15.0+15.0)
+		height = fmt.Sprintf("%.1f", float32(rows)*(float32(FontSize)*1.5))
 	}
 	p(w, "      <y:Geometry height=\""+height+
 		"\" width=\""+width+"\"/>")
-	return rows
-}
-
-func pTrimmString(w io.Writer, maxRows int, maxCharsPerRow int, s string) {
-	cChars := 0
-	cRows := 0
-	clStr := strings.Split(s, " ")
-	lenClStr := len(clStr)
-	for idx, str := range clStr {
-		//p1(w, fmt.Sprintf("%v", cChars))
-		if cChars+len(str) > maxCharsPerRow {
-			//p1(w, "[GtC]")
-			cRows = cRows + 1
-			if cRows >= maxRows {
-				// p1(w, "[GtR]")
-				// rest String drucken
-				for ix, c := range str {
-					if cChars+ix+1 >= maxCharsPerRow {
-						break
-					} else {
-						p2(w, c)
-					}
-				}
-				p1(w, "..")
-				break
-			} else {
-				if (float32(len(str)) > 0.5*float32(maxCharsPerRow)) &&
-					(float32(maxCharsPerRow-cChars) > 0.7*float32(len(str))) {
-					// rest String drucken, kommt nicht vor (log. Fehler)
-					for ix, c := range str {
-						if cChars+ix+2 >= maxCharsPerRow {
-							break
-						} else {
-							p2(w, c)
-						}
-					}
-					p(w, "..")
-				} else {
-					// p1(w, "*")
-					p(w, "")
-					p1(w, str)
-					p1(w, " ")
-					cChars = len(str)
-
-				}
-			}
-		} else {
-			//p1(w, "[LoC]")
-			if idx+1 >= lenClStr {
-				//p1(w, "[Last]")
-				p1(w, str)
-			} else {
-				if cChars+len(clStr[idx+1]) > maxCharsPerRow {
-					// p1(w, "[NxGt]")
-					p(w, str)
-					cChars = 0
-					cRows += 1
-				} else {
-					//p1(w, "[]")
-					p1(w, str)
-					p1(w, " ")
-					cChars += len(str)
-				}
-			}
-		}
-	}
 }
 
 func pNodes(w io.Writer, nodes []gmlNode) {
@@ -254,11 +191,8 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 
 			p(w, "         <y:Geometry height=\""+height+"\" width= \""+width+"\" />")
 		*/
-		runeLen := 0
-		for _ = range node.nodeLabel {
-			runeLen += 1
-		}
-		rows := pGeometry(w, runeLen)
+
+		pGeometry(w, node.nodeLabel)
 		if node.color == "" {
 			p(w, "         <y:Fill hasColor=\"false\" transparent=\"false\"/>")
 		} else {
@@ -272,16 +206,14 @@ func pNodes(w io.Writer, nodes []gmlNode) {
 			"\"/>")
 
 		if node.underlinedLabel {
-			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\">")
-			pTrimmString(w, rows, MaxCharsPerRow, node.nodeLabel)
-
-			p(w, "</y:NodeLabel>")
+			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" underlinedText=\"true\" ")
 		} else {
-			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" >")
-			pTrimmString(w, rows, MaxCharsPerRow, node.nodeLabel)
-
-			p(w, "</y:NodeLabel>")
+			p1(w, "      <y:NodeLabel fontFamily=\""+font+"\" ")
 		}
+		p1(w, "autoSizePolicy=\"node_size\" configuration=\"CroppingLabel\" ")
+		p1(w, "fontSize=\""+FontSizeStr+"\" >")
+		p1(w, node.nodeLabel)
+		p(w, "</y:NodeLabel>")
 		p(w, "       <y:Shape type=\""+node.shapeType+"\"/>",
 			"       </y:ShapeNode>",
 			"       </data>",
