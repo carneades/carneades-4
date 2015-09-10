@@ -320,7 +320,7 @@ func (std Standard) greater(w1, w2 float64) bool {
 	case CCE:
 		return w1 > w2 && (w1-w2 > alpha)
 	case BRD:
-		return w1 > w2 && (w2-w1 > alpha) && w2 < beta
+		return w1 > w2 && (w1-w2 > alpha) && w2 < beta
 	default:
 		return false
 	}
