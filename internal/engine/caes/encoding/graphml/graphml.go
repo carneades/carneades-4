@@ -322,7 +322,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			}
 			edge.target = nodeId
 			// if arg.Weight != nil {
-			edge.edgeLabel = fmt.Sprintf("%v", arg.Weight)
+			edge.edgeLabel = fmt.Sprintf("%.2f", arg.Weight)
 			if len(edge.edgeLabel) > 4 {
 				edge.edgeLabel = edge.edgeLabel[0:3]
 			}
