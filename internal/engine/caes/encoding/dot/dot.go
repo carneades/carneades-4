@@ -109,32 +109,6 @@ func pFoot(w io.Writer) {
 	p(w, "}")
 }
 
-/* func calculateWidth(l int) string {
-	width := "30.0"
-	switch l {
-	case 0, 1, 2, 3:
-	case 4, 5, 6:
-		width = "60.0"
-		// dheight = "45.0"
-	case 7, 8, 9:
-		width = "80.0"
-		// dheight = "67,5"
-	case 10, 11, 12:
-		width = "100.0"
-		// dheight = "90"
-	case 13, 14, 15:
-		width = "120.0"
-		// dheight = "112,5"
-	case 16, 17, 18:
-		width = "140"
-	default:
-		width = "200.0"
-		// dheight = "150.0"
-	}
-	return width
-
-} */
-
 func trimmString(inStr string, underlined bool) string {
 	outStr := ""
 	cChars := 0
@@ -316,7 +290,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			}
 			edge.target = nodeId
 			// if arg.Weight != nil {
-			edge.edgeLabel = fmt.Sprintf("%v", arg.Weight)
+			edge.edgeLabel = fmt.Sprintf("%.2f", arg.Weight)
 			if len(edge.edgeLabel) > 4 {
 				edge.edgeLabel = edge.edgeLabel[0:3]
 			}
