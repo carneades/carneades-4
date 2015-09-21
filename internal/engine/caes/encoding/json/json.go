@@ -7,7 +7,7 @@
 // func Import(in io.Reader) (*caes.ArgGraph, error) - json-Import
 // func Export(out io.Writer, ag *caes.ArgGraph) - fast technical json-Export, not for human reading
 
-package caes_json
+package json
 
 import (
 	"encoding/json"
