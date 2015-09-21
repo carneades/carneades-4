@@ -3,7 +3,7 @@ package test
 import (
 	// "fmt"
 	"github.com/carneades/carneades-4/internal/engine/caes"
-	"github.com/carneades/carneades-4/internal/engine/caes/encoding/json"
+	"github.com/carneades/carneades-4/internal/engine/caes/encoding/caes_json"
 	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
 	//	"log"
 	"os"
@@ -48,14 +48,14 @@ func ioJsonTest(t *testing.T, filename1 string, filename2 string) {
 	// -----------------------------
 	file, err = os.Create(aifTmp + "_d_" + filename2)
 	check(t, err)
-	json.Export(file, ag)
+	caes_json.Export(file, ag)
 	file.Close()
 	file.Sync()
 	// Import JSON-file from Temp-Dir
 	// ------------------------------
 	file, err = os.Open(aifTmp + filename2)
 	check(t, err)
-	ag2, err = json.Import(file)
+	ag2, err = caes_json.Import(file)
 
 	check(t, err)
 
