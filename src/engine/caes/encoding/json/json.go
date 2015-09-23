@@ -15,7 +15,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/carneades/carneades-4/internal/engine/caes"
+	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"io/ioutil"
 	"log"
