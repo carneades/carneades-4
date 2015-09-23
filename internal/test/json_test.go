@@ -21,6 +21,7 @@ func ioJsonTest(t *testing.T, filename1 string, filename2 string) {
 	ag, err = yaml.Import(file)
 	file.Close()
 	check(t, err)
+
 	// file, err = os.Create(aifTmp + "_a_" + filename1)
 	// check(t, err)
 	// yaml.ExportWithReferences(file, ag)
