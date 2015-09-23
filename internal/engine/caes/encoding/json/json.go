@@ -6,6 +6,8 @@
 
 // func Import(in io.Reader) (*caes.ArgGraph, error) - json-Import
 // func Export(out io.Writer, ag *caes.ArgGraph) - fast technical json-Export, not for human reading
+// Json2Caes_ArgGraph(jsonAG ArgGraph) (*caes.ArgGraph, error) - transform a json ArgGraph into a caes.ArgGraph
+// func Caes2Json_ArgGraph( ag *caes.ArgGraph) (ArgGraph, error) - transform a ceas.ArgGraph into a json ArgGraph
 
 package json
 
@@ -20,14 +22,14 @@ import (
 )
 
 type (
-	TempIssue struct {
+	Issue struct {
 		id        string
 		Meta      map[string]interface{} `json:"meta"`
 		Positions []string               `json:"positions"`
 		Standard  string                 `json:"standard"` //
 	}
 
-	TempStatement struct {
+	Statement struct {
 		id      string
 		Meta    map[string]interface{} `json:"meta"`
 		Text    string                 `json:"text"`    // natural language
@@ -37,7 +39,7 @@ type (
 		Label string `json:"label"` // for storing the evaluated label
 	}
 
-	TempArgument struct {
+	Argument struct {
 		id          string
 		Meta        map[string]interface{} `json:"meta"`
 		Scheme      string                 `json:"scheme"`      // name of the scheme
@@ -47,32 +49,32 @@ type (
 		Weight      float64                `json:"weight"`      // for storing the evaluated weight
 	}
 
-	TempLabels struct {
+	Labels struct {
 		In        []string `json:"in"`        // Statements
 		Out       []string `json:"out"`       // Statements
 		Undecided []string `json:"undecided"` // Statements
 	}
-	/* TempArgGraphDB - for store the data in a database (i.e. couchdb) */
-	TempArgGraphDB struct {
+	/* ArgGraph - for store the data in a database (i.e. couchdb) */
+	ArgGraph struct {
 		Meta       map[string]interface{}   `json:"meta"`
-		Issues     map[string]TempIssue     `json:"issues"`
-		Statements map[string]TempStatement `json:"statements"` // string or TempStatement
-		Arguments  map[string]TempArgument  `json:"arguments"`
+		Issues     map[string]Issue         `json:"issues"`
+		Statements map[string]Statement     `json:"statements"` // string or Statement
+		Arguments  map[string]Argument      `json:"arguments"`
 		References map[string]caes.Metadata `json:"references"`
 		//		Assumptions []string                 `json:"assumptions"`
-		//		Labels      TempLabels               `json:"labels"`
+		//		Labels      Labels               `json:"labels"`
 	}
 )
 
-func Export(f io.Writer, ag *caes.ArgGraph) error {
-	tmpAG := TempArgGraphDB{Issues: map[string]TempIssue{}, Statements: map[string]TempStatement{}, Arguments: map[string]TempArgument{}}
+func Caes2Json_ArgGraph(ag *caes.ArgGraph) (ArgGraph, error) {
+	tmpAG := ArgGraph{Issues: map[string]Issue{}, Statements: map[string]Statement{}, Arguments: map[string]Argument{}}
 	// Metadata
 	tmpAG.Meta = ag.Metadata
 	// References
 	tmpAG.References = ag.References
 	// Issues
 	for _, iss := range ag.Issues {
-		tmpIss := TempIssue{Meta: iss.Metadata}
+		tmpIss := Issue{Meta: iss.Metadata}
 		std := "??"
 		switch iss.Standard {
 		case caes.DV:
@@ -100,7 +102,7 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 	}
 	// Statements
 	for _, stat := range ag.Statements {
-		tmpStat := TempStatement{Meta: stat.Metadata, Text: stat.Text, Assumed: stat.Assumed}
+		tmpStat := Statement{Meta: stat.Metadata, Text: stat.Text, Assumed: stat.Assumed}
 		lbl := ""
 		switch stat.Label {
 		case caes.Undecided:
@@ -116,7 +118,7 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 	}
 	//  Arguments
 	for _, arg := range ag.Arguments {
-		tmpArg := TempArgument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme}
+		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme}
 		if arg.Undercutter != nil {
 			tmpArg.Undercutter = arg.Undercutter.Id
 		}
@@ -147,6 +149,15 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 		tmpAG.Arguments[arg.Id] = tmpArg
 
 	}
+	return tmpAG, nil
+}
+
+func Export(f io.Writer, ag *caes.ArgGraph) error {
+	tmpAG, err := Caes2Json_ArgGraph(ag)
+	if err != nil {
+		log.Fatal("error: %v", err)
+		return err
+	}
 	d, err := json.Marshal(tmpAG)
 	if err != nil {
 		log.Fatal("error: %v", err)
@@ -156,20 +167,9 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 	return nil
 }
 
-func Import(inFile io.Reader) (*caes.ArgGraph, error) {
+func Json2Caes_ArgGraph(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 
-	data, err := ioutil.ReadAll(inFile)
-	if err != nil {
-		return nil, err
-	}
-	// log.Printf("Read-Datei: \nErr: %v len(data): %v \n", err, len(data))
-
-	jsonAG := TempArgGraphDB{}
-	err = json.Unmarshal(data, &jsonAG)
-	if err != nil {
-		return nil, err
-	}
-	// TempArgGraphDB --> cases.ArgGraph
+	// ArgGraph --> cases.ArgGraph
 	caesAG := caes.ArgGraph{Metadata: caes.Metadata{}, Issues: []*caes.Issue{},
 		Statements: []*caes.Statement{},
 		Arguments:  []*caes.Argument{}, References: map[string]caes.Metadata{}}
@@ -330,6 +330,22 @@ func Import(inFile io.Reader) (*caes.ArgGraph, error) {
 			}
 		}
 	}
-
 	return &caesAG, nil
+
+}
+
+func Import(inFile io.Reader) (*caes.ArgGraph, error) {
+	data, err := ioutil.ReadAll(inFile)
+	if err != nil {
+		return nil, err
+	}
+	// log.Printf("Read-Datei: \nErr: %v len(data): %v \n", err, len(data))
+
+	jsonAG := ArgGraph{}
+	err = json.Unmarshal(data, &jsonAG)
+	if err != nil {
+		return nil, err
+	}
+
+	return Json2Caes_ArgGraph(jsonAG)
 }
