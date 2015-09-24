@@ -6,8 +6,8 @@
 
 // func Import(in io.Reader) (*caes.ArgGraph, error) - json-Import
 // func Export(out io.Writer, ag *caes.ArgGraph) - fast technical json-Export, not for human reading
-// Json2Caes_ArgGraph(jsonAG ArgGraph) (*caes.ArgGraph, error) - transform a json ArgGraph into a caes.ArgGraph
-// func Caes2Json_ArgGraph( ag *caes.ArgGraph) (ArgGraph, error) - transform a ceas.ArgGraph into a json ArgGraph
+// func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) - transform a json ArgGraph into a caes.ArgGraph
+// func Caes2Json( ag *caes.ArgGraph) (ArgGraph, error) - transform a caes.ArgGraph into a json ArgGraph
 
 package json
 
@@ -65,6 +65,16 @@ type (
 		//		Labels      Labels               `json:"labels"`
 	}
 )
+
+func NewArgGraph() *ArgGraph {
+	return &ArgGraph{
+		Meta:       make(map[string]interface{}),
+		Issues:     make(map[string]Issue),
+		Statements: make(map[string]Statement),
+		Arguments:  make(map[string]Argument),
+		References: make(map[string]caes.Metadata),
+	}
+}
 
 func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	tmpAG := ArgGraph{Issues: map[string]Issue{}, Statements: map[string]Statement{}, Arguments: map[string]Argument{}}
@@ -150,6 +160,15 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 
 	}
 	return tmpAG, nil
+}
+
+func (ag ArgGraph) String() string {
+	d, err := json.Marshal(ag)
+	if err != nil {
+		log.Fatal("error: %v", err)
+		return ""
+	}
+	return string(d)
 }
 
 func Export(f io.Writer, ag *caes.ArgGraph) error {
