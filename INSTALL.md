@@ -22,7 +22,7 @@ Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 Use the `go` tool to get, build and install the Carneades
 executable from Github:
 
-    $ go get github.com/carneades/carneades-4/internal/cmd/carneades
+    $ go get github.com/carneades/carneades-4/src/cmd/carneades
     
 The `carneades` executable should now be installed in
 
@@ -46,7 +46,7 @@ competition.
 
 To build and install the Carneades ICCMA entry, use the go tool:
 
-    $ go get github.com/carneades/carneades-4/internal/cmd/carneades-iccma
+    $ go get github.com/carneades/carneades-4/src/cmd/carneades-iccma
 
 The carneades-iccma executable should now be installed in
 
