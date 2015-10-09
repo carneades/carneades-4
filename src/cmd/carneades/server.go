@@ -17,14 +17,14 @@ The -p flag ("port") specifies the port number to use (default: 8080)
 
 The -t flag ("templates") specifies the full path to the directory with
 the HTML templates used by the service 
-(default: $GOPATH/src/github.com/carneades/carneades-4/internal/web/templates/)
+(default: $GOPATH/src/github.com/carneades/carneades-4/src/web/templates/)
 `
 
 var goPath = os.Getenv("GOPATH")
 
 const defaultPort = "8080"
 
-var defaultTemplatesDir = filepath.Join(goPath, "/src/github.com/carneades/carneades-4/internal/web/templates/")
+var defaultTemplatesDir = filepath.Join(goPath, "/src/github.com/carneades/carneades-4/src/web/templates/")
 
 func webServerCmd() {
 	webFlags := flag.NewFlagSet("webFlags", flag.ContinueOnError)
