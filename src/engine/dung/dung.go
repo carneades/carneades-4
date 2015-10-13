@@ -16,6 +16,10 @@ import (
 
 type Arg string
 
+func (arg Arg) String() string {
+	return string(arg)
+}
+
 // Argumentation Framework
 type AF struct {
 	args []Arg         // the arguments

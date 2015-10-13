@@ -12,6 +12,7 @@ import (
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	"github.com/carneades/carneades-4/src/engine/dung"
+	ddot "github.com/carneades/carneades-4/src/engine/dung/encoding/dot"
 	dgml "github.com/carneades/carneades-4/src/engine/dung/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/dung/encoding/tgf"
 	"html/template"
@@ -223,28 +224,27 @@ func CarneadesServer(port string, templatesDir string) {
 				as = extensions[0]
 			}
 			dgml.Export(w, af, as)
-
-			//		case "dot":
-			//			err = dot.Export(w, *ag)
-			//			if err != nil {
-			//				errorTemplate.Execute(w, err.Error())
-			//				return
-			//			}
-			//		case "png", "svg":
-			//			cmd := exec.Command("dot", "-T"+outputFormat)
-			//			w2 := bytes.NewBuffer([]byte{})
-			//			cmd.Stdin = w2
-			//			cmd.Stdout = w
-			//			err = dot.Export(w2, *ag)
-			//			if err != nil {
-			//				errorTemplate.Execute(w, err.Error())
-			//				return
-			//			}
-			//			err = cmd.Run()
-			//			if err != nil {
-			//				errorTemplate.Execute(w, err.Error())
-			//				return
-			//			}
+		case "dot":
+			err = ddot.Export(w, af)
+			if err != nil {
+				errorTemplate.Execute(w, err.Error())
+				return
+			}
+		case "png", "svg":
+			cmd := exec.Command("dot", "-T"+outputFormat)
+			w2 := bytes.NewBuffer([]byte{})
+			cmd.Stdin = w2
+			cmd.Stdout = w
+			err = ddot.Export(w2, af)
+			if err != nil {
+				errorTemplate.Execute(w, err.Error())
+				return
+			}
+			err = cmd.Run()
+			if err != nil {
+				errorTemplate.Execute(w, err.Error())
+				return
+			}
 		default: // text
 			printExtensions(extensions)
 		}
