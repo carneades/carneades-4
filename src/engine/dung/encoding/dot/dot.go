@@ -216,7 +216,7 @@ func pEdges(w io.Writer, edges []Edge) {
 	}
 }
 
-func mkNodesAndEdges(af dung.AF) (nodes []Node, edges []Edge, err error) {
+func mkNodesAndEdges(af dung.AF, extension dung.ArgSet) (nodes []Node, edges []Edge, err error) {
 	firstNode := true
 	firstEdge := true
 	// Arguments
@@ -224,6 +224,10 @@ func mkNodesAndEdges(af dung.AF) (nodes []Node, edges []Edge, err error) {
 		nNode := newNode()
 		nNode.nodeLabel = arg.String()
 		nNode.id = arg.String()
+		// color the node green if the argument is in the extension
+		if extension[arg] {
+			nNode.color = green
+		}
 		if firstNode {
 			nodes = []Node{nNode}
 			firstNode = false
@@ -248,8 +252,8 @@ func mkNodesAndEdges(af dung.AF) (nodes []Node, edges []Edge, err error) {
 	return
 }
 
-func Export(w io.Writer, af dung.AF) error {
-	nodes, edges, err := mkNodesAndEdges(af)
+func Export(w io.Writer, af dung.AF, extension dung.ArgSet) error {
+	nodes, edges, err := mkNodesAndEdges(af, extension)
 	if err != nil {
 		return err
 	}

@@ -215,17 +215,17 @@ func CarneadesServer(port string, templatesDir string) {
 			fmt.Fprintf(w, "[%s]\n", strings.Join(s, ","))
 		}
 
+		var as dung.ArgSet
+		if len(extensions) == 0 {
+			as = dung.NewArgSet()
+		} else {
+			as = extensions[0]
+		}
 		switch outputFormat {
 		case "graphml":
-			var as dung.ArgSet
-			if len(extensions) == 0 {
-				as = dung.NewArgSet()
-			} else {
-				as = extensions[0]
-			}
 			dgml.Export(w, af, as)
 		case "dot":
-			err = ddot.Export(w, af)
+			err = ddot.Export(w, af, as)
 			if err != nil {
 				errorTemplate.Execute(w, err.Error())
 				return
@@ -235,7 +235,7 @@ func CarneadesServer(port string, templatesDir string) {
 			w2 := bytes.NewBuffer([]byte{})
 			cmd.Stdin = w2
 			cmd.Stdout = w
-			err = ddot.Export(w2, af)
+			err = ddot.Export(w2, af, as)
 			if err != nil {
 				errorTemplate.Execute(w, err.Error())
 				return
