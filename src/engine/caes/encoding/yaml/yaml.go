@@ -325,10 +325,27 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 }
 
 func mkYamlString(str string) string {
-	if strings.Contains(str, ":") {
-		str = "\"" + str + "\""
+	newstr := str
+	if strings.ContainsAny(str, "\n\r:-?,[]{}#&!*|>'\"%@`") {
+		if strings.Contains(str, "\"") {
+			if strings.Contains(str, "'") {
+				// mark \"
+				newstr1 := []rune{}
+				for _, ch := range str {
+					if ch == '"' {
+						newstr1 = append(newstr1, '\\')
+					}
+					newstr1 = append(newstr1, ch)
+				}
+				newstr = "\"" + string(newstr1) + "\""
+			} else {
+				newstr = "'" + newstr + "'"
+			}
+		} else {
+			newstr = "\"" + newstr + "\""
+		}
 	}
-	return str
+	return newstr
 }
 
 func writeMetaData(f io.Writer, sp1 string, sp2 string, md caes.Metadata) {
