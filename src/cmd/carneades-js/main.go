@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+
 	"github.com/carneades/carneades-4/src/engine/caes"
-	"github.com/carneades/carneades-4/src/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	"github.com/gopherjs/gopherjs/js"
