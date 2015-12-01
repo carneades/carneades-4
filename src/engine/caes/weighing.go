@@ -324,9 +324,9 @@ func SortingWeighingFunction(o []PropertyOrder) WeighingFunction {
 
 		// The weight of an argument depends on its place in the partial
 		// order. All arguments in a group (equivalence class) have the
-		// same weight. Arguments in the first group will have the weight
+		// same weight. Arguments in the last group will have the weight
 		// 1.0. All arguments have some weight greater than 0.0
-		// If there are ten groups, arguments in the tenth group
+		// If there are ten groups, arguments in the first group
 		// will have the weight 0.1
 
 		// Find arg in the partial order and returns its weight.
@@ -334,7 +334,7 @@ func SortingWeighingFunction(o []PropertyOrder) WeighingFunction {
 		n := float64(len(groups))
 		var weight float64
 		for i, group := range groups {
-			weight = ((n - float64(i)) * 1.0) / n
+			weight = ((float64(i) + 1.0) * 1.0) / n
 			for _, a := range group {
 				if arg == a {
 					// found arg
