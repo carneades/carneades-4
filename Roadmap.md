@@ -27,17 +27,22 @@
 # v4.2
 
 - user-definable argument evaluation functions, for deriving relative argument weights from properties of the arguments (4.1 includes some builtin argument evaluation functions)
-- Argument graph upload to CoachDB repositories
-- Argument graph search and retrieval
+- Language for representing argumentation schemes, based on Constraint Handling Rules (CHR)
+- Argument construction, via a CHR inference engine
 
 # v4.3
+- CRUD (Create, Read, Update and Delete) operations for managing argument graphs using the Open Source CoachDB document database system 
+- Create and upload argument graphs to a CoachDB database
+- Search for, retreive and read (view) argument graphs in the database
+- Update (edit) argument graphs in the database
+- Delete argument graphs from the database
+- Web user interfaces will be provided for all these database operations
 
-- Language for representing argumentation schemes, based on Datalog or, perhaps, Constraint Handling Rules (CHR)
-- Argument construction, via an inference engine
+# v4.4
 - Argument validation, by matching arguments to schemes
 - Goal selection, using abduction, continuing our prior work: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
 
-# v4.4
+# v4.5
 
 - Interactive, web-based argument browser and structured survey tool
 - The browser will provide "guided tours" of argument graphs, to help users to understand the arguments, taking into    consideration their interests and assumptions or beliefs.
