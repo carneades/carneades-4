@@ -27,11 +27,13 @@ type Argument struct {
 }
 
 type ArgGraph struct {
-	Metadata   Metadata
-	Issues     []*Issue
-	Statements []*Statement
-	Arguments  []*Argument
-	References map[string]Metadata // key -> metadata
+	Metadata    Metadata
+	Issues      map[string]*Issue // id to *Issue
+	Statements  map[string]*Statement
+	Arguments   map[string]*Argument
+	References  map[string]Metadata // key -> metadata
+	Theory      *Theory
+	Assumptions map[string]bool // keys are atomic formulas or statement keys
 }
 
 type Issue struct {
@@ -104,8 +106,7 @@ const (
 type Statement struct {
 	Id       string // an atomic formula, using Prolog syntax
 	Metadata Metadata
-	Text     string // natural language
-	Assumed  bool
+	Text     string      // natural language
 	Issue    *Issue      // nil if not at issue
 	Args     []*Argument // concluding with this statement
 	Label    Label       // for storing the evaluated label
@@ -115,8 +116,7 @@ type Theory struct { // aka Knowledge Base
 	Language          Language
 	WeighingFunctions map[string]WeighingFunction
 	ArgSchemes        map[string]*Scheme
-	Assumptions       []string // list of atomic formula
-	IssueSchemes      []*IssueScheme
+	IssueSchemes      map[string]IssueScheme
 }
 
 type WeighingFunction func(*Argument, Labelling) float64 // [0.0,1.0]
@@ -161,9 +161,9 @@ func NewArgument() *Argument {
 func NewArgGraph() *ArgGraph {
 	return &ArgGraph{
 		Metadata:   NewMetadata(),
-		Issues:     []*Issue{},
-		Statements: []*Statement{},
-		Arguments:  []*Argument{},
+		Issues:     map[string]*Issue{},
+		Statements: map[string]*Statement{},
+		Arguments:  map[string]*Argument{},
 		References: make(map[string]Metadata),
 	}
 }
@@ -201,7 +201,7 @@ func (l Labelling) init(ag *ArgGraph) {
 	// first make all assumed statements In and all unsupported
 	// statements out
 	for _, s := range ag.Statements {
-		if s.Assumed {
+		if ag.Assumptions[s.Id] {
 			l[s] = In
 		} else if len(s.Args) == 0 {
 			l[s] = Out
@@ -458,7 +458,7 @@ func (ag *ArgGraph) Inconsistent() bool {
 	for _, issue := range ag.Issues {
 		found := false
 		for _, p := range issue.Positions {
-			if p.Assumed {
+			if ag.Assumptions[p.Id] {
 				if found {
 					// inconsistency, because a previous position
 					// of the issue was found to be assumed true
