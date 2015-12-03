@@ -77,7 +77,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	for _, a := range pag.Adus {
 		s := caes.NewStatement()
 		s.Id = a.Id
-		s.Assumed = true // overridden below if supported by arguments
+		cag.Assumptions[s.Id] = true // overridden below if supported by arguments
 		s.Metadata["type"] = a.Type
 		stmts[a.Id] = s
 	}
@@ -161,18 +161,18 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	for _, s := range stmts {
 		// do not assume statements supported by arguments or at issue
 		if len(s.Args) > 0 || s.Issue != nil {
-			s.Assumed = false
+			cag.Assumptions[s.Id] = false
 		}
-		cag.Statements = append(cag.Statements, s)
+		cag.Statements[s.Id] = s
 	}
 	for _, issue := range issues {
-		cag.Issues = append(cag.Issues, issue)
+		cag.Issues[issue.Id] = issue
 		for _, p := range issue.Positions {
 			p.Issue = issue
 		}
 	}
 	for _, arg := range args {
-		cag.Arguments = append(cag.Arguments, arg)
+		cag.Arguments[arg.Id] = arg
 		arg.Conclusion.Args = append(arg.Conclusion.Args, arg)
 		if s, ok := stmts["¬app("+arg.Id+")"]; ok {
 			arg.Undercutter = s

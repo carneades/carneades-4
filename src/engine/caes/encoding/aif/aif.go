@@ -53,8 +53,10 @@ type Node struct {
 
 func (ag AIF) Caes() *caes.ArgGraph {
 	stmts := make(map[string]*caes.Statement)
+	assms := make(map[string]bool) // keys are statement ids
 	args := make(map[string]*caes.Argument)
 	issues := make(map[string]*caes.Issue)
+	schemes := make(map[string]*caes.Scheme)
 
 	nodeType := func(id string) string {
 		if stmts[id] != nil {
@@ -74,7 +76,7 @@ func (ag AIF) Caes() *caes.ArgGraph {
 			s := caes.NewStatement()
 			s.Id = node.Id
 			s.Text = node.Text
-			s.Assumed = true // may be overridden below
+			assms[s.Id] = true // may be overridden below
 			stmts[s.Id] = s
 		case "CA":
 			i := caes.NewIssue()
@@ -83,7 +85,12 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		case "RA":
 			arg := caes.NewArgument()
 			arg.Id = node.Id
-			arg.Scheme = node.Scheme
+			if s := schemes[node.Scheme]; s != nil {
+				arg.Scheme = s
+			} else {
+				s := caes.Scheme{Id: node.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+				arg.Scheme = &s
+			}
 			args[arg.Id] = arg
 		default:
 			continue
@@ -136,18 +143,20 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		s := stmts[i]
 		if len(s.Args) > 0 || s.Issue != nil {
 			// do not assume statements supported by arguments or at issue
-			s.Assumed = false
+			assms[s.Id] = false
 		}
-		cag.Statements = append(cag.Statements, s)
+		cag.Statements[s.Id] = s
 	}
 
 	for _, issue := range issues {
-		cag.Issues = append(cag.Issues, issue)
+		cag.Issues[issue.Id] = issue
 	}
 
 	for _, arg := range args {
-		cag.Arguments = append(cag.Arguments, arg)
+		cag.Arguments[arg.Id] = arg
 	}
+
+	cag.Assumptions = assms
 
 	return cag
 }

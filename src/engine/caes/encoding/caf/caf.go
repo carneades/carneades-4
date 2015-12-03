@@ -194,6 +194,7 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 	uids := make(map[string]string) // from URIs to shorter ids
 	issues := make(map[string]*caes.Issue)
 	issueCounter := 0
+	schemes := make(map[string]*caes.Scheme)
 
 	// hasComplement: returns true if the statement with the given id
 	// has a complement in the argument graph
@@ -279,10 +280,10 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 
 		if s.Weight > 0.5 {
-			stmt.Assumed = true
+			cag.Assumptions[stmt.Id] = true
 		} else if s.Weight < 0.5 {
 			c := complement(stmt.Id)
-			stmts[c].Assumed = true
+			cag.Assumptions[c] = true
 		}
 
 		if s.Value > 0.5 {
@@ -312,7 +313,12 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 		uids[a.Id] = arg.Id
 		arg.Metadata = a.Metadata.toMap()
-		arg.Scheme = a.Scheme
+		if s := schemes[a.Scheme]; s != nil {
+			arg.Scheme = s
+		} else {
+			s := caes.Scheme{Id: a.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+			schemes[a.Scheme] = &s
+		}
 		arg.Weight = a.Weight
 		// a.Value ignored, since arguments are no longer labelled
 
@@ -364,7 +370,7 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 	}
 	for sid, s := range stmts {
-		cag.Statements = append(cag.Statements, s)
+		cag.Statements[s.Id] = s
 		if hasComplement(sid) {
 			// create issues for statements with complements
 			issueCounter++
@@ -379,11 +385,11 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 	}
 	for _, issue := range issues {
-		cag.Issues = append(cag.Issues, issue)
+		cag.Issues[issue.Id] = issue
 
 	}
 	for _, arg := range args {
-		cag.Arguments = append(cag.Arguments, arg)
+		cag.Arguments[arg.Id] = arg
 	}
 	return cag
 }

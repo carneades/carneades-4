@@ -226,7 +226,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 		nNode := newGmlNode() // shapeType [] (rectangle)
 		stat2Node[stat.Id] = nNode.id
 		nNode.nodeLabel = stat.Text
-		if stat.Assumed {
+		if ag.Assumptions[stat.Id] {
 			nNode.underlinedLabel = true
 		}
 		switch stat.Label {
@@ -248,8 +248,8 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	for _, arg := range ag.Arguments {
 		nNode := newGmlNode()
 		nNode.shapeType = roundrectangle // O
-		if arg.Scheme != "" {
-			nNode.nodeLabel = fmt.Sprintf("%s: %s", arg.Id, arg.Scheme)
+		if arg.Scheme != nil {
+			nNode.nodeLabel = fmt.Sprintf("%s: %s", arg.Id, arg.Scheme.Id)
 		} else {
 			nNode.nodeLabel = arg.Id
 		}

@@ -30,10 +30,10 @@ type (
 	}
 
 	Statement struct {
-		id      string
-		Meta    map[string]interface{} `json:"meta"`
-		Text    string                 `json:"text"`    // natural language
-		Assumed bool                   `json:"assumed"` // true o false
+		id   string
+		Meta map[string]interface{} `json:"meta"`
+		Text string                 `json:"text"` // natural language
+		//      Assumed bool                   `json:"assumed"` // true o false
 		//		Issue   string                 `json:"issue"`   // "" if not at issue
 		//		args    []string               // concluding with this statement
 		Label string `json:"label"` // for storing the evaluated label
@@ -56,28 +56,29 @@ type (
 	}
 	/* ArgGraph - for store the data in a database (i.e. couchdb) */
 	ArgGraph struct {
-		Meta       map[string]interface{}   `json:"meta"`
-		Issues     map[string]Issue         `json:"issues"`
-		Statements map[string]Statement     `json:"statements"` // string or Statement
-		Arguments  map[string]Argument      `json:"arguments"`
-		References map[string]caes.Metadata `json:"references"`
-		//		Assumptions []string                 `json:"assumptions"`
+		Meta        map[string]interface{}   `json:"meta"`
+		Issues      map[string]Issue         `json:"issues"`
+		Statements  map[string]Statement     `json:"statements"` // string or Statement
+		Arguments   map[string]Argument      `json:"arguments"`
+		References  map[string]caes.Metadata `json:"references"`
+		Assumptions []string                 `json:"assumptions"` // statement ids
 		//		Labels      Labels               `json:"labels"`
 	}
 )
 
 func NewArgGraph() *ArgGraph {
 	return &ArgGraph{
-		Meta:       make(map[string]interface{}),
-		Issues:     make(map[string]Issue),
-		Statements: make(map[string]Statement),
-		Arguments:  make(map[string]Argument),
-		References: make(map[string]caes.Metadata),
+		Meta:        make(map[string]interface{}),
+		Issues:      make(map[string]Issue),
+		Statements:  make(map[string]Statement),
+		Arguments:   make(map[string]Argument),
+		References:  make(map[string]caes.Metadata),
+		Assumptions: []string{},
 	}
 }
 
 func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
-	tmpAG := ArgGraph{Issues: map[string]Issue{}, Statements: map[string]Statement{}, Arguments: map[string]Argument{}}
+	tmpAG := NewArgGraph()
 	// Metadata
 	tmpAG.Meta = ag.Metadata
 	// References
@@ -112,7 +113,7 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	}
 	// Statements
 	for _, stat := range ag.Statements {
-		tmpStat := Statement{Meta: stat.Metadata, Text: stat.Text, Assumed: stat.Assumed}
+		tmpStat := Statement{Meta: stat.Metadata, Text: stat.Text}
 		lbl := ""
 		switch stat.Label {
 		case caes.Undecided:
@@ -128,7 +129,7 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	}
 	//  Arguments
 	for _, arg := range ag.Arguments {
-		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme}
+		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme.Id}
 		if arg.Undercutter != nil {
 			tmpArg.Undercutter = arg.Undercutter.Id
 		}
@@ -158,8 +159,13 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 
 		tmpAG.Arguments[arg.Id] = tmpArg
 
+		// Assumptions
+		for k, _ := range ag.Assumptions {
+			tmpAG.Assumptions = append(tmpAG.Assumptions, k)
+		}
+
 	}
-	return tmpAG, nil
+	return *tmpAG, nil
 }
 
 func (ag ArgGraph) String() string {
@@ -189,13 +195,13 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 
 	// ArgGraph --> cases.ArgGraph
-	caesAG := caes.ArgGraph{Metadata: caes.Metadata{}, Issues: []*caes.Issue{},
-		Statements: []*caes.Statement{},
-		Arguments:  []*caes.Argument{}, References: map[string]caes.Metadata{}}
+	caesAG := caes.NewArgGraph()
 	// Metadata
 	caesAG.Metadata = jsonAG.Meta
 	// References
 	caesAG.References = jsonAG.References
+	// Scheme
+	schemes := map[string]*caes.Scheme{}
 
 	// statements
 	caesStatMap := map[string]*caes.Statement{}
@@ -206,7 +212,6 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 		caesStatMap[statId] = caesStat
 		caesStat.Metadata = jsonStat.Meta
 		caesStat.Text = jsonStat.Text
-		caesStat.Assumed = jsonStat.Assumed
 		switch jsonStat.Label {
 		case "in":
 			caesStat.Label = caes.In
@@ -216,7 +221,7 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 			caesStat.Label = caes.Undecided
 		}
 		//		if caesAG.Statements == nil { }
-		caesAG.Statements = append(caesAG.Statements, caesStat)
+		caesAG.Statements[caesStat.Id] = caesStat
 
 	}
 	// issues
@@ -246,33 +251,31 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 							refCaesIssue.Positions = append(refCaesIssue.Positions, refCaes_Stat)
 						}
 					} else {
-						return &caesAG, errors.New(" *** Semantic Error: Statement: " + refCaes_Stat.Id + ", with two issues: " + jsonIssuePos_Id + ", " + refCaes_Stat.Issue.Id + "\n")
+						return caesAG, errors.New(" *** Semantic Error: Statement: " + refCaes_Stat.Id + ", with two issues: " + jsonIssuePos_Id + ", " + refCaes_Stat.Issue.Id + "\n")
 					}
 				}
 			}
 		}
-		if caesAG.Issues == nil {
-			caesAG.Issues = []*caes.Issue{refCaesIssue}
-		} else {
-			caesAG.Issues = append(caesAG.Issues, refCaesIssue)
-		}
+		caesAG.Issues[refCaesIssue.Id] = refCaesIssue
 	}
 
 	// arguments
 
 	for jsonArg_Id, jsonArg := range jsonAG.Arguments {
 		refCaesArg := new(caes.Argument)
-		if caesAG.Arguments == nil {
-			caesAG.Arguments = []*caes.Argument{refCaesArg}
-		} else {
-			caesAG.Arguments = append(caesAG.Arguments, refCaesArg)
-		}
+		caesAG.Arguments[refCaesArg.Id] = refCaesArg
+
 		// Argument.Id
 		refCaesArg.Id = jsonArg_Id
 		// Argument.Metadata
 		refCaesArg.Metadata = jsonArg.Meta
 		// Argument.Scheme
-		refCaesArg.Scheme = jsonArg.Scheme
+		if s := schemes[jsonArg.Scheme]; s != nil {
+			refCaesArg.Scheme = s
+		} else {
+			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+			refCaesArg.Scheme = &s
+		}
 		// Argument.Weight
 		// if jsonArg.Weight != 0.0 {
 		refCaesArg.Weight = jsonArg.Weight
@@ -349,7 +352,13 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 			}
 		}
 	}
-	return &caesAG, nil
+
+	// Assumptions
+	for _, s := range jsonAG.Assumptions {
+		caesAG.Assumptions[s] = true
+	}
+
+	return caesAG, nil
 
 }
 

@@ -158,13 +158,24 @@ func NewArgument() *Argument {
 	}
 }
 
+func NewTheory() *Theory {
+	return &Theory{
+		Language:          make(map[string]string),
+		WeighingFunctions: make(map[string]WeighingFunction),
+		ArgSchemes:        make(map[string]*Scheme),
+		IssueSchemes:      make(map[string]IssueScheme),
+	}
+}
+
 func NewArgGraph() *ArgGraph {
 	return &ArgGraph{
-		Metadata:   NewMetadata(),
-		Issues:     map[string]*Issue{},
-		Statements: map[string]*Statement{},
-		Arguments:  map[string]*Argument{},
-		References: make(map[string]Metadata),
+		Metadata:    NewMetadata(),
+		Issues:      map[string]*Issue{},
+		Statements:  map[string]*Statement{},
+		Arguments:   map[string]*Argument{},
+		References:  make(map[string]Metadata),
+		Assumptions: map[string]bool{},
+		Theory:      NewTheory(),
 	}
 }
 

@@ -114,6 +114,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 	args := make(map[string]*caes.Argument)
 	issues := make(map[string]*caes.Issue)
 	issueCounter := 0
+	schemes := map[string]*caes.Scheme{}
 
 	// hasComplement: returns true if the statement with the given id
 	// has a complement in the argument graph
@@ -164,10 +165,10 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 		// between facts and assumptions
 		switch s.Value {
 		case "true":
-			stmt.Assumed = true
+			cag.Assumptions[stmt.Id] = true
 		case "false":
 			c := complement(stmt.Id)
-			stmts[c].Assumed = true
+			cag.Assumptions[c] = true
 		default:
 			continue
 		}
@@ -182,7 +183,13 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 			arg.Metadata["title"] = a.Title
 		}
 		if a.Scheme != "" {
-			arg.Scheme = a.Scheme
+			if s := schemes[a.Scheme]; s != nil {
+				arg.Scheme = s
+			} else {
+				s := caes.Scheme{Id: a.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+				schemes[a.Scheme] = &s
+				arg.Scheme = &s
+			}
 		}
 		if a.Weight != 0.0 {
 			arg.Weight = a.Weight
@@ -227,7 +234,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 				args[e.Id] = e
 			case "assumption":
 				arg.Premises = append(arg.Premises, pr)
-				pr.Stmt.Assumed = true
+				cag.Assumptions[pr.Stmt.Id] = true
 			default:
 				continue
 			}
@@ -235,7 +242,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 		}
 	}
 	for sid, s := range stmts {
-		cag.Statements = append(cag.Statements, s)
+		cag.Statements[s.Id] = s
 		if hasComplement(sid) {
 			// create issues for statements with complements
 			issueCounter++
@@ -250,11 +257,11 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 		}
 	}
 	for _, issue := range issues {
-		cag.Issues = append(cag.Issues, issue)
+		cag.Issues[issue.Id] = issue
 
 	}
 	for _, arg := range args {
-		cag.Arguments = append(cag.Arguments, arg)
+		cag.Arguments[arg.Id] = arg
 	}
 	return cag
 }
