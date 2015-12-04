@@ -144,11 +144,11 @@ func DefaultValidityCheck(*Argument) bool {
 	return true
 }
 
-var BasicSchemes = map[string]Scheme{
-	"linked":     Scheme{Id: "linked", Weight: LinkedWeighingFunction, Valid: DefaultValidityCheck},
-	"convergent": Scheme{Id: "convergent", Weight: ConvergentWeighingFunction, Valid: DefaultValidityCheck},
-	"cumulative": Scheme{Id: "cumulative", Weight: CumulativeWeighingFunction, Valid: DefaultValidityCheck},
-	"factorized": Scheme{Id: "factorized", Weight: FactorizedWeighingFunction, Valid: DefaultValidityCheck},
+var BasicWeighingFunctions = map[string]WeighingFunction{
+	"linked":     LinkedWeighingFunction,
+	"convergent": ConvergentWeighingFunction,
+	"cumulative": CumulativeWeighingFunction,
+	"factorized": FactorizedWeighingFunction,
 }
 
 func NewArgument() *Argument {

@@ -280,7 +280,7 @@ func genEqualArgsFunction(o []PropertyOrder) func(*Argument, *Argument) bool {
 // currently the arguments are sorted multiple times, once for each
 // argument being weighed. Problem: avoiding a memory leak when used the
 // cache in a long running service
-func SortingWeighingFunction(o []PropertyOrder) WeighingFunction {
+func PreferenceWeighingFunction(o []PropertyOrder) WeighingFunction {
 	return func(arg *Argument, l Labelling) float64 {
 		c := arg.Conclusion
 		issue := c.Issue
