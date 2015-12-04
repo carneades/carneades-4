@@ -53,6 +53,22 @@ type SoftConstraint struct {
 	NormalizedValues map[string]float64
 }
 
+var BasicWeighingFunctions = map[string]WeighingFunction{
+	"linked":     LinkedWeighingFunction,
+	"convergent": ConvergentWeighingFunction,
+	"cumulative": CumulativeWeighingFunction,
+	"factorized": FactorizedWeighingFunction,
+}
+
+// Note: the names of the basic schemes are the same
+// as the corresponding basic weighing functions.
+var BasicSchemes = map[string]*Scheme{
+	"linked":     &Scheme{Id: "linked", Weight: LinkedWeighingFunction, Valid: DefaultValidityCheck},
+	"convergent": &Scheme{Id: "convergent", Weight: ConvergentWeighingFunction, Valid: DefaultValidityCheck},
+	"cumulative": &Scheme{Id: "cumulative", Weight: CumulativeWeighingFunction, Valid: DefaultValidityCheck},
+	"factorized": &Scheme{Id: "factorized", Weight: FactorizedWeighingFunction, Valid: DefaultValidityCheck},
+}
+
 func LinkedWeighingFunction(arg *Argument, l Labelling) float64 {
 	for _, p := range arg.Premises {
 		if l[p.Stmt] != In {
@@ -269,9 +285,11 @@ func genEqualArgsFunction(o []PropertyOrder) func(*Argument, *Argument) bool {
 	}
 }
 
-// Orders arguments by the metadata properties of the schemes
-// instantiated by the arguments. Can be used to model, e.g., Lex Superior
-// and Lex Posterior.  If any premise of the argument is Out, the
+// PreferenceWeighingFunction: Orders arguments by the metadata properties of
+// the schemes instantiated by the arguments. Can be used to model, e.g.,
+// Lex Superior and Lex Posterior. Can also be used to simulate value-based
+// argumentation frameworks, using value properties and an ordering
+// of values. If any premise of the argument is Out, the
 // argument weights 0.0. If no premise is Out but
 // the conclusion of the argument is not at issue, the argument weights 1.0.
 // Otherwise all the arguments are the issue are ordered according to

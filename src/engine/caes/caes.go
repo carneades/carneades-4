@@ -144,13 +144,6 @@ func DefaultValidityCheck(*Argument) bool {
 	return true
 }
 
-var BasicWeighingFunctions = map[string]WeighingFunction{
-	"linked":     LinkedWeighingFunction,
-	"convergent": ConvergentWeighingFunction,
-	"cumulative": CumulativeWeighingFunction,
-	"factorized": FactorizedWeighingFunction,
-}
-
 func NewArgument() *Argument {
 	return &Argument{
 		Metadata: NewMetadata(),
