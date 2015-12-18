@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	caes_json "github.com/carneades/carneades-4/internal/engine/caes/encoding/json"
+	caes_json "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
 	"github.com/fjl/go-couchdb"
 	"io/ioutil"
 	"log"

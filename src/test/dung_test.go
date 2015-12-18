@@ -7,8 +7,8 @@
 package test
 
 import (
-	"github.com/carneades/carneades-4/internal/engine/dung"
-	"github.com/carneades/carneades-4/internal/engine/dung/encoding/tgf"
+	"github.com/carneades/carneades-4/src/engine/dung"
+	"github.com/carneades/carneades-4/src/engine/dung/encoding/tgf"
 	// "fmt"
 	"log"
 	"os"

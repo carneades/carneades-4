@@ -2,8 +2,8 @@ package test
 
 import (
 	"fmt"
-	"github.com/carneades/carneades-4/internal/engine/caes"
-	//	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
+	"github.com/carneades/carneades-4/src/engine/caes"
+	//	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	//	"log"
 	"errors"
 	//	"os"
@@ -20,7 +20,7 @@ func check(t *testing.T, e error) {
 	}
 }
 
-func checkLabeling(l caes.Labelling, stats []*caes.Statement) error {
+func checkLabeling(l caes.Labelling, stats map[string]*caes.Statement) error {
 	errStr := ""
 	for _, stat := range stats {
 		lbl := l[stat]

@@ -23,91 +23,256 @@ import (
 )
 
 type (
-	mapIface map[interface{}]interface{}
-	umIssue  struct {
-		id        string
-		metadata  caes.Metadata
-		positions []string
-		standard  caes.Standard
+	argMapGraph struct {
+		Arguments             map[string]*umArgument
+		Argument_schemes      map[string]*umArgScheme
+		Assumptions           []string
+		caesArgSchemes        map[string]*caes.Scheme
+		caesLabels            map[string]caes.Label
+		caesStatements        map[string]*caes.Statement
+		caesWeighingFunctions map[string]caes.WeighingFunction
+		Issues                map[string]*umIssue
+		Issue_schemes         map[string]*caes.IssueScheme //[]string
+		Labels                *umLabel
+		Language              caes.Language
+		Meta                  caes.Metadata
+		References            map[string]caes.Metadata
+		Statements            mapIface // string || text: label:
+		Weighing_functions    map[string]interface{}
 	}
-	umPremis struct {
-		stmt string
-		role string
+	mapIface map[interface{}]interface{}
+
+	umArgScheme struct {
+		Assumptions     map[string]string // to do - list or map
+		caesAssumptions map[string]string
+		caesExceptions  map[string]string
+		caesPremises    map[string]string
+		caesWeight      caes.WeighingFunction
+		Conclusions     []string
+		Deletions       []string
+		Exceptions      map[string]string // to do - list or map
+		Guards          []string
+		Meta            caes.Metadata
+		Premises        map[string]string // to do - list or map
+		Variables       []string
+		Weight          interface{}
+		// string
+		// Constant: float64
+		// Criteria: {Hard: []string Soft: map[string]{Factor: float64 Values: map[string]float64}
+		// Preference: []{Property: string Order: sting || []string
 	}
 	umArgument struct {
 		id          string
-		metadata    caes.Metadata
-		premises    []umPremis
-		conclusion  string
-		weigth      float64
-		scheme      string
-		undercutter string
+		Conclusion  string
+		Meta        caes.Metadata
+		Premises    interface{}
+		Scheme      string
+		umpremises  []umPremis
+		Undercutter string
+		Weigth      float64 //
 	}
-	assumptions   []string
-	mapIssues     map[string]umIssue
-	mapStatements map[string]*caes.Statement
-	mapArguments  map[string]umArgument
-	mapReferences map[string]caes.Metadata
-	mapLabels     map[string]caes.Label
-	argMapGraph   struct {
-		Metadata   caes.Metadata
-		Issues     mapIssues
-		Statements mapStatements
-		Arguments  mapArguments
-		References mapReferences
-		Assumtions assumptions
-		Labels     mapLabels
+	umIssue struct {
+		id           string
+		Meta         caes.Metadata
+		Positions    []string
+		Standard     string
+		caesStandard caes.Standard
+	}
+	umLabel struct {
+		In        []string // to do string || [string, ..]
+		Out       []string // to do string || [string, ..]
+		Undecided []string // to do string || [string, ..]
+	}
+	umPremis struct {
+		role string
+		stmt string
 	}
 )
 
 const spPlus = "    "
 
+var collOfSchemes map[string]*caes.Scheme                    // collecion of all defined schemes
+var collOfWeighingFunctions map[string]caes.WeighingFunction // collection of all defined weighing functions
+var collOfAssumptions map[string]bool                        // collection of all assumptions
+var collOfStatements map[string]*caes.Statement              // collection of statements
+
+// Import
+
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {
+
+	collOfWeighingFunctions = caes.BasicWeighingFunctions
+	collOfSchemes = caes.BasicSchemes
+	collOfAssumptions = map[string]bool{}
 
 	data, err := ioutil.ReadAll(inFile)
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("Read-Datei: \nErr: %v len(data): %v \n", err, len(data))
+	// fmt.Printf("Read-Datei: \nErr: %v len(data): %v \n", err, len(data))
+	m := new(argMapGraph)
 
-	m1 := make(mapIface)
-	err = yaml.Unmarshal(data, &m1)
+	//	m := make(mapIface)
+	err = yaml.Unmarshal(data, m)
 	if err != nil {
 		return nil, err
 	}
-
-	return iface2caes(m1)
+	return argMapGraph2caes(m)
+	//	return iface2caes(m)
 }
 
-func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
-	var yamlArgMapGraph argMapGraph
-	yamlArgMapGraph.Metadata = make(caes.Metadata)
-	yamlMetaData := yamlArgMapGraph.Metadata
-	yamlArgMapGraph.Issues = make(mapIssues)
-	yamlIssues := yamlArgMapGraph.Issues
-	yamlArgMapGraph.Statements = make(map[string]*caes.Statement)
-	yamlStats := yamlArgMapGraph.Statements
-	yamlArgMapGraph.Arguments = make(mapArguments)
-	yamlArgs := yamlArgMapGraph.Arguments
-	yamlArgMapGraph.References = make(map[string]caes.Metadata)
-	yamlRefs := yamlArgMapGraph.References
-	var yamlAssumps assumptions
-	yamlArgMapGraph.Assumtions = yamlAssumps
-	yamlArgMapGraph.Labels = make(mapLabels)
-	yamlLbls := yamlArgMapGraph.Labels
-	// caes.ArgGraph
-	caesAg = &caes.ArgGraph{}
+func argMapGraph2caes(m *argMapGraph) (*caes.ArgGraph, error) {
 
+	m, err := scanArgMapGraph(m)
+	if err != nil {
+		return nil, err
+	}
+	c, err := caesArgMapGraph2caes(m)
+	// fmt.Printf(" >>> End-Assumptions: %v \n", c.Assumptions)
+	return c, err
+	// return caesArgMapGraph2caes(m)
+}
+
+// func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
+func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
+	// var yamlArgMapGraph argMapGraph
+	// yamlArgMapGraph.Meta = make(caes.Metadata)
+	// yamlMetaData := yamlArgMapGraph.Meta
+	/*	yamlArgMapGraph.Issues = make(map[string]umIssue)
+		yamlIssues := yamlArgMapGraph.Issues
+		yamlArgMapGraph.caesStatements = make(map[string]*caes.Statement)
+
+		yamlArgMapGraph.Arguments = make(map[string]umArgument)
+		yamlArgs := yamlArgMapGraph.Arguments
+		yamlArgMapGraph.References = make(map[string]caes.Metadata)
+		yamlRefs := yamlArgMapGraph.References
+		// var yamlAssumps assumptions
+		// yamlArgMapGraph.Assumtions = yamlAssumps
+		yamlArgMapGraph.caesLabels = make(map[string]caes.Label)
+		yamlLbls := yamlArgMapGraph.caesLabels
+		yamlArgMapGraph.Language = caes.Language{} // map[string]string
+		yamlLanguage := yamlArgMapGraph.Language
+		yamlArgMapGraph.caesWeighingFunctions = map[string]caes.WeighingFunction{}
+		caesAg = &caes.ArgGraph{}
+		caesAg.Assumptions = map[string]bool{}
+		collOfAssumptions = map[string]bool{}
+	*/
+
+	// set issue-id
+	// ------------
+
+	for id, iss := range m.Issues {
+		iss.id = id
+		// fmt.Printf(" issue: %s standard: \"%s\"\n", id, iss.Standard)
+		switch iss.Standard {
+		case "", "DV", "dv":
+			iss.caesStandard = caes.DV
+		case "PE", "pe":
+			iss.caesStandard = caes.PE
+		case "CCE", "cce":
+			iss.caesStandard = caes.CCE
+		case "BRD", "brd":
+			iss.caesStandard = caes.BRD
+		default:
+			return nil,
+				errors.New("*** Error: issues: ... standard: expected DV,PE, CCE, BRD, wrong: " + iss.Standard + " \n")
+		}
+	}
+	// scan Stantements set caesStatements
+	// -----------------------------------
+	cs, err := iface2statement(m.Statements, map[string]*caes.Statement{})
+	if err != nil {
+		return nil, err
+	}
+	m.caesStatements = cs
+	collOfStatements = cs
+	// set argument-id and scan premises
+	// ---------------------------------
+	for id, arg := range m.Arguments {
+		// for id, _ := range m.Arguments {
+		arg.id = id
+		// fmt.Printf(" Arg.: %s, Premises: %v \n", id, arg.Premises)
+		arg.umpremises, err = iface2premises(arg.Premises)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// for _, arg := range m.Arguments {
+	// 	fmt.Printf(" Arg.: %s, umpremises: %v \n", arg.id, arg.umpremises)
+	// }
+
+	// scan Labels
+	// -----------
+	m.caesLabels = labels2caes(m.Labels)
+	// scan Assumtions
+	// ---------------
+	if m.Assumptions != nil && len(m.Assumptions) != 0 {
+		for _, stat := range m.Assumptions {
+			collOfAssumptions[stat] = true
+		}
+	}
+	// scan weithing_functions
+	// -----------------------
+	m.caesWeighingFunctions = map[string]caes.WeighingFunction{}
+	for name, body := range m.Weighing_functions {
+		wf, err := iface2weighfunc(body, collOfWeighingFunctions)
+		if err != nil {
+			return nil, err
+		}
+		m.caesWeighingFunctions[name] = wf
+		collOfWeighingFunctions[name] = wf
+
+	}
+
+	// scan argument_scheme
+	// --------------------
+
+	for _, argS := range m.Argument_schemes {
+		// scan weight in argument_schemes
+		argS.caesWeight, err = iface2weighfunc(argS.Weight, collOfWeighingFunctions)
+		if err != nil {
+			return nil, err
+		}
+		// scan premises in argument_schemes
+		//  to do
+		argS.caesPremises = argS.Premises
+		// scan assumptions in argument_schemes
+		// to do
+		argS.caesAssumptions = argS.Assumptions
+		// scan exceptions in argument_schemes
+		// to do
+		argS.caesExceptions = argS.Exceptions
+	}
+	// scan argument_scheme and set caesArgSchemes
+	m.caesArgSchemes = map[string]*caes.Scheme{}
+	for id, as := range m.Argument_schemes {
+		m.caesArgSchemes[id] = &caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
+			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions, Deletions: as.Deletions,
+			Guards: as.Guards, Conclusions: as.Conclusions}
+		collOfSchemes[id] = m.caesArgSchemes[id]
+	}
+	return m, nil
+}
+
+/*
 	for key, value := range m {
 		keyStr := strings.ToLower(key.(string))
 		switch keyStr {
-		case "statements":
-			yamlStats, err = iface2statement(value, yamlStats)
+		case "language":
+			yamlLanguage, err = iface2language(value, yamlLanguage)
 			if err != nil {
 				return caesAg, err
 			}
+		case "weighing_functions":
+			yamlArgMapGraph.caesWeighingFunctions, err = iface2namedweighfunc(value, yamlArgMapGraph.caesWeighingFunctions)
+			if err != nil {
+				return caesAg, err
+			}
+		case "argument_schemes":
+
+		case "statements":
+
 		case "assumptions":
-			yamlAssumps, err = iface2assumps(value, yamlAssumps)
+			collOfAssumptions, err = iface2assumps(value, collOfAssumptions)
 			if err != nil {
 				return caesAg, err
 			}
@@ -122,9 +287,9 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 				return caesAg, err
 			}
 		case "premise":
-			// log.Printf("Premise: \n")
+			// fmt.Printf("Premise: \n")
 		case "meta", "metadata":
-			// log.Printf("Meta: \n")
+			// fmt.Printf("Meta: \n")
 			yamlMetaData, err = iface2metadata(value, yamlMetaData)
 			if err != nil {
 				return caesAg, err
@@ -136,49 +301,69 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 			}
 		case "labels":
 			yamlLbls, err = iface2labels(value, yamlLbls)
+		// case "language":
+		// 	yamlLanguage, err = iface2labels(value, yamlLanguage)
 		default:
-			// log.Printf("Default: \n")
+			// fmt.Printf("Default: \n")
 		}
 	}
+}
+*/
+
+func labels2caes(ul *umLabel) map[string]caes.Label {
+	ml := map[string]caes.Label{}
+	if ul != nil {
+		for _, in := range ul.In {
+			ml[in] = caes.In
+		}
+		for _, out := range ul.Out {
+			ml[out] = caes.Out
+		}
+		for _, undec := range ul.Undecided {
+			ml[undec] = caes.Undecided
+		}
+	}
+	return ml
+}
+
+func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
+	// create Theory
+	// =============
 
 	// create ArgGraph
 	// ===============
+	caesAg = &caes.ArgGraph{Metadata: m.Meta, References: m.References}
 	// Metadata
 	// --------
-	caesAg.Metadata = yamlMetaData
-	// log.Printf("   ---  Metadata --- \n %v \n ------End Metadata --- \n", caesAg.Metadata)
+	// fmt.Printf("   ---  Metadata --- \n %v \n ------End Metadata --- \n", caesAg.Metadata)
+	// References
+	// ----------
+	// fmt.Printf("   ---  References --- \n %v \n ------End References --- \n", caesAg.References)
 	// Statement
 	// ---------
-	first := true
 	found := false
-	for _, refYamlStat := range yamlStats {
-
-		if first {
-			caesAg.Statements = []*caes.Statement{refYamlStat}
-			first = false
-		} else {
-			caesAg.Statements = append(caesAg.Statements, refYamlStat)
-		}
+	caesAg.Statements = map[string]*caes.Statement{}
+	for _, refYamlStat := range m.caesStatements {
+		// fmt.Printf(" Statement: %s \n", refYamlStat.Id)
+		caesAg.Statements[refYamlStat.Id] = refYamlStat
 	}
-	// log.Printf("   ---  Statements --- \n %v \n ------End Statements --- \n", caesAg.Statements)
+	// fmt.Printf("   ---  Statements --- \n %v \n ------End Statements --- \n", caesAg.Statements)
 	// Issue
-	first = true
-	for yamlIssue_Id, yamlIssue_Val := range yamlIssues {
-		caes_Issue := &caes.Issue{Id: yamlIssue_Id, Metadata: yamlIssue_Val.metadata, Standard: yamlIssue_Val.standard}
-		if first {
-			caesAg.Issues = []*caes.Issue{caes_Issue}
-			first = false
-		} else {
-			caesAg.Issues = append(caesAg.Issues, caes_Issue)
-		}
+	// -----
+	// first = true
+	caesAg.Issues = map[string]*caes.Issue{}
+	for yamlIssue_Id, yamlIssue_Val := range m.Issues {
+		caes_Issue := &caes.Issue{Id: yamlIssue_Id, Metadata: yamlIssue_Val.Meta, Standard: yamlIssue_Val.caesStandard}
+		caesAg.Issues[yamlIssue_Id] = caes_Issue
 		// References: Issue.Positions --> []*Statement, Statement.Issue --> *Issue
-		for _, yamlIssue_Pos := range yamlIssue_Val.positions {
+		for _, yamlIssue_Pos := range yamlIssue_Val.Positions {
 			found = false
 		LoopIss:
 			for _, caesAg_Stat := range caesAg.Statements {
+				// fmt.Printf("   Compare Position: %s in statement %s \n", yamlIssue_Pos, caesAg_Stat.Id)
 				if yamlIssue_Pos == caesAg_Stat.Id {
 					found = true
-					// log.Printf("   Position: %s \n", yamlIssue_Pos)
+					// fmt.Printf("   Position: %s \n", yamlIssue_Pos)
 					if caes_Issue.Positions == nil {
 						caes_Issue.Positions = []*caes.Statement{caesAg_Stat}
 					} else {
@@ -187,7 +372,9 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 					if caesAg_Stat.Issue == nil {
 						caesAg_Stat.Issue = caes_Issue
 					} else {
-						return caesAg, errors.New(" *** Semantic Error: Statement: " + caesAg_Stat.Id + ", with two issues: " + caes_Issue.Id + ", " + caesAg_Stat.Issue.Id + "\n")
+						if caes_Issue.Id != caesAg_Stat.Issue.Id {
+							return caesAg, errors.New(" *** Semantic Error: Statement: " + caesAg_Stat.Id + ", with two issues: " + caes_Issue.Id + ", " + caesAg_Stat.Issue.Id + "\n")
+						}
 					}
 					break LoopIss
 				}
@@ -198,23 +385,26 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 		}
 	}
 
-	// log.Printf("   ---  Issues --- \n %v \n ------End Issuess --- \n", caesAg.Issues)
+	// fmt.Printf("   ---  Issues --- \n %v \n ------End Issuess --- \n", caesAg.Issues)
 
 	// Arguments
-	first = true
-	for yamlArg_Id, yamlArg_Val := range yamlArgs {
-		caesArg := &caes.Argument{Id: yamlArg_Id, Metadata: yamlArg_Val.metadata, Weight: yamlArg_Val.weigth}
-		if first {
+	// first = true
+	caesAg.Arguments = map[string]*caes.Argument{}
+	for yamlArg_Id, yamlArg_Val := range m.Arguments {
+		// fmt.Printf(" Argument2caes: %s\n", yamlArg_Id)
+		caesArg := &caes.Argument{Id: yamlArg_Id, Metadata: yamlArg_Val.Meta, Weight: yamlArg_Val.Weigth}
+		caesAg.Arguments[yamlArg_Id] = caesArg
+		/* if first {
 			caesAg.Arguments = []*caes.Argument{caesArg}
 			first = false
 		} else {
 			caesAg.Arguments = append(caesAg.Arguments, caesArg)
-		}
+		}*/
 		// References: Argument.Conclusion --> *Statement, Statement.Args --> []*Argument
 		found := false
 	LoopC:
 		for _, caesArg_Stat := range caesAg.Statements {
-			if yamlArg_Val.conclusion == caesArg_Stat.Id {
+			if yamlArg_Val.Conclusion == caesArg_Stat.Id {
 				caesArg.Conclusion = caesArg_Stat
 				found = true
 				if caesArg_Stat.Args == nil {
@@ -226,35 +416,37 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 			}
 		}
 		if !found {
-			return caesAg, errors.New(" *** Semantic Error: Conclusion: " + yamlArg_Val.conclusion + ", from Argument: " + yamlArg_Id + ", is not a Statement-ID\n")
+			return caesAg, errors.New(" *** Semantic Error: Conclusion: " + yamlArg_Val.Conclusion + ", from Argument: " + yamlArg_Id + ", is not a Statement-ID\n")
 		}
 
 		// References: Argument.undercutter --> *Statement,
 		// No undercutter in Statement.Args --> []*Argument
-		if yamlArg_Val.undercutter != "" {
+		if yamlArg_Val.Undercutter != "" {
 			found = false
 		LoopN:
 			for _, caesArg_Stat := range caesAg.Statements {
-				if yamlArg_Val.undercutter == caesArg_Stat.Id {
+				if yamlArg_Val.Undercutter == caesArg_Stat.Id {
 					found = true
 					caesArg.Undercutter = caesArg_Stat
 					break LoopN
 				}
 			}
 			if !found {
-				return caesAg, errors.New(" *** Semantic Error: Undercutter: " + yamlArg_Val.undercutter + ", from Argument: " + yamlArg_Id + ", is not a Statement-ID\n")
+				return caesAg, errors.New(" *** Semantic Error: Undercutter: " + yamlArg_Val.Undercutter + ", from Argument: " + yamlArg_Id + ", is not a Statement-ID\n")
 			}
 		}
 		// Argument.Premises
-		for _, yamlArg_Prem := range yamlArg_Val.premises {
-			prem_stat, ok := yamlStats[yamlArg_Prem.stmt]
+		// fmt.Printf(" umpremises:%s \n", yamlArg_Val.umpremises)
+		for _, yamlArg_Prem := range yamlArg_Val.umpremises {
+			// fmt.Printf(" premises:%s \n", yamlArg_Prem.stmt)
+			prem_stat, ok := collOfStatements[yamlArg_Prem.stmt]
 			if !ok {
 				return caesAg, errors.New(" *** Semantic Error: Premise: " + yamlArg_Prem.stmt + ", from Argument: " + yamlArg_Id + ", is not a Statement-ID\n")
 			}
 			if prem_stat == nil {
-				// log.Printf("\n *** Prem Stat == nil für %s \n", yamlArg_Prem.stmt)
+				// fmt.Printf("\n *** Prem Stat == nil für %s \n", yamlArg_Prem.stmt)
 			} else {
-				// log.Printf(" \n +++ Prem_Stat: %s für %s \n", prem_stat.Id, yamlArg_Prem.stmt)
+				// fmt.Printf(" \n +++ Prem_Stat: %s für %s \n", prem_stat.Id, yamlArg_Prem.stmt)
 			}
 			caes_prem := caes.Premise{Stmt: prem_stat, Role: yamlArg_Prem.role}
 			if caesArg.Premises == nil {
@@ -264,40 +456,50 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 			}
 		}
 		// Scheme
-		if yamlArg_Val.scheme != "" {
-			caesArg.Scheme = yamlArg_Val.scheme
+		if yamlArg_Val.Scheme != "" {
+			// fmt.Printf(" Coll of Schemes: %v \n", collOfSchemes)
+			scheme, ok := collOfSchemes[yamlArg_Val.Scheme]
+			if !ok {
+				return caesAg, errors.New(" *** Semantic Error: Scheme: " + yamlArg_Val.Scheme + ", is not defined\n")
+			}
+			caesArg.Scheme = scheme
 		}
 	}
-	// log.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", caesAg.Arguments)
+	// fmt.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", caesAg.Arguments)
 	// Assumptions
-	for _, yamlAss := range yamlAssumps {
-		found = false
-		for _, caesArg_Stat := range caesAg.Statements {
-			if yamlAss == caesArg_Stat.Id {
-				found = true
-				// log.Printf(" Set assumtions: %s\n", yamlAss)
-				caesArg_Stat.Assumed = true
+	caesAg.Assumptions = map[string]bool{}
+	for yamlAss, boolval := range collOfAssumptions {
+		// fmt.Printf(" Assumption: %s=%v \n", yamlAss, boolval)
+		caesAg.Assumptions[yamlAss] = boolval
+		if caesAg.Theory == nil {
+			found = false
+			for _, caesArg_Stat := range caesAg.Statements {
+				if yamlAss == caesArg_Stat.Id {
+					found = true
+				}
+			}
+			if !found {
+				return caesAg, errors.New(" *** Semantic Error: Assumption: " + yamlAss + ", is not a Statement-ID\n")
 			}
 		}
-		if !found {
-			return caesAg, errors.New(" *** Semantic Error: Assumption: " + yamlAss + ", is not a Statement-ID\n")
-		}
 	}
-
-	// References
-	caesAg.References = yamlRefs
-	// log.Printf("   ---  References --- \n %v \n ------End References --- \n", caesAg.References)
+	// fmt.Printf(" caes-Assamptions: %v \n", caesAg.Assumptions)
 	// Labels
 	// if yamlLbls not empty
-	for _, caesArg_Stat := range caesAg.Statements {
-		lbl, found := yamlLbls[caesArg_Stat.Id]
-		if found == true {
-			// log.Printf(" Label %s:%v\n", caesArg_Stat.Id, lbl)
-			caesArg_Stat.Label = lbl
+	// fmt.Printf(" Labels: %v \n", m.caesLabels)
+	if m.caesLabels != nil && len(m.caesLabels) != 0 {
+		for _, caesArg_Stat := range caesAg.Statements {
+			lbl, found := m.caesLabels[caesArg_Stat.Id]
+			if found == true {
+				// fmt.Printf(" Label %s:%v\n", caesArg_Stat.Id, lbl)
+				caesArg_Stat.Label = lbl
+				// } else {
+				// 	fmt.Printf(" ## Label not found %s:%v\n", caesArg_Stat.Id)
+			}
 		}
 	}
 	//check
-	for lbl_Id, lbl_val := range yamlLbls {
+	for lbl_Id, lbl_val := range m.caesLabels {
 		found = false
 	LoopLbl:
 		for _, caesArg_Stat := range caesAg.Statements {
@@ -323,6 +525,867 @@ func iface2caes(m mapIface) (caesAg *caes.ArgGraph, err error) {
 	return caesAg, nil
 
 }
+
+func iface2string(value interface{}) string {
+	var text string
+	switch value.(type) {
+	case string:
+		text = value.(string)
+	case int:
+		text = strconv.FormatInt(int64(value.(int)), 10)
+	case float32:
+		text = strconv.FormatFloat(float64(value.(float32)), 'G', 10, 32)
+	case float64:
+		text = strconv.FormatFloat(value.(float64), 'G', 10, 64)
+	case bool:
+		if value.(bool) {
+			text = "true"
+		} else {
+			text = "false"
+		}
+	default:
+		text = "???"
+	}
+	return text
+}
+
+func iface2language(value interface{}, yamlLang caes.Language) (caes.Language, error) {
+
+	switch subT := value.(type) {
+	case mapIface:
+		for langkey, langval := range value.(mapIface) {
+			switch keyT := langkey.(type) {
+			case string:
+				switch valT := langval.(type) {
+				case string:
+					yamlLang[langkey.(string)] = langval.(string)
+				default:
+					return yamlLang, errors.New("*** Error language: (value-Type)" + fmt.Sprintf("%v", valT) + " of key " + fmt.Sprintf("%v", langkey) + "\n")
+				}
+			default:
+				return yamlLang, errors.New("*** Error language: (key-Type)" + fmt.Sprintf("%v", keyT) + "\n")
+
+			}
+
+		}
+		return yamlLang, nil
+	default:
+		return yamlLang, errors.New("*** Error language-elements: (Type)" + fmt.Sprintf("%v", subT) + "\n")
+
+	}
+}
+
+func iface2namedweighfunc(value interface{}, yamlWeighFunc map[string]caes.WeighingFunction) (map[string]caes.WeighingFunction, error) {
+	switch subT := value.(type) {
+	case mapIface:
+		for wf_name, wf_body := range value.(mapIface) {
+			switch nameT := wf_name.(type) {
+			case string:
+				wf, err := iface2weighfunc(wf_body, yamlWeighFunc)
+				if err != nil {
+					return yamlWeighFunc, err
+				}
+				yamlWeighFunc[wf_name.(string)] = wf
+				collOfWeighingFunctions[wf_name.(string)] = wf
+			default:
+				return yamlWeighFunc, errors.New("*** Error weighing function name-key, string: expected, not type " + fmt.Sprintf("%v", nameT) + "\n")
+			}
+		}
+	default:
+		return yamlWeighFunc, errors.New("*** Error <weighing function name:> <body> expectes, not type " + fmt.Sprintf("%v", subT) + "\n")
+	}
+	return yamlWeighFunc, nil
+}
+
+func iface2weighfunc(value interface{}, yamlWeighFunc map[string]caes.WeighingFunction) (caes.WeighingFunction, error) {
+	var wf caes.WeighingFunction
+	var err error = nil
+	switch subT := value.(type) {
+	case map[interface{}]interface{}:
+		// preference: ... , criteria: ..., constant: <0.0 ... 1.0>
+		for wf_type, wf_body := range value.(map[interface{}]interface{}) {
+			switch typeT := wf_type.(type) {
+			case string:
+				switch strings.ToLower(wf_type.(string)) {
+				case "preference":
+					wf, err = iface2preference(wf_body)
+				case "criteria":
+					wf, err = iface2criteria(wf_body)
+				case "constant":
+					wf, err = iface2float(wf_body)
+				default:
+					return nil, errors.New("*** Error 'preference:', 'criteria:' or 'constant:' expected, not " + fmt.Sprintf("%v", wf_type) + "\n")
+				}
+			default:
+				return wf, errors.New("*** Error 'preference:', 'criteria:' or 'constant:' expected, not type " + fmt.Sprintf("%v", typeT) + "\n")
+			}
+		}
+	case string:
+		str := strings.ToLower(value.(string))
+		// wf, in := caes.BasicWeighingFunctions[str]
+		// if in {
+		// 	return wf, nil
+		//}
+		// search in defines named weighing functions
+		wf, in := yamlWeighFunc[str]
+		// name of a defined weighing function
+		if in {
+			return wf, nil
+		} else {
+			return nil, errors.New("*** Error weighing function '" + fmt.Sprintf("%v", value) + "' is not defined")
+		}
+	default:
+		return nil, errors.New("*** Error: Not a weighting function " + fmt.Sprintf("%v", value) + ", type " + fmt.Sprintf("%v", subT) + "\n")
+	}
+	return wf, err
+}
+
+func iface2preference(pref interface{}) (caes.WeighingFunction, error) {
+	// [[property: ... order: ..],[property: ... order: ...] ...]
+	switch pT := pref.(type) {
+	case []interface{}:
+		prefArr := pref.([]interface{})
+		po := make([]caes.PropertyOrder, len(prefArr))
+		// fmt.Printf(" [")
+		for i, po_ele := range prefArr {
+			switch poT := po_ele.(type) {
+			case mapIface:
+				property, order, values := "", caes.Descending, []string{}
+				for key, val := range po_ele.(mapIface) {
+					switch key.(type) {
+					case string:
+						str := strings.ToLower(key.(string))
+						switch str {
+						case "property":
+							switch valT := val.(type) {
+							case string:
+								property = val.(string)
+							default:
+								return nil,
+									errors.New("*** Error property-value must be a string and not type" + fmt.Sprintf("%v", valT) + "\n")
+							}
+						case "order":
+							switch valT := val.(type) {
+							case string: // ascending or descending
+								switch strings.ToLower(val.(string)) {
+								case "ascending":
+									order = caes.Ascending
+								case "descending":
+									order = caes.Descending
+								default:
+									return nil,
+										errors.New("*** Error expected in preference: order: 'ascending' or 'descending' and not '" + fmt.Sprintf("%v", val) + "'\n")
+								}
+							case []interface{}: // [val1, val2, ...]
+								orderArr := val.([]interface{})
+								values = make([]string, len(orderArr))
+								// fmt.Printf(" [")
+								for io, o_ele := range orderArr {
+									switch oT := o_ele.(type) {
+									case string:
+										values[io] = strings.ToLower(o_ele.(string))
+									default:
+										return nil,
+											errors.New("*** Error expected string-list in preference: order: not type '" + fmt.Sprintf("%v", oT) + "'\n")
+									}
+								}
+							default:
+								return nil,
+									errors.New("*** Error in preference: order: wrong type '" + fmt.Sprintf("%v", valT) + "'\n")
+							}
+						default:
+							return nil,
+								errors.New("*** Error in preference: wrong key '" + fmt.Sprintf("%v", key) + "' \n")
+						}
+					}
+
+				}
+				po[i] = caes.PropertyOrder{Property: property, Order: order, Values: values}
+			default:
+				return nil,
+					errors.New("*** Error preference: has a wrong type '" + fmt.Sprintf("%v", poT) + "'\n")
+
+			}
+
+		}
+		return caes.PreferenceWeighingFunction(po), nil
+	case mapIface: // preference: and single property: order:
+		po := make([]caes.PropertyOrder, 1)
+		property, order, values := "", caes.Descending, []string{}
+		for key, val := range pref.(mapIface) {
+			switch key.(type) {
+			case string:
+				str := strings.ToLower(key.(string))
+				switch str {
+				case "property":
+					switch valT := val.(type) {
+					case string:
+						property = val.(string)
+					default:
+						return nil,
+							errors.New("*** Error property-value must be a string and not type" + fmt.Sprintf("%v", valT) + "\n")
+					}
+				case "order":
+					switch valT := val.(type) {
+					case string: // ascending or descending
+						switch strings.ToLower(val.(string)) {
+						case "ascending":
+							order = caes.Ascending
+						case "descending":
+							order = caes.Descending
+						default:
+							return nil,
+								errors.New("*** Error expected in preference: order: 'ascending' or 'descending' and not '" + fmt.Sprintf("%v", val) + "'\n")
+						}
+					case []interface{}: // [val1, val2, ...]
+						orderArr := val.([]interface{})
+						values = make([]string, len(orderArr))
+						// fmt.Printf(" [")
+						for io, o_ele := range orderArr {
+							switch oT := o_ele.(type) {
+							case string:
+								values[io] = strings.ToLower(o_ele.(string))
+							default:
+								return nil,
+									errors.New("*** Error expected string-list in preference: order: not type '" + fmt.Sprintf("%v", oT) + "'\n")
+							}
+						}
+					default:
+						return nil,
+							errors.New("*** Error in preference: order: wrong type '" + fmt.Sprintf("%v", valT) + "'\n")
+					}
+				default:
+					return nil,
+						errors.New("*** Error in preference: wrong key '" + fmt.Sprintf("%v", key) + "'\n")
+				}
+			}
+		}
+		po[0] = caes.PropertyOrder{Property: property, Order: order, Values: values}
+		return caes.PreferenceWeighingFunction(po), nil
+	default:
+		return nil,
+			errors.New("*** ERROR wrong type afer preference: '" + fmt.Sprintf("%v", pT) + "'\n")
+	}
+	return nil, nil
+}
+
+func iface2criteria(cr interface{}) (caes.WeighingFunction, error) {
+	c := caes.Criteria{HardConstraints: []string{}, SoftConstraints: map[string]caes.SoftConstraint{}}
+
+	switch subT := cr.(type) {
+	case map[interface{}]interface{}:
+		for key, value := range cr.(map[interface{}]interface{}) {
+			switch key.(type) {
+			case string:
+				switch strings.ToLower(key.(string)) {
+				case "hard":
+					switch valT := value.(type) {
+					case []interface{}:
+						for _, ele := range value.([]interface{}) {
+							switch eleT := ele.(type) {
+							case string:
+								c.HardConstraints = append(c.HardConstraints, ele.(string))
+							default:
+								return nil,
+									errors.New("*** Error element of criteria: hard: is not a 'string', found type '" + fmt.Sprintf("%v", eleT) + "'\n")
+							}
+						}
+					default:
+						return nil,
+							errors.New("*** Error value of criteria: hard: is not a list, found type '" + fmt.Sprintf("%v", valT) + "'\n")
+					}
+				case "soft":
+					so, err := iface2soft(value, c.SoftConstraints)
+					if err != nil {
+						return nil, err
+					}
+					c.SoftConstraints = so
+				default:
+					return nil,
+						errors.New("*** Error unknown key in criteria: '" + fmt.Sprintf("%v", key) + "', expected keys 'hard:' or 'soft:' \n")
+				}
+			default:
+				return nil,
+					errors.New("*** Error key in criteria mus be a string, not'" + fmt.Sprintf("%v", key) + "'\n")
+			}
+		}
+		return caes.CriteriaWeighingFunction(&c), nil
+	default:
+		return nil,
+			errors.New("*** Error unknown type after criteria: '" + fmt.Sprintf("%v", subT) + "', expected keys-struct with keys 'hard:' and 'soft'\n")
+	}
+	return caes.CriteriaWeighingFunction(&c), nil
+}
+
+func iface2soft(body interface{}, soft map[string]caes.SoftConstraint) (map[string]caes.SoftConstraint, error) {
+
+	switch body.(type) {
+	case mapIface:
+		for key, value := range body.(mapIface) {
+			switch keyT := key.(type) { // name of the softconstraint
+			case string: //
+				switch valT := value.(type) {
+				case mapIface:
+					normValues := map[string]float64{} // collect the NormelizedValues
+					for subkey, subvalue := range value.(mapIface) {
+						switch subkT := subkey.(type) { // name of the NormalizedValues
+						case string:
+							var f float64
+							switch subvT := subvalue.(type) {
+							case string:
+								_, err := fmt.Scanf(subvalue.(string), "%f", &f)
+								if err != nil {
+									return nil,
+										errors.New("*** ERROR in critera: soft: " + fmt.Sprintf("%v", subkey) + ": expected a float, not " + fmt.Sprintf("%v", subvalue) + "\n")
+								}
+							case float32:
+								f = subvalue.(float64)
+							case float64:
+								f = subvalue.(float64)
+							default:
+								return nil,
+									errors.New("*** ERROR in critera: soft: " + fmt.Sprintf("%v", subkey) + ": expected a float, not type '" + fmt.Sprintf("%v", subvT) + "'\n")
+							}
+							if f > 1.0 || f < 0.0 {
+								return nil,
+									errors.New("*** ERROR in critera: soft: " + fmt.Sprintf("%v", subkey) + ": value" + fmt.Sprintf("%f", f) + " not in range 0.0 ... 1.0\n")
+							}
+							soft[subkey.(string)] = caes.SoftConstraint{Factor: f}
+						default:
+							return nil,
+								errors.New("*** ERROR in creteria: soft: " + fmt.Sprintf("%v", key) + ": expected a string-key and not '" + fmt.Sprintf("%v", subkT) + "'\n")
+						}
+					}
+					soft[key.(string)] = caes.SoftConstraint{NormalizedValues: normValues} // set teh NormelizesValues
+				case string:
+					var f float64
+					_, err := fmt.Scanf(value.(string), "%f", &f)
+					if err != nil {
+						return nil,
+							errors.New("*** ERROR in critera: soft: " + fmt.Sprintf("%v", key) + ": expected a float, not " + fmt.Sprintf("%v", value) + "\n")
+					}
+					soft[key.(string)] = caes.SoftConstraint{Factor: f}
+				case float32:
+					soft[key.(string)] = caes.SoftConstraint{Factor: value.(float64)}
+				case float64:
+					soft[key.(string)] = caes.SoftConstraint{Factor: value.(float64)}
+				default:
+					return nil,
+						errors.New("*** Error in criteria: soft: " + fmt.Sprintf("%v", key) + ": 'key: float'... or 'float' and not type '" + fmt.Sprintf("%v", valT) + "'\n")
+				}
+			default:
+				return nil,
+					errors.New("*** Error in criteria: soft: expected a string-key and not '" + fmt.Sprintf("%v", keyT) + "'\n")
+
+			}
+		}
+	}
+
+	return soft, nil
+}
+
+func iface2float(fl interface{}) (caes.WeighingFunction, error) {
+	f := 0.0
+	switch flT := fl.(type) {
+	case float32:
+		f = fl.(float64)
+	case float64:
+		f = fl.(float64)
+	case string:
+		_, err := fmt.Scanf(fl.(string), "%f", &f)
+		if err != nil {
+			return nil,
+				errors.New("*** ERROR in constant: expected fload and not type '" + flT + "'\n")
+		}
+	}
+	return caes.ConstantWeighingFunction(f), nil
+}
+
+func iface2labels(value interface{}, yamlLbls map[string]caes.Label) (map[string]caes.Label, error) {
+	var err error
+	switch subT := value.(type) {
+	case mapIface:
+		for lblkey, lblvalue := range value.(mapIface) {
+			switch strings.ToLower(lblkey.(string)) {
+			case "in":
+				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.In)
+			case "out":
+				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.Out)
+			case "undecided":
+				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.Undecided)
+			}
+		}
+	default:
+		return yamlLbls, errors.New("*** Error labels: (Type)" + fmt.Sprintf("%v", subT) + "\n")
+
+	}
+	return yamlLbls, err
+}
+
+func iface2lbl_1(inArg interface{}, yamlLbls map[string]caes.Label, label caes.Label) (map[string]caes.Label, error) {
+	// fmt.Printf("labels:\n   %v: ", label)
+	switch intype := inArg.(type) {
+	case []interface{}:
+		// fmt.Printf(" [")
+		for idx, stat := range inArg.([]interface{}) {
+			switch stype := stat.(type) {
+			case string:
+				yamlLbls[stat.(string)] = label
+				if idx != 0 {
+					// fmt.Printf(", ")
+				}
+				// fmt.Printf("%s", stat.(string))
+			default:
+				return yamlLbls, errors.New("*** Error labels [(Type)]:" + fmt.Sprintf("%v", stype) + "\n")
+			}
+		}
+		// fmt.Printf("]")
+	case string:
+		yamlLbls[inArg.(string)] = label
+	default:
+		return yamlLbls, errors.New("*** Error labels (Type):" + fmt.Sprintf("%v", intype) + "\n")
+
+	}
+	return yamlLbls, nil
+}
+
+func iface2metadata(value interface{}, meta caes.Metadata) (caes.Metadata, error) {
+	switch subT := value.(type) {
+	case mapIface:
+		for metakey, metavalue := range value.(mapIface) {
+			if metakey == nil || metavalue == nil {
+				continue
+			}
+			switch metavalue.(type) {
+			case string:
+				if metavalue.(string) != "" {
+					meta[metakey.(string)] = metavalue.(string)
+				}
+			case int, float32, float64, bool:
+				meta[metakey.(string)] = iface2string(metavalue)
+			case mapIface:
+				var err error
+				meta[metakey.(string)], err = iface2metadata(metavalue, caes.Metadata{})
+				return meta, err
+			}
+		}
+	default:
+		return meta, errors.New("*** Error metadata (Type):" + fmt.Sprintf("%v", subT) + "\n")
+	}
+	return meta, nil
+}
+
+func iface2statement(value interface{}, yamlStats map[string]*caes.Statement) (map[string]*caes.Statement, error) {
+
+	var err error
+	// fmt.Printf("Statements: \n")
+	// switch t := value.(type) {
+	switch value.(type) {
+	case mapIface:
+		for st_key, st_value := range value.(mapIface) {
+			switch st_key.(type) {
+			case string: // ok
+			default:
+				return nil,
+					errors.New("*** Error statemment name must be a string not '" + fmt.Sprintf("%v", st_key) + "'\n")
+			}
+			keyStr := st_key.(string)
+			switch st_value.(type) {
+			case string:
+				yamlStats[keyStr] = &caes.Statement{
+					Id:    keyStr,
+					Text:  st_value.(string),
+					Label: caes.Undecided,
+				}
+				// fmt.Printf(" %v: %v \n", keyStr, st_value.(string))
+			case int, float32, float64, bool:
+				yamlStats[keyStr] = &caes.Statement{
+					Id:    keyStr,
+					Text:  iface2string(st_value),
+					Label: caes.Undecided,
+				}
+				// fmt.Printf(" %v: %v \n", keyStr, iface2string(st_value))
+			case mapIface:
+				// fmt.Printf("   %v:\n", keyStr)
+				yamlStats[keyStr], err = iface2xstatement(st_value, &caes.Statement{Id: keyStr, Label: caes.Undecided})
+				if err != nil {
+					return yamlStats, err
+				}
+			}
+		}
+	default:
+		// fmt.Printf(" Type: %v \n", t)
+	}
+	return yamlStats, nil
+}
+
+func iface2xstatement(st_value interface{}, stat *caes.Statement) (*caes.Statement, error) {
+	var err error
+	switch st_value.(type) {
+	case mapIface: // OK
+	default:
+		return nil, errors.New("*** Error subexpression of statement should be a 'key: value'-list, not '" + fmt.Sprintf("%v", st_value) + "'\n")
+	}
+	for st_subkey, st_subvalue := range st_value.(mapIface) {
+		switch st_subkey.(type) {
+		case string: // OK
+		default:
+			return nil,
+				errors.New("*** Error key of a subexpression of statement must be a string, not '" + fmt.Sprintf("%v", st_subkey) + "'\n")
+		}
+		st_subkey_lo := strings.ToLower(st_subkey.(string))
+		switch st_subkey_lo {
+		case "meta", "metadata":
+			// fmt.Printf("      meta:\n")
+			if stat.Metadata == nil {
+				stat.Metadata, err = iface2metadata(st_subvalue, caes.Metadata{})
+			} else {
+				stat.Metadata, err = iface2metadata(st_subvalue, stat.Metadata)
+			}
+			if err != nil {
+				return stat, err
+			}
+		case "text":
+			stat.Text = iface2string(st_subvalue)
+			// fmt.Printf("      text: %s \n", stat.Text)
+		case "assumed":
+			switch t := st_subvalue.(type) {
+			case bool:
+				collOfAssumptions[stat.Id] = st_subvalue.(bool)
+				// fmt.Printf("     assumed: %v \n", stat.Assumed)
+			case int:
+				if st_subvalue.(int) == 0 {
+					collOfAssumptions[stat.Id] = false
+				} else {
+					collOfAssumptions[stat.Id] = true
+				}
+				// fmt.Printf("     assumed: %v \n", stat.Assumed)
+			default:
+				return stat, errors.New("*** ERROR: Assumed value not bool: " + fmt.Sprintf("%v", t) + " \n")
+			}
+		case "value", "label":
+			switch strings.ToLower(iface2string(st_subvalue)) {
+			case "in":
+				stat.Label = caes.In
+			case "out":
+				stat.Label = caes.Out
+			case "undecided":
+				stat.Label = caes.Undecided
+			}
+		}
+	}
+	return stat, nil
+}
+
+func iface2issues(value interface{}, yamlIssues map[string]umIssue) (map[string]umIssue, error) {
+	// fmt.Printf("issues:\n")
+	switch value.(type) {
+	case mapIface:
+		for issueName, issueMap := range value.(mapIface) {
+			switch iT := issueName.(type) {
+			case string:
+				issueNameStr := issueName.(string)
+				// fmt.Printf("   %s:\n", issueNameStr)
+				issue := umIssue{id: issueNameStr, caesStandard: caes.PE}
+				switch issueMap.(type) {
+				case mapIface:
+					for issueKey, issueValue := range issueMap.(mapIface) {
+						switch issueKey.(type) {
+						case string:
+							// fmt.Printf("      %s: ", issueKey.(string))
+							issueKey_lo := strings.ToLower(issueKey.(string))
+							switch issueKey_lo {
+							case "positions":
+								// switch ivT := issueValue.(type) {
+								switch issueValue.(type) {
+								case []interface{}:
+									issueArr := issueValue.([]interface{})
+									issue.Positions = make([]string, len(issueArr))
+									// fmt.Printf(" [")
+									for i, ele_i := range issueArr {
+										if i != 0 {
+											// fmt.Printf(" ,")
+										}
+										switch eleT := ele_i.(type) {
+										case string:
+											issue.Positions[i] = ele_i.(string)
+											// fmt.Printf("%v", issue.positions[i])
+										default:
+											return yamlIssues,
+												errors.New("*** Error Position value-type: " + eleT.(string) + " \n")
+										}
+									}
+									// fmt.Printf("]\n")
+								case string: /* a singel position */
+									issue.Positions = make([]string, 1)
+									issue.Positions[0] = issueValue.(string)
+									// fmt.Printf(" = %s \n", issueValue.(string))
+								default:
+									// fmt.Printf("      position-type: %v \n", ivT)
+								}
+
+							case "standard":
+								switch ivT := issueValue.(type) {
+								case string:
+									issueValueStr := issueValue.(string)
+									// fmt.Printf("%s\n", issueValueStr)
+									switch issueValueStr {
+									case "DV", "dv":
+										issue.caesStandard = caes.DV
+									case "PE", "pe":
+										issue.caesStandard = caes.PE
+									case "CCE", "cce":
+										issue.caesStandard = caes.CCE
+									case "BRD", "brd":
+										issue.caesStandard = caes.BRD
+									default:
+										return yamlIssues,
+											errors.New("*** Error: issues: ... standard: expected DV,PE, CCE, BRD, wrong: " + fmt.Sprintf("%v", issueValue) + " \n")
+									}
+								default:
+									return yamlIssues,
+										errors.New("*** Error: unexpected issue-value-type:" + fmt.Sprintf("%v", ivT) + "\n")
+								}
+
+							case "meta", "metadata":
+								var err error
+								if issue.Meta == nil {
+									issue.Meta, err = iface2metadata(issueValue, caes.Metadata{})
+								} else {
+									issue.Meta, err = iface2metadata(issueValue, issue.Meta)
+								}
+								if err != nil {
+									return yamlIssues, err
+								}
+							}
+						}
+					}
+				}
+				yamlIssues[issueNameStr] = issue
+			default:
+				return yamlIssues,
+					errors.New("*** ERROR: Not a issue Name: " + fmt.Sprintf("%v", iT) + "\n")
+			}
+		}
+	}
+	return yamlIssues, nil
+}
+
+func iface2assumps(value interface{}, yamlAssumps map[string]bool) (map[string]bool, error) {
+	// fmt.Printf("Assumptions: ")
+	switch value.(type) {
+	case []interface{}:
+		// fmt.Printf("[")
+		for i, str := range value.([]interface{}) {
+			if i != 0 {
+				// fmt.Printf(", ")
+			}
+			switch str.(type) {
+			case string:
+				yamlAssumps[str.(string)] = true
+				// fmt.Printf("%s", str.(string))
+			default:
+				yamlAssumps[iface2string(str)] = true
+				// fmt.Printf("if=%v", iface2string(str))
+			}
+		}
+		// fmt.Printf("]\n")
+	case string:
+		yamlAssumps[value.(string)] = true
+		// fmt.Printf(" %s \n", value.(string))
+	default:
+		return yamlAssumps,
+			errors.New("*** ERROR: not a right assumption-value: " + fmt.Sprintf("%v", value) + "\n")
+	}
+	return yamlAssumps, nil
+}
+
+func iface2arguments(value interface{}, yamlArgs map[string]umArgument) (map[string]umArgument, error) {
+	// fmt.Printf("Arguments: \n")
+	switch value.(type) {
+	case mapIface:
+		for argName, arg := range value.(mapIface) {
+			switch aT := argName.(type) {
+			case string:
+				// fmt.Printf("    %s: \n", argName.(string))
+				var err error
+				yamlArgs[argName.(string)], err = iface2argument(arg, umArgument{})
+				if err != nil {
+					return yamlArgs, err
+				}
+			default:
+				return yamlArgs,
+					errors.New("*** ERROR: Arguement-name is not a string: " + fmt.Sprintf("%v", aT) + "\n")
+			}
+		}
+	}
+	return yamlArgs, nil
+}
+
+func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
+	var err error
+	switch inArg.(type) {
+	case mapIface:
+		for attName, attValue := range inArg.(mapIface) {
+			switch ant := attName.(type) {
+			case string:
+				attNameStr := strings.ToLower(attName.(string))
+				// fmt.Printf("      %s:", attNameStr)
+				switch attNameStr {
+				case "conclusion":
+					outArg.Conclusion = iface2string(attValue)
+					// fmt.Printf(" %s \n", outArg.conclusion)
+				case "premises":
+					outArg.umpremises, err = iface2premises(attValue)
+					if err != nil {
+						return outArg, err
+					}
+					// fmt.Printf("\n")
+				case "metadata", "meta":
+					outArg.Meta, err = iface2metadata(attValue, caes.Metadata{})
+					if err != nil {
+						return outArg, err
+					}
+				case "weight":
+					outArg.Weigth, err = iface2weight(attValue)
+					if err != nil {
+						return outArg, err
+					}
+				case "nas", "undercutter", "not app statement":
+					outArg.Undercutter = iface2string(attValue)
+					// fmt.Printf(" %s \n", outArg.undercutter)
+				case "scheme":
+					outArg.Scheme = iface2string(attValue)
+					//					_, isIn := caes.BasicSchemes[outArg.scheme]
+					//					if isIn == false {
+					//						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
+					//						first := true
+					//						for schemeKey, _ := range caes.BasicSchemes {
+					//							if first {
+					//								errStr = errStr + schemeKey
+					//								first = false
+					//							} else {
+					//								errStr = errStr + ", " + schemeKey
+					//							}
+					//						}
+					//						return outArg,
+					//							errors.New(errStr + ")\n")
+					//					}
+					//					// fmt.Printf(" %s \n", outArg.scheme)
+				default:
+					return outArg,
+						errors.New("*** ERROR: Wrong argument attribute: " + fmt.Sprintf("%v", attName) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
+				}
+			default:
+				return outArg,
+					errors.New("*** ERROR: Wrong argument attribute type (string expected): " + fmt.Sprintf("%v", ant) + "\n")
+			}
+		}
+	}
+	return outArg, nil
+}
+
+func iface2weight(attValue interface{}) (float64, error) {
+	// weight := new(float64)
+	weight := 0.0
+	switch atype := attValue.(type) {
+	case float32:
+		// fl32 := attValue.(float32)
+		// *weight = fl32.(float64)
+		weight = attValue.(float64)
+	case float64:
+		weight = attValue.(float64)
+	case int:
+		intvalue := attValue.(int)
+		if intvalue == 0 || intvalue == 1 {
+			weight = attValue.(float64)
+		} else {
+			return 0.0, errors.New(("*** ERROR: Wrong weigth type (float expeced) integer value: " + fmt.Sprintf("%v", attValue)))
+		}
+	default:
+		return 0.0, errors.New("*** ERROR: Wrong weigth type (float expected): " + fmt.Sprintf("%v", atype) + "\n")
+	}
+	// fmt.Printf("     weight: %v\n", *weight)
+	return weight, nil
+}
+
+func iface2premises(inArg interface{}) ([]umPremis, error) {
+	var outArg []umPremis
+	switch inArg.(type) {
+	case []interface{}:
+		// fmt.Printf(" [")
+		for idx, stat := range inArg.([]interface{}) {
+			switch stat.(type) {
+			case string:
+				umP := umPremis{stmt: stat.(string)}
+				if outArg == nil {
+					outArg = []umPremis{umP}
+				} else {
+					outArg = append(outArg, umP)
+				}
+				if idx != 0 {
+					// fmt.Printf(", ")
+				}
+				// fmt.Printf("%s", stat.(string))
+
+			}
+		}
+		// fmt.Printf("]")
+	case mapIface:
+		// fmt.Printf("\n")
+		for key, val := range inArg.(mapIface) {
+			premis := umPremis{}
+			valStr := ""
+			switch val.(type) {
+			case string:
+				valStr = val.(string)
+			default:
+				valStr = iface2string(val)
+			}
+			keyStr := ""
+			switch key.(type) {
+			case string:
+				keyStr = key.(string)
+			default:
+				keyStr = iface2string(key)
+			}
+			keyStr = strings.ToLower(keyStr)
+			premis.role = keyStr
+			premis.stmt = valStr
+			if outArg == nil {
+				outArg = []umPremis{premis}
+			} else {
+				outArg = append(outArg, premis)
+			}
+		}
+	}
+	return outArg, nil
+}
+
+func iface2references(reference interface{}, yamlRefs map[string]caes.Metadata) (map[string]caes.Metadata, error) {
+	var err error
+	// fmt.Printf("references: \n")
+	switch reference.(type) {
+	case mapIface:
+		for refName, refBody := range reference.(mapIface) {
+			refNameStr := "???"
+			switch refName.(type) {
+			case string:
+				refNameStr = refName.(string)
+			default:
+				refNameStr = iface2string(refName)
+			}
+			// fmt.Printf("    %s:\n", refNameStr)
+			yamlRefs[refNameStr], err = iface2metadata(refBody, caes.Metadata{})
+			if err != nil {
+				return yamlRefs, err
+			}
+		}
+	}
+	return yamlRefs, nil
+}
+
+// Export
 
 func mkYamlString(str string) string {
 	newstr := str
@@ -408,21 +1471,25 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 		for _, is_val := range is {
 			fmt.Fprintf(f, "%s%s: \n", sp1, is_val.Id)
 			writeMetaData(f, sp2, sp3, is_val.Metadata)
-			fmt.Fprintf(f, "%spositions: ", sp2)
-			first := true
+			fmt.Fprintf(f, "%spositions:\n", sp2)
+			// first := true
 			for _, ref_stat := range is_val.Positions {
+				fmt.Fprintf(f, "%s- %s\n", sp3, ref_stat.Id)
+			}
+			/*
+						if first == true {
+							fmt.Fprintf(f, "[%s", ref_stat.Id)
+							first = false
+						} else {
+							fmt.Fprintf(f, ",%s", ref_stat.Id)
+						}
+					}
+
 				if first == true {
-					fmt.Fprintf(f, "[%s", ref_stat.Id)
-					first = false
+					fmt.Fprintf(f, "[]\n")
 				} else {
-					fmt.Fprintf(f, ",%s", ref_stat.Id)
-				}
-			}
-			if first == true {
-				fmt.Fprintf(f, "[]\n")
-			} else {
-				fmt.Fprintf(f, "]\n")
-			}
+					fmt.Fprintf(f, "]\n")
+				}*/
 			fmt.Fprintf(f, "        standard: ")
 			s := "???"
 			switch is_val.Standard {
@@ -444,7 +1511,7 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 		fmt.Fprintf(f, "statements: \n")
 		for _, ref_stat := range std {
 
-			if ref_stat.Metadata == nil && ref_stat.Assumed == false && ref_stat.Label == caes.Undecided && (noRefs == true || (ref_stat.Issue == nil && ref_stat.Args == nil)) {
+			if ref_stat.Metadata == nil && ref_stat.Label == caes.Undecided && (noRefs == true || (ref_stat.Issue == nil && ref_stat.Args == nil)) {
 				fmt.Fprintf(f, "%s%s: %s\n", sp1, ref_stat.Id, mkYamlString(ref_stat.Text))
 			} else {
 
@@ -454,9 +1521,6 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 				if ref_stat.Text != "" {
 					fmt.Fprintf(f, "%stext: %s \n", sp2, mkYamlString(ref_stat.Text))
 				}
-				if ref_stat.Assumed == true {
-					fmt.Fprintf(f, "%sassumed: true\n", sp2)
-				}
 				if ref_stat.Label != caes.Undecided {
 					fmt.Fprintf(f, "%slabel: %v\n", sp2, ref_stat.Label)
 				}
@@ -464,20 +1528,45 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 					fmt.Fprintf(f, "%sissue: %s \n", sp2, ref_stat.Issue.Id)
 				}
 				if noRefs == false && ref_stat.Args != nil {
-					fmt.Fprintf(f, "%sarguments: ", sp2)
-					first := true
+					fmt.Fprintf(f, "%sarguments:\n", sp2)
+					// first := true
 					for _, arg := range ref_stat.Args {
-						if first == true {
+						fmt.Fprintf(f, "%s- %s", sp3, arg.Id)
+						/*if first == true {
 							fmt.Fprintf(f, "[%s", arg.Id)
 							first = false
 						} else {
 							fmt.Fprintf(f, ",%s", arg.Id)
-						}
+						}*/
 					}
-					fmt.Fprintf(f, "]\n")
+					// fmt.Fprintf(f, "]\n")
 				}
 			}
 		}
+	}
+	if caesAg.Assumptions != nil && len(caesAg.Assumptions) != 0 {
+		fmt.Fprintf(f, "assumptions:\n")
+		for stat, boolval := range caesAg.Assumptions {
+			if boolval {
+				fmt.Fprintf(f, "%s- %s\n", sp1, stat)
+			}
+		}
+		/*		fmt.Fprintf(f, "assumptions: [")
+				first := true
+				for stat, boolval := range caesAg.Assumptions {
+					if boolval {
+						if first {
+							first = false
+						} else {
+							fmt.Fprintf(f, ", ")
+						}
+						fmt.Fprintf(f, "%s", stat)
+					}
+				}
+				fmt.Fprintf(f, "]\n")
+				//	} else {
+				//		fmt.Fprintf(f, " assumptins [%v, len, \"%v\"]\n", caesAg.Assumptions, len(caesAg.Assumptions))
+		*/
 	}
 	if caesAg.Arguments != nil {
 		fmt.Fprintf(f, "arguments: \n")
@@ -508,24 +1597,27 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 						s = prem.Stmt.Id
 					}
 					if first == true {
-						fmt.Fprintf(f, "%spremises: [%s", sp2, s)
+						// fmt.Fprintf(f, "%spremises: [%s", sp2, s)
+						fmt.Fprintf(f, "%spremises:\n", sp2)
+						fmt.Fprintf(f, "%s- %s\n", sp3, s)
 						first = false
 					} else {
-						fmt.Fprintf(f, ",%s", s)
+						// fmt.Fprintf(f, ",%s", s)
+						fmt.Fprintf(f, "%s- %s\n", sp3, s)
 					}
 				}
 			}
-			if first == false { // && list == true
+			/* if first == false { // && list == true
 				fmt.Fprintf(f, "]\n")
-			}
+			}*/
 			if ref_caesAg_Arg.Conclusion != nil {
 				fmt.Fprintf(f, "%sconclusion: %s\n", sp2, ref_caesAg_Arg.Conclusion.Id)
 			}
 			if ref_caesAg_Arg.Weight != 0.0 {
 				fmt.Fprintf(f, "%sweight: %4.2f\n", sp2, ref_caesAg_Arg.Weight)
 			}
-			if ref_caesAg_Arg.Scheme != "" {
-				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_caesAg_Arg.Scheme)
+			if ref_caesAg_Arg.Scheme != nil {
+				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_caesAg_Arg.Scheme.Id)
 			}
 			if ref_caesAg_Arg.Undercutter != nil {
 				fmt.Fprintf(f, "%sundercutter: %s\n", sp2, ref_caesAg_Arg.Undercutter.Id)
@@ -544,506 +1636,4 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 		}
 	}
 
-}
-
-func iface2string(value interface{}) string {
-	var text string
-	switch value.(type) {
-	case string:
-		text = value.(string)
-	case int:
-		text = strconv.FormatInt(int64(value.(int)), 10)
-	case float32:
-		text = strconv.FormatFloat(float64(value.(float32)), 'G', 10, 32)
-	case float64:
-		text = strconv.FormatFloat(value.(float64), 'G', 10, 64)
-	case bool:
-		if value.(bool) {
-			text = "true"
-		} else {
-			text = "false"
-		}
-	default:
-		text = "???"
-	}
-	return text
-}
-
-func iface2labels(value interface{}, yamlLbls mapLabels) (mapLabels, error) {
-	var err error
-	switch subT := value.(type) {
-	case mapIface:
-		for lblkey, lblvalue := range value.(mapIface) {
-			switch strings.ToLower(lblkey.(string)) {
-			case "in":
-				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.In)
-			case "out":
-				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.Out)
-			case "undecided":
-				yamlLbls, err = iface2lbl_1(lblvalue, yamlLbls, caes.Undecided)
-			}
-		}
-	default:
-		return yamlLbls, errors.New("*** Error labels: (Type)" + subT.(string) + "\n")
-
-	}
-	return yamlLbls, err
-}
-
-func iface2lbl_1(inArg interface{}, yamlLbls mapLabels, label caes.Label) (mapLabels, error) {
-	// log.Printf("labels:\n   %v: ", label)
-	switch intype := inArg.(type) {
-	case []interface{}:
-		// log.Printf(" [")
-		for idx, stat := range inArg.([]interface{}) {
-			switch stype := stat.(type) {
-			case string:
-				yamlLbls[stat.(string)] = label
-				if idx != 0 {
-					// log.Printf(", ")
-				}
-				// log.Printf("%s", stat.(string))
-			default:
-				return yamlLbls, errors.New("*** Error labels [(Type)]:" + stype.(string) + "\n")
-			}
-		}
-		// log.Printf("]")
-	case string:
-		yamlLbls[inArg.(string)] = label
-	default:
-		return yamlLbls, errors.New("*** Error labels (Type):" + intype.(string) + "\n")
-
-	}
-	return yamlLbls, nil
-}
-
-func iface2metadata(value interface{}, meta caes.Metadata) (caes.Metadata, error) {
-	switch subT := value.(type) {
-	case mapIface:
-		for metakey, metavalue := range value.(mapIface) {
-			if metakey == nil || metavalue == nil {
-				continue
-			}
-			switch metavalue.(type) {
-			case string:
-				if metavalue.(string) != "" {
-					meta[metakey.(string)] = metavalue.(string)
-				}
-			case int, float32, float64, bool:
-				meta[metakey.(string)] = iface2string(metavalue)
-			case mapIface:
-				var err error
-				meta[metakey.(string)], err = iface2metadata(metavalue, caes.Metadata{})
-				return meta, err
-			}
-		}
-	default:
-		return meta, errors.New("*** Error metadata (Type):" + subT.(string) + "\n")
-	}
-	return meta, nil
-}
-
-func iface2statement(value interface{}, yamlStats mapStatements) (mapStatements, error) {
-
-	var err error
-	// log.Printf("Statements: \n")
-	// switch t := value.(type) {
-	switch value.(type) {
-	case mapIface:
-		for st_key, st_value := range value.(mapIface) {
-			keyStr := st_key.(string)
-			switch st_value.(type) {
-			case string:
-				yamlStats[keyStr] = &caes.Statement{
-					Id:    keyStr,
-					Text:  st_value.(string),
-					Label: caes.Undecided,
-				}
-				// log.Printf(" %v: %v \n", st_key.(string), st_value.(string))
-			case int, float32, float64, bool:
-				yamlStats[keyStr] = &caes.Statement{
-					Id:    keyStr,
-					Text:  iface2string(st_value),
-					Label: caes.Undecided,
-				}
-				// log.Printf(" %v: %v \n", st_key.(string), iface2string(st_value))
-			case mapIface:
-				// log.Printf("   %v:\n", st_key.(string))
-				yamlStats[keyStr], err = iface2xstatement(st_value, &caes.Statement{Id: st_key.(string), Label: caes.Undecided})
-				if err != nil {
-					return yamlStats, err
-				}
-			}
-		}
-	default:
-		// log.Printf(" Type: %v \n", t)
-	}
-	return yamlStats, nil
-}
-
-func iface2xstatement(st_value interface{}, stat *caes.Statement) (*caes.Statement, error) {
-	var err error
-	for st_subkey, st_subvalue := range st_value.(mapIface) {
-		st_subkey_lo := strings.ToLower(st_subkey.(string))
-		switch st_subkey_lo {
-		case "meta", "metadata":
-			// log.Printf("      meta:\n")
-			if stat.Metadata == nil {
-				stat.Metadata, err = iface2metadata(st_subvalue, caes.Metadata{})
-			} else {
-				stat.Metadata, err = iface2metadata(st_subvalue, stat.Metadata)
-			}
-			if err != nil {
-				return stat, err
-			}
-		case "text":
-			stat.Text = iface2string(st_subvalue)
-			// log.Printf("      text: %s \n", stat.Text)
-		case "assumed":
-			switch t := st_subvalue.(type) {
-			case bool:
-				stat.Assumed = st_subvalue.(bool)
-				// log.Printf("     assumed: %v \n", stat.Assumed)
-			case int:
-				if st_subvalue.(int) == 0 {
-					stat.Assumed = false
-				} else {
-					stat.Assumed = true
-				}
-				// log.Printf("     assumed: %v \n", stat.Assumed)
-			default:
-				return stat, errors.New("*** ERROR: Assumed value not bool: " + t.(string) + " \n")
-			}
-		case "value", "label":
-			switch strings.ToLower(iface2string(st_subvalue)) {
-			case "in":
-				stat.Label = caes.In
-			case "out":
-				stat.Label = caes.Out
-			case "undecided":
-				stat.Label = caes.Undecided
-			}
-		}
-	}
-	return stat, nil
-}
-
-func iface2issues(value interface{}, yamlIssues mapIssues) (mapIssues, error) {
-	// log.Printf("issues:\n")
-	switch value.(type) {
-	case mapIface:
-		for issueName, issueMap := range value.(mapIface) {
-			switch iT := issueName.(type) {
-			case string:
-				issueNameStr := issueName.(string)
-				// log.Printf("   %s:\n", issueNameStr)
-				issue := umIssue{id: issueNameStr, standard: caes.PE}
-				switch issueMap.(type) {
-				case mapIface:
-					for issueKey, issueValue := range issueMap.(mapIface) {
-						switch issueKey.(type) {
-						case string:
-							// log.Printf("      %s: ", issueKey.(string))
-							issueKey_lo := strings.ToLower(issueKey.(string))
-							switch issueKey_lo {
-							case "positions":
-								// switch ivT := issueValue.(type) {
-								switch issueValue.(type) {
-								case []interface{}:
-									issueArr := issueValue.([]interface{})
-									issue.positions = make([]string, len(issueArr))
-									// log.Printf(" [")
-									for i, ele_i := range issueArr {
-										if i != 0 {
-											// log.Printf(" ,")
-										}
-										switch eleT := ele_i.(type) {
-										case string:
-											issue.positions[i] = ele_i.(string)
-											// log.Printf("%v", issue.positions[i])
-										default:
-											return yamlIssues,
-												errors.New("*** Error Position value-type: " + eleT.(string) + " \n")
-										}
-									}
-									// log.Printf("]\n")
-								case string: /* a singel position */
-									issue.positions = make([]string, 1)
-									issue.positions[0] = issueValue.(string)
-									// log.Printf(" = %s \n", issueValue.(string))
-								default:
-									// log.Printf("      position-type: %v \n", ivT)
-								}
-
-							case "standard":
-								switch ivT := issueValue.(type) {
-								case string:
-									issueValueStr := issueValue.(string)
-									// log.Printf("%s\n", issueValueStr)
-									switch issueValueStr {
-									case "DV", "dv":
-										issue.standard = caes.DV
-									case "PE", "pe":
-										issue.standard = caes.PE
-									case "CCE", "cce":
-										issue.standard = caes.CCE
-									case "BRD", "brd":
-										issue.standard = caes.BRD
-									default:
-										return yamlIssues,
-											errors.New("*** Error: position expected DV,PE, CCE, BRD, wrong: " + issueValue.(string) + " \n")
-									}
-								default:
-									return yamlIssues,
-										errors.New("*** Error: unexpected issue-value-type:" + ivT.(string) + "\n")
-								}
-
-							case "meta", "metadata":
-								var err error
-								if issue.metadata == nil {
-									issue.metadata, err = iface2metadata(issueValue, caes.Metadata{})
-								} else {
-									issue.metadata, err = iface2metadata(issueValue, issue.metadata)
-								}
-								if err != nil {
-									return yamlIssues, err
-								}
-							}
-						}
-					}
-				}
-				yamlIssues[issueNameStr] = issue
-			default:
-				return yamlIssues,
-					errors.New("*** ERROR: Not a issue Name: " + iT.(string) + "\n")
-			}
-		}
-	}
-	return yamlIssues, nil
-}
-
-func iface2assumps(value interface{}, yamlAssumps assumptions) (assumptions, error) {
-	// log.Printf("Assumptions: ")
-	switch value.(type) {
-	case []interface{}:
-		// log.Printf("[")
-		for i, str := range value.([]interface{}) {
-			if i != 0 {
-				// log.Printf(", ")
-			}
-			switch str.(type) {
-			case string:
-				if yamlAssumps == nil {
-					yamlAssumps = assumptions{str.(string)}
-				} else {
-					yamlAssumps = append(yamlAssumps, str.(string))
-				}
-				// log.Printf("%s", str.(string))
-			default:
-				if yamlAssumps == nil {
-					yamlAssumps = assumptions{iface2string(str)}
-				} else {
-					yamlAssumps = append(yamlAssumps, iface2string(str))
-				}
-				// log.Printf("if=%v", iface2string(str))
-			}
-		}
-		// log.Printf("]\n")
-	case string:
-		if yamlAssumps == nil {
-			yamlAssumps = assumptions{value.(string)}
-		} else {
-			yamlAssumps = append(yamlAssumps, value.(string))
-		}
-		// log.Printf(" %s \n", value.(string))
-	default:
-		return yamlAssumps,
-			errors.New("*** ERROR: not a right assumption-value: " + value.(string) + "\n")
-	}
-	return yamlAssumps, nil
-}
-
-func iface2arguments(value interface{}, yamlArgs mapArguments) (mapArguments, error) {
-	// log.Printf("Arguments: \n")
-	switch value.(type) {
-	case mapIface:
-		for argName, arg := range value.(mapIface) {
-			switch aT := argName.(type) {
-			case string:
-				// log.Printf("    %s: \n", argName.(string))
-				var err error
-				yamlArgs[argName.(string)], err = iface2argument(arg, umArgument{})
-				if err != nil {
-					return yamlArgs, err
-				}
-			default:
-				return yamlArgs,
-					errors.New("*** ERROR: Arguement-name is not a string: " + aT.(string) + "\n")
-			}
-		}
-	}
-	return yamlArgs, nil
-}
-
-func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
-	var err error
-	switch inArg.(type) {
-	case mapIface:
-		for attName, attValue := range inArg.(mapIface) {
-			switch ant := attName.(type) {
-			case string:
-				attNameStr := strings.ToLower(attName.(string))
-				// log.Printf("      %s:", attNameStr)
-				switch attNameStr {
-				case "conclusion":
-					outArg.conclusion = iface2string(attValue)
-					// log.Printf(" %s \n", outArg.conclusion)
-				case "premises":
-					outArg.premises, err = iface2premises(attValue)
-					if err != nil {
-						return outArg, err
-					}
-					// log.Printf("\n")
-				case "metadata", "meta":
-					outArg.metadata, err = iface2metadata(attValue, caes.Metadata{})
-					if err != nil {
-						return outArg, err
-					}
-				case "weight":
-					outArg.weigth, err = iface2weight(attValue)
-					if err != nil {
-						return outArg, err
-					}
-				case "nas", "undercutter", "not app statement":
-					outArg.undercutter = iface2string(attValue)
-					// log.Printf(" %s \n", outArg.undercutter)
-				case "scheme":
-					outArg.scheme = iface2string(attValue)
-					//					_, isIn := caes.BasicSchemes[outArg.scheme]
-					//					if isIn == false {
-					//						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
-					//						first := true
-					//						for schemeKey, _ := range caes.BasicSchemes {
-					//							if first {
-					//								errStr = errStr + schemeKey
-					//								first = false
-					//							} else {
-					//								errStr = errStr + ", " + schemeKey
-					//							}
-					//						}
-					//						return outArg,
-					//							errors.New(errStr + ")\n")
-					//					}
-					//					// log.Printf(" %s \n", outArg.scheme)
-				default:
-					return outArg,
-						errors.New("*** ERROR: Wrong argument attribute: " + attName.(string) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
-				}
-			default:
-				return outArg,
-					errors.New("*** ERROR: Wrong argument attribute type (string expected): " + ant.(string) + "\n")
-			}
-		}
-	}
-	return outArg, nil
-}
-
-func iface2weight(attValue interface{}) (float64, error) {
-	// weight := new(float64)
-	weight := 0.0
-	switch atype := attValue.(type) {
-	case float32:
-		// fl32 := attValue.(float32)
-		// *weight = fl32.(float64)
-		weight = attValue.(float64)
-	case float64:
-		weight = attValue.(float64)
-	case int:
-		intvalue := attValue.(int)
-		if intvalue == 0 || intvalue == 1 {
-			weight = attValue.(float64)
-		} else {
-			return 0.0, errors.New(("*** ERROR: Wrong weigth type (float expeced) integer value: " + attValue.(string)))
-		}
-	default:
-		return 0.0, errors.New("*** ERROR: Wrong weigth type (float expected): " + atype.(string) + "\n")
-	}
-	// log.Printf("     weight: %v\n", *weight)
-	return weight, nil
-}
-
-func iface2premises(inArg interface{}) ([]umPremis, error) {
-	var outArg []umPremis
-	switch inArg.(type) {
-	case []interface{}:
-		// log.Printf(" [")
-		for idx, stat := range inArg.([]interface{}) {
-			switch stat.(type) {
-			case string:
-				umP := umPremis{stmt: stat.(string)}
-				if outArg == nil {
-					outArg = []umPremis{umP}
-				} else {
-					outArg = append(outArg, umP)
-				}
-				if idx != 0 {
-					// log.Printf(", ")
-				}
-				// log.Printf("%s", stat.(string))
-
-			}
-		}
-		// log.Printf("]")
-	case mapIface:
-		// log.Printf("\n")
-		for key, val := range inArg.(mapIface) {
-			premis := umPremis{}
-			valStr := ""
-			switch val.(type) {
-			case string:
-				valStr = val.(string)
-			default:
-				valStr = iface2string(val)
-			}
-			keyStr := ""
-			switch key.(type) {
-			case string:
-				keyStr = key.(string)
-			default:
-				keyStr = iface2string(key)
-			}
-			keyStr = strings.ToLower(keyStr)
-			premis.role = keyStr
-			premis.stmt = valStr
-			if outArg == nil {
-				outArg = []umPremis{premis}
-			} else {
-				outArg = append(outArg, premis)
-			}
-		}
-	}
-	return outArg, nil
-}
-
-func iface2references(reference interface{}, yamlRefs mapReferences) (mapReferences, error) {
-	var err error
-	// log.Printf("references: \n")
-	switch reference.(type) {
-	case mapIface:
-		for refName, refBody := range reference.(mapIface) {
-			refNameStr := "???"
-			switch refName.(type) {
-			case string:
-				refNameStr = refName.(string)
-			default:
-				refNameStr = iface2string(refName)
-			}
-			// log.Printf("    %s:\n", refNameStr)
-			yamlRefs[refNameStr], err = iface2metadata(refBody, caes.Metadata{})
-			if err != nil {
-				return yamlRefs, err
-			}
-		}
-	}
-	return yamlRefs, nil
 }

@@ -7,8 +7,8 @@
 package test
 
 import (
-	// "github.com/carneades/carneades-4/internal/engine/caes"
-	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
+	// "github.com/carneades/carneades-4/src/engine/caes"
+	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	// "log"
 	"fmt"
 	"os"

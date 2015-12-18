@@ -2,59 +2,70 @@ package test
 
 import (
 	// "fmt"
-	"github.com/carneades/carneades-4/internal/engine/caes"
-	cjson "github.com/carneades/carneades-4/internal/engine/caes/encoding/json"
-	"github.com/carneades/carneades-4/internal/engine/caes/encoding/yaml"
+	"github.com/carneades/carneades-4/src/engine/caes"
+	cjson "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
+	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	//	"log"
 	"os"
 	"testing"
 )
 
+const jsonDir = "../../examples/AGs/JSON/"
+
+// const yamlDir = "../../examples/AGs/YAML"
+
+const jsonTmp = "/tmp/"
+
 func ioJsonTest(t *testing.T, filename1 string, filename2 string) {
-	var ag, ag2 *caes.ArgGraph
+	// var ag  *caes.ArgGraph
+	var ag2 *caes.ArgGraph
 	var err error
+	/*
+		// Import a YAML-file from examples/AGs/YAML-Dir
+		// ----------------------------------------------
+		file, err := os.Open(yamlDir + filename1)
+		check(t, err)
+		ag, err = yaml.Import(file)
+		file.Close()
+		check(t, err)
 
-	// Import a YAML-file from examples/AGs/YAML-Dir
-	// ----------------------------------------------
-	file, err := os.Open(aifDir + filename1)
-	check(t, err)
-	ag, err = yaml.Import(file)
-	file.Close()
-	check(t, err)
+		// file, err = os.Create(jsonTmp + "_a_" + filename1)
+		// check(t, err)
+		// yaml.ExportWithReferences(file, ag)
 
-	// file, err = os.Create(aifTmp + "_a_" + filename1)
-	// check(t, err)
-	// yaml.ExportWithReferences(file, ag)
+		l := ag.GroundedLabelling()
+		// ------------------------
 
-	l := ag.GroundedLabelling()
-	// ------------------------
+		//	file, err = os.Create(aifTmp + "_b_" + filename1)
+		//	check(t, err)
+		//	yaml.ExportWithReferences(file, ag)
 
-	//	file, err = os.Create(aifTmp + "_b_" + filename1)
-	//	check(t, err)
-	//	yaml.ExportWithReferences(file, ag)
+		//	fmt.Printf(" ## Labeling yaml-Datei: \n")
+		//	printLabeling(l)
+		err = checkLabeling(l, ag.Statements)
+		check(t, err)
 
-	//	fmt.Printf(" ## Labeling yaml-Datei: \n")
-	//	printLabeling(l)
-	err = checkLabeling(l, ag.Statements)
-	check(t, err)
+		ag.ApplyLabelling(l)
 
-	ag.ApplyLabelling(l)
+		//	fmt.Printf(" ## ApplyLabeling")
+		//	file, err = os.Create(aifTmp + "_c_" + filename1)
+		//	check(t, err)
+		//	yaml.ExportWithReferences(file, ag)
 
-	//	fmt.Printf(" ## ApplyLabeling")
-	//	file, err = os.Create(aifTmp + "_c_" + filename1)
-	//	check(t, err)
-	//	yaml.ExportWithReferences(file, ag)
-
-	// Export JSON-file to Temp-Dir
-	// -----------------------------
-	file, err = os.Create(aifTmp + "_d_" + filename2)
-	check(t, err)
-	cjson.Export(file, ag)
-	file.Close()
-	file.Sync()
+		// Export JSON-file to Temp-Dir
+		// -----------------------------
+		file, err = os.Create(jsonTmp + "_d_" + filename2)
+		check(t, err)
+		cjson.Export(file, ag)
+		file.Close()
+		file.Sync()
+	*/
 	// Import JSON-file from Temp-Dir
 	// ------------------------------
-	file, err = os.Open(aifTmp + filename2)
+	// file, err = os.Open(jsonTmp + filename2)
+	// Import JSON-file from JSON-Dir
+	// ------------------------------
+	file, err := os.Open(jsonDir + filename2)
 	check(t, err)
 	ag2, err = cjson.Import(file)
 
@@ -77,7 +88,7 @@ func ioJsonTest(t *testing.T, filename1 string, filename2 string) {
 	//	check(t, err)
 	//	yaml.ExportWithReferences(file, ag2)
 
-	file, err = os.Create(aifTmp + "json2" + filename1)
+	file, err = os.Create(jsonTmp + "json2" + filename1)
 	check(t, err)
 	yaml.Export(file, ag2)
 
