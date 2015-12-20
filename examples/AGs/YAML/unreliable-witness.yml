@@ -27,6 +27,6 @@ assumptions: [saysUnreliable]
 
 labels:
   undecided: [unreliable,¬app(a1)]
-  out: reliable
-  in: saysUnreliable
+  out: [reliable]
+  in: [saysUnreliable]
 

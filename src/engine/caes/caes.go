@@ -116,7 +116,7 @@ type Theory struct { // aka Knowledge Base
 	Language          Language
 	WeighingFunctions map[string]WeighingFunction
 	ArgSchemes        map[string]*Scheme
-	IssueSchemes      map[string]IssueScheme
+	IssueSchemes      map[string]*IssueScheme
 }
 
 type WeighingFunction func(*Argument, Labelling) float64 // [0.0,1.0]
@@ -156,7 +156,7 @@ func NewTheory() *Theory {
 		Language:          make(map[string]string),
 		WeighingFunctions: make(map[string]WeighingFunction),
 		ArgSchemes:        make(map[string]*Scheme),
-		IssueSchemes:      make(map[string]IssueScheme),
+		IssueSchemes:      make(map[string]*IssueScheme),
 	}
 }
 
