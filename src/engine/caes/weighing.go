@@ -13,8 +13,10 @@ package caes
 // types and procedures for weighing arguments
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
+	"time"
 )
 
 // for sorting arguments by property order
@@ -203,17 +205,36 @@ func (s ByProperties) Less(i, j int) bool {
 	}
 
 	for _, p := range s.order {
-		aip := ai.Metadata[p.Property]
-		ajp := aj.Metadata[p.Property]
+		aip := ai.Scheme.Metadata[p.Property]
+		ajp := aj.Scheme.Metadata[p.Property]
 		if reflect.TypeOf(aip) != reflect.TypeOf(ajp) {
 			// skip uncomparable values and try sorting by the next property
 			continue
 		}
+
 		switch aip.(type) {
 		case string:
 			if aip.(string) == ajp.(string) {
 				continue
 			}
+			// try interpreting the strings as times
+			ti, err1 := time.Parse("2006-01-02", aip.(string))
+			tj, err2 := time.Parse("2006-01-02", ajp.(string))
+			if err1 == nil && err2 == nil {
+				// both strings represent times in the supported format
+				switch p.Order {
+				case Ascending:
+					return ti.Before(tj)
+				case Descending:
+					return ti.After(tj)
+				}
+			}
+
+			if err1 == nil || err2 == nil {
+				// only one of the values represents time
+				continue
+			}
+			// neither string represents time
 			switch {
 			case len(p.Values) > 0:
 				if indexOf(aip.(string), p.Values) < indexOf(ajp.(string), p.Values) {
@@ -232,13 +253,9 @@ func (s ByProperties) Less(i, j int) bool {
 			}
 			switch p.Order {
 			case Ascending:
-				if aip.(int) < ajp.(int) {
-					return true
-				}
+				return aip.(int) < ajp.(int)
 			case Descending:
-				if aip.(int) > ajp.(int) {
-					return true
-				}
+				return aip.(int) > ajp.(int)
 			}
 		case float64:
 			if aip.(float64) == ajp.(float64) {
@@ -246,13 +263,9 @@ func (s ByProperties) Less(i, j int) bool {
 			}
 			switch p.Order {
 			case Ascending:
-				if aip.(float64) < ajp.(float64) {
-					return true
-				}
+				return aip.(float64) < ajp.(float64)
 			case Descending:
-				if aip.(float64) > ajp.(float64) {
-					return true
-				}
+				return aip.(float64) > ajp.(float64)
 			}
 		default:
 			continue
@@ -283,6 +296,15 @@ func genEqualArgsFunction(o []PropertyOrder) func(*Argument, *Argument) bool {
 		}
 		return false
 	}
+}
+
+// Debugging code
+func printGroup(g []*Argument) {
+	fmt.Printf("group[")
+	for _, a := range g {
+		fmt.Printf("%v ", a.Id)
+	}
+	fmt.Printf("]\n")
 }
 
 // PreferenceWeighingFunction: Orders arguments by the metadata properties of
@@ -317,28 +339,39 @@ func PreferenceWeighingFunction(o []PropertyOrder) WeighingFunction {
 		// Sort the arguments, so that the weakest arguments
 		// appear first in the args list (ascending order)
 		sort.Sort(ByProperties{args: args, order: o})
+		//		fmt.Printf("sorted args:\n")
+		//		for _, arg := range args {
+		//			fmt.Printf("\t%v\n", arg.Id)
+		//		}
 
 		// groups is in an ordered list of sets of arguments,
 		// representing a partial order. The groups are ordered
 		// by increasing strength (ascending order)
 		var groups [][]*Argument
-		groups = make([][]*Argument, 0, len(args))
 		group := []*Argument{}
 		equalArgs := genEqualArgsFunction(o)
 		for _, a := range args {
-			if len(group) > 0 {
+			if len(group) == 0 {
+				// first arg in the group
+				group = append(group, a)
+			} else {
 				if equalArgs(a, group[0]) {
 					group = append(group, a)
+					printGroup(group)
 				} else {
 					// start a new group
 					groups = append(groups, group)
 					group = []*Argument{a}
 				}
-			} else {
-				// first arg in the group
-				group = append(group, a)
 			}
 		}
+		groups = append(groups, group)
+
+		// Debugging, to see if the groups have been formed correctly
+		//		for i, g := range groups {
+		//			fmt.Printf("Group %v. ", i)
+		//			printGroup(g)
+		//		}
 
 		// The weight of an argument depends on its place in the partial
 		// order. All arguments in a group (equivalence class) have the
@@ -354,7 +387,7 @@ func PreferenceWeighingFunction(o []PropertyOrder) WeighingFunction {
 		for i, group := range groups {
 			weight = ((float64(i) + 1.0) * 1.0) / n
 			for _, a := range group {
-				if arg == a {
+				if arg.Id == a.Id {
 					// found arg
 					return weight
 				}

@@ -150,9 +150,7 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		iss.id = id
 		// fmt.Printf(" issue: %s standard: \"%s\"\n", id, iss.Standard)
 		switch iss.Standard {
-		case "", "DV", "dv":
-			iss.caesStandard = caes.DV
-		case "PE", "pe":
+		case "", "PE", "pe":
 			iss.caesStandard = caes.PE
 		case "CCE", "cce":
 			iss.caesStandard = caes.CCE
@@ -779,11 +777,13 @@ func iface2soft(body interface{}, soft map[string]caes.SoftConstraint) (map[stri
 								switch subvT := subvalue.(type) {
 								case float64:
 									factor = subvalue.(float64)
-									if factor < 0.0 || factor > 1.0 {
-										return soft,
-											errors.New("*** Error value 0.00 ... 1.00 exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
-												fmt.Sprintf("%v'\n", subvalue))
-									}
+									//									if factor < 0.0 || factor > 1.0 {
+									//										return soft,
+									//											errors.New("*** Error value 0.00 ... 1.00 exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
+									//												fmt.Sprintf("%v'\n", subvalue))
+									//									}
+								case int:
+									factor = float64(subvalue.(int))
 								default:
 									return soft,
 										errors.New("*** Error float-value exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
@@ -1105,8 +1105,6 @@ func iface2issues(value interface{}, yamlIssues map[string]umIssue) (map[string]
 									issueValueStr := issueValue.(string)
 									// fmt.Printf("%s\n", issueValueStr)
 									switch issueValueStr {
-									case "DV", "dv":
-										issue.caesStandard = caes.DV
 									case "PE", "pe":
 										issue.caesStandard = caes.PE
 									case "CCE", "cce":

@@ -1,0 +1,44 @@
+// Copyright © 2015 The Carneades Authors
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain one
+// at http://mozilla.org/MPL/2.0/.
+
+// Evaluation of argument graphs using the SWI Prolog implementation
+// of Constraint Handling Rules (CHR)
+
+package caes
+
+import (
+	"io/ioutil"
+	"os"
+)
+
+func translateToCHR(t Theory, assms map[string]bool, f os.File) {
+
+}
+
+func (ag ArgGraph) Eval() {
+	// Translate the theory to CHR in SWI-Prolog
+	// Write the output to a temporary file
+
+	f, err := ioutil.TempFile(os.TempDir(), "caes")
+	defer f.Close()
+	defer os.Remove(f.Name())
+	assms := []string{}
+	translateToCHR(ag.Theory, ag.Assumptions, f)
+
+	// Call SWI Prolog to evaluate the theory and write arguments
+	// to standard out.  Handle SWI-Prolog errors.  Assure termination
+	// within given limits (time, stack size, ...)
+
+	// Read the output and construct CAES arguments by instantiating
+	// schemes in the theory and adding statements and arguments to
+	// the argument graph
+
+	// compute the grounded labelling
+
+	// apply the grounded labelling
+
+	// Clean up, deleting any temporary files
+}

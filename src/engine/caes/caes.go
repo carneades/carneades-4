@@ -97,8 +97,7 @@ type Scheme struct {
 type Standard int
 
 const (
-	DV  Standard = iota // dialectical validity
-	PE                  // preponderance of the evidence
+	PE  Standard = iota // dialectical validity
 	CCE                 // clear and convincing evidence
 	BRD                 // beyond reasonable doubt
 )
@@ -297,10 +296,16 @@ func (s *Statement) Object() string {
 func (arg *Argument) PropertyValue(p string, l Labelling) (string, bool) {
 	for _, pr := range arg.Premises {
 		if p == pr.Role {
-			i := pr.Stmt.Issue
-			for _, pos := range i.Positions {
-				if l[pos] == In {
-					return pos.Object(), true
+			if l[pr.Stmt] == In {
+				return pr.Stmt.Object(), true
+			} else {
+				i := pr.Stmt.Issue
+				if i != nil {
+					for _, pos := range i.Positions {
+						if l[pos] == In {
+							return pos.Object(), true
+						}
+					}
 				}
 			}
 		}
@@ -323,12 +328,12 @@ func (issue *Issue) ReadyToBeResolved(l Labelling) bool {
 
 // Apply a proof standard to check whether w1 is strictly greater than
 // w2, where w1 and w2 are argument weights
-// Note: DV and PE are indistinguishable in this new model
+// Note: PE are indistinguishable in this new model
 func (std Standard) greater(w1, w2 float64) bool {
 	alpha := 0.5
 	beta := 0.3
 	switch std {
-	case DV, PE:
+	case PE:
 		return w1 > w2
 	case CCE:
 		return w1 > w2 && (w1-w2 > alpha)

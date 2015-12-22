@@ -1,83 +1,173 @@
 meta:
   title: Porsche Example
-  notes: > 
-    Illustrates support for Issue-Based Information Systems (IBIS) 
-    and cumulative arguments. Needs to be revised to used weighed sums.
-  source: > 
-      Brewka, Gerhard, and Thomas F. Gordon. "How to Buy a Porsche: An Approach to Defeasible Decision Making ." Working Notes of the AAAI-94 Workshop on Computational Dialectics. Seattle, Washington, 1994. 28-38. 
+  notes: >
+    Illustrates support for Issue-Based Information Systems (IBIS)
+    and multi-criteria decision analysis.
+  source: >
+    Brewka, Gerhard, and Thomas F. Gordon. "How to Buy a Porsche: An
+    Approach to Defeasible Decision Making ." Working Notes of the
+    AAAI-94 Workshop on Computational Dialectics. Seattle, Washington,
+    1994. 28-38.
 
+# All predicates need to be declared in the language, since they
+# will be compiled to CHR constraints, which must be declared in CHR.
+# Functors for constructing compound terms and atoms denoting individuals
+# are not declared (currently)
+# Predicates, functors and atoms must obey Prolog lexical rules.
+language:
+  buy/1: Buy a %v.
+  price/2: The price of a %v is %v.
+  type/2: A %v is a %v car.
+  speed/2: A %v is a %v car.
+  advertising/0: Volvo advertising claims Volvos are safe.
+  gov_stats/0: Government statistics show Volvos to be fairly safe.
+
+# Argument scheme names must be Prolog atoms.
+# Parameters are Prolog variables and thus begin with a capital letter.
+# Argument schemes have been extended with weighing functions and with
+# multiple conclusions, deletions and guards to allow any CHR rule
+# to be expressed.
+# Exceptions can be modelled alternatively as undercutters in separate schemes.
+argument_schemes:
+  gov_stats_scheme:
+      weight:
+        constant: 0.8
+  advertising_scheme:
+      weight:
+        constant: 0.4  
+  car_buying_scheme:
+  # schema variables. Every variable used in a premise or conclusion
+  # must be declared here.
+      variables: [C,P,S,F]  
+      meta:
+          notes: >
+            This scheme illustrates the use of weighing functions for
+            multi-criteria decision analysis.
+   
+      weight:
+          criteria:
+            hard: []  # role names of premises which must be in
+            soft:
+              # weighted sum of soft constraints
+              price:
+                  ## factor: any positive number 
+                  ## the factors will be converted into percentages of
+                  ## to total sum of all factors
+                  factor: 2  
+                  values:
+                    low: 1.0
+                    medium: 0.5
+                    high: 0.0
+              type:
+                  factor: 2
+                  values:
+                    sports: 0.0
+                    sedan: 0.5
+                    family: 1.0
+              speed:
+                  factor: 2
+                  values:
+                    slow: 0.0
+                    medium: 0.5
+                    fast: 1.0
+              safety:
+                  factor: 4
+                  values:
+                      low: 0.0
+                      medium: 0.5
+                      high: 1.0
+      premises:
+          # list or map. Use a map if role names are needed
+          # if a list, the indices (zero-based) are used as “role names”.
+          price: price(C,P)
+          type: type(C,T)
+          speed: speed(C,S)
+          safety: safety(C,F)
+      conclusions:    # list of atomic formulas or schema variables
+          - buy(C)
+
+issue_schemes:
+    choice: [buy(O1), ..., buy(On)]
+    safety: [safety(O,V1), ..., safety(O,Vn)]
+    price: [price(O,P1), ..., price(O,Pn)]
+    speed: [speed(O,S1), ..., speed(O,Sn)]
+    type: [type(O,T1), ..., type(O,Tn)]
 
 statements:
-  Porsche: Buy a Porsche.
-  Volvo: Buy a Volvo.
-  price(Volvo)=med: Volvos have a medium price.
-  type(Volvo)=family: Volvos are family cars.
-  speed(Volvo)=med: Volvos have a medium maximum speed.
-  safety(Volvo)=high: Volvos are very safe.
-  safety(Volvo)=med:  Volve are fairly safe.
-  type(Porsche)=sports: Porsches are sports cars.
-  price(Porsche)=high: Porsches are expensive.
-  safety(Porsche)=med: Porsches are fairly safe.
-  speed(Porsche)=fast: Porsches are fast.
+  buy(porsche): Buy a Porsche.
+  buy(volvo): Buy a Volvo.
+  price(volvo,medium): Volvos have a medium price.
+  type(volvo,family): Volvos are family cars.
+  speed(volvo,medium): Volvos have a medium maximum speed.
+  safety(volvo,high): Volvos are very safe.
+  safety(volvo,medium):  Volvos are fairly safe.
+  type(porsche,sports): Porsches are sports cars.
+  price(porsche,high): Porsches are expensive.
+  safety(porsche,medium): Porsches are fairly safe.
+  speed(porsche,fast): Porsches are fast.
   advertising: Volvo advertising claims Volvos are safe.
-  gov-stats: Government statistics show Volvos to be fairly safe.
+  gov_stats: Government statistics show Volvos to be fairly safe.
 
 issues:
   i1:
-    positions: [Porsche, Volvo]
+    positions: [buy(porsche), buy(volvo)]
   i2:
-    positions: [safety(Volvo)=med, safety(Volvo)=high]
+    positions:
+      - safety(volvo,medium)
+      - safety(volvo,high)
 
 arguments:
-  a1: 
-    scheme: cumulative
-    conclusion: Porsche
-    premises: 
-      - type(Porsche)=sports
-      - price(Porsche)=high
-      - safety(Porsche)=med
-      - speed(Porsche)=fast
-  a2:
-    scheme: cumulative
-    conclusion: Volvo
+  a1:
+    scheme: car_buying_scheme
+    conclusion: buy(porsche)
     premises:
-      - type(Volvo)=family
-      - price(Volvo)=med
-      - speed(Volvo)=med
-      - safety(Volvo)=high
+      type: type(porsche,sports)
+      price: price(porsche,high)
+      safety: safety(porsche,medium)
+      speed: speed(porsche,fast)
+  a2:
+    scheme: car_buying_scheme
+    conclusion: buy(volvo)
+    premises:
+      type: type(volvo,family)
+      price: price(volvo,medium)
+      speed: speed(volvo,medium)
+      safety: safety(volvo,high)
   a3:
-    conclusion: safety(Volvo)=high
+    scheme: advertising_scheme
+    conclusion: safety(volvo,high)
     premises:
       - advertising
   a4:
-    conclusion: safety(Volvo)=med
+    scheme: gov_stats_scheme
+    conclusion: safety(volvo,medium)
     premises:
-      - gov-stats
+      - gov_stats
 
 assumptions:
-  - advertising
-  - gov-stats
-  - price(Volvo)=med
-  - speed(Volvo)=med
-  - type(Volvo)=family
-  - type(Porsche)=sports
-  - price(Porsche)=high
-  - safety(Porsche)=med
-  - speed(Porsche)=fast
+    - advertising
+    - gov_stats
+    - price(volvo,medium)
+    - speed(volvo,medium)
+    - type(volvo,family)
+    - type(porsche,sports)
+    - price(porsche,high)
+    - safety(porsche,medium)
+    - speed(porsche,fast)
 
 labels:
-  in:
+  in: 
     - advertising
-    - gov-stats
-    - price(Volvo)=med
-    - speed(Volvo)=med
-    - type(Volvo)=family
-    - type(Porsche)=sports
-    - price(Porsche)=high
-    - safety(Porsche)=med
-    - speed(Porsche)=fast
-    - Porsche
+    - gov_stats
+    - price(volvo,medium)
+    - speed(volvo,medium)
+    - type(volvo,family)
+    - type(porsche,sports)
+    - price(porsche,high)
+    - safety(porsche,medium)
+    - speed(porsche,fast)
+    - safety(volvo,medium)
+    - buy(volvo)
   out:
-    - safety(Volvo)=high
-    - safety(Volvo)=med
-    - Volvo
+    - buy(porsche)
+    - safety(volvo,high)
