@@ -43,19 +43,19 @@ type (
 	// mapIface map[interface{}]interface{}
 
 	umArgScheme struct {
-		Assumptions     map[string]string // to do - list or map
-		caesAssumptions map[string]string
-		caesExceptions  map[string]string
-		caesPremises    map[string]string
-		caesWeight      caes.WeighingFunction
-		Conclusions     []string
-		Deletions       []string
-		Exceptions      map[string]string // to do - list or map
-		Guards          []string
-		Meta            caes.Metadata
-		Premises        map[string]string // to do - list or map
-		Variables       []string
-		Weight          interface{}
+		Assumptions map[string]string // to do - list or map
+		// caesAssumptions map[string]string
+		// caesExceptions  map[string]string
+		caesPremises map[string]string
+		caesWeight   caes.WeighingFunction
+		Conclusions  []string
+		Deletions    []string
+		Exceptions   map[string]string // to do - list or map
+		Guards       []string
+		Meta         caes.Metadata
+		Premises     map[string]string // to do - list or map
+		Variables    []string
+		Weight       interface{}
 		// string
 		// Constant: float64
 		// Criteria: {Hard: []string Soft: map[string]{Factor: float64 Values: map[string]float64}
@@ -221,16 +221,16 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		argS.caesPremises = argS.Premises
 		// scan assumptions in argument_schemes
 		// to do
-		argS.caesAssumptions = argS.Assumptions
+		// argS.caesAssumptions = argS.Assumptions
 		// scan exceptions in argument_schemes
 		// to do
-		argS.caesExceptions = argS.Exceptions
+		// argS.caesExceptions = argS.Exceptions
 	}
 	// scan argument_scheme and set caesArgSchemes
 	m.caesArgSchemes = map[string]*caes.Scheme{}
 	for id, as := range m.Argument_schemes {
 		m.caesArgSchemes[id] = &caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
-			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions, Deletions: as.Deletions,
+			Premises: as.caesPremises, Deletions: as.Deletions,
 			Guards: as.Guards, Conclusions: as.Conclusions}
 		collOfSchemes[id] = m.caesArgSchemes[id]
 	}

@@ -79,12 +79,12 @@ type Scheme struct {
 	// Each parameter is a schema variable, using
 	// Prolog syntax for variables, i.e. identifiers starting
 	// a capital letter
-	Variables   []string // declaration of schema variables
-	Weight      WeighingFunction
-	Valid       func(*Argument) bool
-	Premises    map[string]string // role names to atomic formulas
-	Assumptions map[string]string // CQ names to atomic formulas
-	Exceptions  map[string]string // CQ names to atomic formulas
+	Variables []string // declaration of schema variables
+	Weight    WeighingFunction
+	Valid     func(*Argument) bool
+	Premises  map[string]string // role names to atomic formulas
+	//// Assumptions map[string]string // CQ names to atomic formulas
+	//// Exceptions  map[string]string // CQ names to atomic formulas
 	// Deletions and Guards are extensions for implementing
 	// schemes using Constrating Handling Rules (CHR)
 	Deletions []string // list of role names of premises to delete
