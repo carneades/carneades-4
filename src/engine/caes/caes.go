@@ -275,6 +275,24 @@ func (arg *Argument) Applicable(l Labelling) bool {
 	return true
 }
 
+// Returns the predicate of statements representing
+// predicate-subject-object triples, or the empty string
+// if the statement is not a triple.  Triples are assumed
+// to be presented using Prolog syntax for atomic formulas:
+// predicate(Subject, Object)
+// To do: do a better job of checking that the statement
+// has the required form.
+func (s *Statement) Predicate() string {
+	wff := s.Id
+	v := strings.Split(wff, "(")
+	if len(v) == 2 {
+		str := v[0]
+		return strings.Trim(str, " ")
+	} else {
+		return ""
+	}
+}
+
 // Returns the object of statements representing
 // predicate-subject-object triples, or the empty string
 // if the statement is not a triple.  Triples are assumed
@@ -295,7 +313,7 @@ func (s *Statement) Object() string {
 
 func (arg *Argument) PropertyValue(p string, l Labelling) (string, bool) {
 	for _, pr := range arg.Premises {
-		if p == pr.Role {
+		if p == pr.Stmt.Predicate() {
 			if l[pr.Stmt] == In {
 				return pr.Stmt.Object(), true
 			} else {

@@ -121,18 +121,18 @@ arguments:
     scheme: car_buying_scheme
     conclusion: buy(porsche)
     premises:
-      type: type(porsche,sports)
-      price: price(porsche,high)
-      safety: safety(porsche,medium)
-      speed: speed(porsche,fast)
+      - type(porsche,sports)
+      - price(porsche,high)
+      - safety(porsche,medium)
+      - speed(porsche,fast)
   a2:
     scheme: car_buying_scheme
     conclusion: buy(volvo)
     premises:
-      type: type(volvo,family)
-      price: price(volvo,medium)
-      speed: speed(volvo,medium)
-      safety: safety(volvo,high)
+      - type(volvo,family)
+      - price(volvo,medium)
+      - speed(volvo,medium)
+      - safety(volvo,high)
   a3:
     scheme: advertising_scheme
     conclusion: safety(volvo,high)
