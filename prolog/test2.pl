@@ -1,5 +1,6 @@
 :- use_module(library(chr)).
-:- chr_constraint r23/0, foo/0.
+:- chr_constraint bar/0, foo/0, go/0.
 
-r1 @ true \ r23 <=> foo.
+r1 @ go ==> foo.
+r2 @ go ==> bar.
 

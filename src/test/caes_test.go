@@ -36,6 +36,11 @@ func TestCAES(t *testing.T) {
 			// skip non-YAML files
 			ag, err := yaml.Import(f)
 			checkErr(err)
+			ok, err := ag.Infer()
+			if !ok {
+				fmt.Printf("Infer error: %v\n", err)
+				checkErr(err)
+			}
 			l := ag.GroundedLabelling()
 			for _, s := range ag.Statements {
 				if s.Label != l[s] {

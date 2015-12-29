@@ -4,6 +4,17 @@ meta:
     Illustrates deriving an argument preference ordering from 
     properties of argumentation schemes
 
+language: 
+  forbidden/1: "%v is forbidden."
+  permitted/1: "%v is permitted."
+  consumed/1: "%v has been consumed."
+  crime/0: A crime has been committed.
+
+# language:
+#   forbidden/1: %v is forbidden.
+#   permitted/1: %v is permitted
+#   consumed/1: %v has been consumed.
+#   crime/0: A crime has been committed.
   
 weighing_functions:
     # example illustrating the preference relation DSL
@@ -16,12 +27,12 @@ weighing_functions:
             order: ascending   # later dates have higher priority
   
 argument_schemes:
-    Earlier Federal Law:  # some hypothetical federal law
+    earlier_federal_law:  # some hypothetical federal law
       meta: 
         authority: federal
         effective_date: 1989-06-14
       weight: lex    
-    Later State Law: # some hypothetical state law
+    later_state_law: # some hypothetical state law
       meta:
         authority: state
         effective_date: 2008-04-13
@@ -39,10 +50,10 @@ issues:
 
 arguments:
   a1:
-    scheme: Earlier Federal Law
+    scheme: earlier_federal_law
     conclusion: forbidden(cannabis)
   a2:
-    scheme: Later State Law
+    scheme: later_state_law
     conclusion: permitted(cannabis)
   a3:
     conclusion: crime
