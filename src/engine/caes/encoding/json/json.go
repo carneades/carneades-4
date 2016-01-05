@@ -269,7 +269,7 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 		if s := schemes[jsonArg.Scheme]; s != nil {
 			refCaesArg.Scheme = s
 		} else {
-			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction}
 			refCaesArg.Scheme = &s
 		}
 		// Argument.Weight

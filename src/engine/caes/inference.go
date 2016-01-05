@@ -10,7 +10,9 @@
 package caes
 
 import (
+	"bufio"
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -22,7 +24,7 @@ import (
 
 // resource limits for Prolog processes
 const (
-	timeLimit  = 500    // seconds
+	timeLimit  = 15     // seconds
 	stackLimit = "256m" // MB
 )
 
@@ -31,7 +33,7 @@ const header = `
 :- use_module(library(http/json)).
 :- use_module(library(http/json_convert)).
 :- chr_constraint argument/2, go/0.
-:- json_object argument(scheme:text, parameters:list(text)).
+:- json_object argument(scheme:text, values:list(text)).
 :- initialization main.
 
 terms_strings([],[]).
@@ -51,6 +53,13 @@ main :-
   assumptions,
   halt(0).
 `
+
+// ArgDesc: Structure describing an argument instantiating an
+// argument scheme
+type ArgDesc struct {
+	scheme string   `json:"scheme"` // id of the scheme
+	values []string `json:"values"` // values instantiating the variables of the scheme
+}
 
 // Translate the theory and assumptions to CHR in SWI-Prolog and
 // write the output to the given file. The assumptions are
@@ -218,7 +227,7 @@ func runCmd(cmd *exec.Cmd) {
 // Infer: Translate a theory into CHR rules and use
 // SWI Prolog to construct arguments and add them to the argument graph.
 // Does not compute or update labels.
-func (ag ArgGraph) Infer() (bool, error) {
+func (ag *ArgGraph) Infer() (bool, error) {
 	// Translate the theory to CHR in SWI-Prolog and
 	// write the output to a temporary file
 	if ag.Theory == nil || ag.Theory.ArgSchemes == nil || len(ag.Theory.ArgSchemes) == 0 {
@@ -241,23 +250,41 @@ func (ag ArgGraph) Infer() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return false, err
-	}
+	//	stderr, err := cmd.StderrPipe()
+	//	if err != nil {
+	//		return false, err
+	//	}
 	runCmd(cmd)
+
+	//// Debugging code:
 	buf1 := new(bytes.Buffer)
 	buf1.ReadFrom(stdout)
-	buf2 := new(bytes.Buffer)
-	buf2.ReadFrom(stderr)
 	fmt.Printf("output:\n%v\n", buf1.String())
-	fmt.Printf("error output:\n%v\n", buf2.String())
 
 	// Read the output and construct CAES arguments by instantiating
 	// schemes in the theory and adding statements and arguments to
+	fmt.Printf("1\n")
 	// the argument graph
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		var d ArgDesc
+		fmt.Printf("scanned text: %v\n", scanner.Text())
+		err := json.Unmarshal(scanner.Bytes(), &d)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Unmarshalling an argument description:", err)
+		} else {
+			fmt.Printf("3\n")
+			ag.InstantiateScheme(d.scheme, d.values)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Reading stdout of the SWI Prolog process:", err)
+	}
 
 	// Use issue schemes of the theory to derive and update the issues
 	// of the argument graph
+
+	// START HERE
+
 	return true, nil
 }

@@ -11,6 +11,10 @@
 package caes
 
 import (
+	"fmt"
+	"github.com/pborman/uuid"
+	"os"
+	"regexp"
 	"strings"
 )
 
@@ -81,10 +85,7 @@ type Scheme struct {
 	// a capital letter
 	Variables []string // declaration of schema variables
 	Weight    WeighingFunction
-	Valid     func(*Argument) bool
 	Premises  map[string]string // role names to atomic formulas
-	//// Assumptions map[string]string // CQ names to atomic formulas
-	//// Exceptions  map[string]string // CQ names to atomic formulas
 	// Deletions and Guards are extensions for implementing
 	// schemes using Constrating Handling Rules (CHR)
 	Deletions []string // list of role names of premises to delete
@@ -497,4 +498,103 @@ func (ag *ArgGraph) Inconsistent() bool {
 		}
 	}
 	return false
+}
+
+// Substitute schema variables in a term with their values
+// White space between punctuation symbols and variables is removed.
+func substitute(bindings map[string]string, term string) string {
+	result := []byte(term)
+	for v, b := range bindings {
+		re1, err := regexp.Compile("[(][[:space:]]*" + v + "[[:space:]]*[,]")
+		re2, err := regexp.Compile("[,][[:space:]]*" + v + "[[:space:]]*[)]")
+		re3, err := regexp.Compile("[,][[:space:]]*" + v + "[[:space:]]*[,]")
+		re4, err := regexp.Compile("[(][[:space:]]*" + v + "[[:space:]]*[)]")
+		if err == nil {
+			result = re1.ReplaceAll(result, []byte("("+b+","))
+			result = re2.ReplaceAll(result, []byte(","+b+")"))
+			result = re3.ReplaceAll(result, []byte(","+b+","))
+			result = re4.ReplaceAll(result, []byte("("+b+")"))
+		} else {
+			return term
+		}
+	}
+	return string(result)
+}
+
+// Applies the formatting strings of a language to
+// represent a term, presumably in natural language
+func (l Language) Apply(term string) string {
+	// Temporary dummy implementation, representing the term unchanged
+	// Doing this properly requires a term parser
+	return term
+}
+
+func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
+	fmt.Printf("InstantiateScheme(%v,%v)\n", id, values)
+	if ag.Theory != nil {
+		scheme, ok := ag.Theory.ArgSchemes[id]
+		if ok {
+			// bind each schema variable to its value
+			if len(scheme.Variables) != len(values) {
+				fmt.Fprintf(os.Stderr, "Scheme variables (%v) and values (%v) do not match: %v\n", scheme.Variables, values)
+				return
+			}
+			bindings := map[string]string{}
+			for i, v := range scheme.Variables {
+				bindings[v] = values[i]
+			}
+
+			// construct the premises and conclusions,
+			// adding new statements to the graph
+			premises := []Premise{}
+			conclusions := []*Statement{}
+
+			for role, term1 := range scheme.Premises {
+				term2 := substitute(bindings, term1)
+				stmt, ok := ag.Statements[term2]
+				if !ok {
+					s := Statement{Id: term2,
+						Text: ag.Theory.Language.Apply(term2)}
+					ag.Statements[term2] = &s
+					stmt = &s
+				}
+				premises = append(premises, Premise{Role: role, Stmt: stmt})
+			}
+
+			for _, term1 := range scheme.Conclusions {
+				term2 := substitute(bindings, term1)
+				stmt, ok := ag.Statements[term2]
+				if !ok {
+					s := Statement{Id: term2,
+						Text: ag.Theory.Language.Apply(term2)}
+					ag.Statements[term2] = &s
+					stmt = &s
+				}
+				conclusions = append(conclusions, stmt)
+			}
+
+			// construct an argument for each conclusion and add
+			// the argument to the graph
+			for _, c := range conclusions {
+				id := uuid.New()
+
+				// Construct the undercutter statement and
+				// add it to the statements of the graph
+				uc := Statement{Id: "not(applicable(" + id + "))",
+					Text: "Argument " + id + "is not applicable."}
+				ag.Statements[uc.Id] = &uc
+
+				// Construct the argument and add it to the graph
+				arg := Argument{Id: id,
+					Scheme:      scheme,
+					Premises:    premises,
+					Undercutter: &uc,
+					Conclusion:  c}
+				ag.Arguments[id] = &arg
+				c.Args = append(c.Args, &arg)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "No scheme with this id: %v\n", id)
+		}
+	}
 }

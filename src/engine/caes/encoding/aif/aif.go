@@ -88,7 +88,7 @@ func (ag AIF) Caes() *caes.ArgGraph {
 			if s := schemes[node.Scheme]; s != nil {
 				arg.Scheme = s
 			} else {
-				s := caes.Scheme{Id: node.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+				s := caes.Scheme{Id: node.Scheme, Weight: caes.LinkedWeighingFunction}
 				arg.Scheme = &s
 			}
 			args[arg.Id] = arg

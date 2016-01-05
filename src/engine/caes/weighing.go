@@ -65,10 +65,10 @@ var BasicWeighingFunctions = map[string]WeighingFunction{
 // Note: the names of the basic schemes are the same
 // as the corresponding basic weighing functions.
 var BasicSchemes = map[string]*Scheme{
-	"linked":     &Scheme{Id: "linked", Weight: LinkedWeighingFunction, Valid: DefaultValidityCheck},
-	"convergent": &Scheme{Id: "convergent", Weight: ConvergentWeighingFunction, Valid: DefaultValidityCheck},
-	"cumulative": &Scheme{Id: "cumulative", Weight: CumulativeWeighingFunction, Valid: DefaultValidityCheck},
-	"factorized": &Scheme{Id: "factorized", Weight: FactorizedWeighingFunction, Valid: DefaultValidityCheck},
+	"linked":     &Scheme{Id: "linked", Weight: LinkedWeighingFunction},
+	"convergent": &Scheme{Id: "convergent", Weight: ConvergentWeighingFunction},
+	"cumulative": &Scheme{Id: "cumulative", Weight: CumulativeWeighingFunction},
+	"factorized": &Scheme{Id: "factorized", Weight: FactorizedWeighingFunction},
 }
 
 func LinkedWeighingFunction(arg *Argument, l Labelling) float64 {
