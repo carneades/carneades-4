@@ -1,207 +1,99 @@
 package test
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/carneades/carneades-4/src/engine/caes"
 	cjson "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	//	"log"
 	"os"
+	"path"
+	"strings"
 	"testing"
 )
 
-const jsonDir = "../../examples/AGs/JSON/"
-
-// const yamlDir = "../../examples/AGs/YAML"
-
-const jsonTmp = "/tmp/"
-
-func ioJsonTest(t *testing.T, filename1 string, filename2 string) {
-	// var ag  *caes.ArgGraph
-	var ag2 *caes.ArgGraph
+func TestJson(t *testing.T) {
+	var ag *caes.ArgGraph
 	var err error
-	/*
-		// Import a YAML-file from examples/AGs/YAML-Dir
-		// ----------------------------------------------
-		file, err := os.Open(yamlDir + filename1)
-		check(t, err)
-		ag, err = yaml.Import(file)
-		file.Close()
-		check(t, err)
 
-		// file, err = os.Create(jsonTmp + "_a_" + filename1)
-		// check(t, err)
-		// yaml.ExportWithReferences(file, ag)
-
-		l := ag.GroundedLabelling()
-		// ------------------------
-
-		//	file, err = os.Create(aifTmp + "_b_" + filename1)
-		//	check(t, err)
-		//	yaml.ExportWithReferences(file, ag)
-
-		//	fmt.Printf(" ## Labeling yaml-Datei: \n")
-		//	printLabeling(l)
-		err = checkLabeling(l, ag.Statements)
-		check(t, err)
-
-		ag.ApplyLabelling(l)
-
-		//	fmt.Printf(" ## ApplyLabeling")
-		//	file, err = os.Create(aifTmp + "_c_" + filename1)
-		//	check(t, err)
-		//	yaml.ExportWithReferences(file, ag)
-
-		// Export JSON-file to Temp-Dir
-		// -----------------------------
-		file, err = os.Create(jsonTmp + "_d_" + filename2)
-		check(t, err)
-		cjson.Export(file, ag)
-		file.Close()
-		file.Sync()
-	*/
-	// Import JSON-file from Temp-Dir
-	// ------------------------------
-	// file, err = os.Open(jsonTmp + filename2)
-	// Import JSON-file from JSON-Dir
-	// ------------------------------
-	file, err := os.Open(jsonDir + filename2)
+	d, err := os.Open(yamlDir)
 	check(t, err)
-	ag2, err = cjson.Import(file)
-
+	files, err := d.Readdir(0)
 	check(t, err)
+	for _, fi := range files {
+		// YML-IMPORT
+		// ==========
+		file, err := os.Open(yamlDir + fi.Name())
+		check(t, err)
+		if path.Ext(file.Name()) == ".yml" {
+			// skip non-yml files
+			fmt.Printf(" =  =  =  =  =  =  Import %s =  =  =  =  =  = \n", fi.Name())
 
-	//	file, err = os.Create(aifTmp + "_e_" + filename1)
-	//	check(t, err)
-	//	yaml.ExportWithReferences(file, ag2)
+			ag, err = yaml.Import(file)
 
-	l2 := ag2.GroundedLabelling()
-	// -----------------------
-	//	fmt.Printf(" ## Labeling json-Datei: \n")
-	//	printLabeling(l2)
-	err = checkLabeling(l2, ag2.Statements)
-	check(t, err)
+			check(t, err)
+			// YAML-Export with reference
+			// ==========================
 
-	// Export YAML-file in Temp-Dir with the file-name: json2<name>.yml
-	// ----------------------------------------------------------------
-	//	file, err = os.Create(aifTmp + "_f_json2" + filename1)
-	//	check(t, err)
-	//	yaml.ExportWithReferences(file, ag2)
+			file0, err := os.Create(yamlTmp + "ref" + fi.Name())
+			check(t, err)
+			yaml.ExportWithReferences(file0, ag)
+			defer os.Remove(file0.Name())
 
-	file, err = os.Create(jsonTmp + "json2" + filename1)
-	check(t, err)
-	yaml.Export(file, ag2)
+			l := ag.GroundedLabelling()
+			// -----------------------
+			//	fmt.Printf(" ## Labeling json-Datei: \n")
+			//	printLabeling(l2)
+			err = checkLabeling(l, ag.Statements)
+			if err != nil {
+				fmt.Printf(" yaml-Import: %v, Labeling fail %v \n", fi.Name(), err)
+			}
+			// check(t, err)
 
-}
+			// JSON-Export in Temp-Dir with the file-name: <name>.json
+			// =========== -------------------------------------------
 
-func TestJsonBachelor(t *testing.T) {
-	ioJsonTest(t, "bachelor.yml", "Bachelor.json")
-}
+			jsonFilePaht := jsonTmp + strings.Replace(fi.Name(), ".yml", ".json", 1)
+			file, err = os.Create(jsonFilePaht)
+			check(t, err)
+			cjson.Export(file, ag)
+			file.Close()
 
-func TestJsonCaminada1(t *testing.T) {
-	ioJsonTest(t, "caminada1.yml", "Caminada1.json")
-}
+			// JSON-Import
+			// ===========
+			fmt.Printf(" =  =  =  =  =  =  Import %s =  =  =  =  =  = \n", strings.Replace(fi.Name(), ".yml", ".json", 1))
+			file2, err := os.Open(jsonFilePaht)
+			check(t, err)
+			ag2, err := cjson.Import(file2)
+			check(t, err)
+			defer os.Remove(file2.Name())
+			// JSON_v02-Export
+			// ===============
+			fmt.Printf(" =  =  =  =  =  =  Export %s =  =  =  =  =  = \n", strings.Replace(fi.Name(), ".yml", "_v-02.json", 1))
+			jsonFilePaht_v02 := jsonTmp + strings.Replace(fi.Name(), ".yml", "_v-02.json", 1)
+			file02, err := os.Create(jsonFilePaht_v02)
+			check(t, err)
+			cjson.Export(file02, ag2)
+			file.Close()
+			defer os.Remove(file.Name())
+			// YML-Export in Temp-Dir
+			// ==========
+			file3, err := os.Create(yamlTmp + fi.Name())
+			check(t, err)
+			yaml.ExportWithReferences(file3, ag2)
+			defer os.Remove(file3.Name())
+			// Check Labeling JSON
+			// ===================
+			l2 := ag2.GroundedLabelling()
+			// -----------------------
+			//	fmt.Printf(" ## Labeling json-Datei: \n")
+			//	printLabeling(l2)
+			err = checkLabeling(l2, ag2.Statements)
+			if err != nil {
+				fmt.Printf(" json-Import: %v, Labeling fail %v \n", strings.Replace(fi.Name(), ".yml", ".json", 1), err)
+			}
+			// check(t, err)
 
-func TestJsonDungAFs(t *testing.T) {
-	ioJsonTest(t, "dung-AFs.yml", "Dung-AFs.json")
-}
-
-func TestJsonEvenLoop(t *testing.T) {
-	ioJsonTest(t, "even-loop.yml", "Even-loop.json")
-}
-
-func TestJsonFalseDilemma(t *testing.T) {
-	ioJsonTest(t, "false-dilemma.yml", "False-dilemma.json")
-}
-
-func TestJsonFrisan(t *testing.T) {
-	ioJsonTest(t, "frisian.yml", "Frisian.json")
-}
-
-func TestJsonIndependentSupportLoop(t *testing.T) {
-	ioJsonTest(t, "independent-support-loop.yml", "Independent-support-loop.json")
-}
-
-func TestJsonJogging(t *testing.T) {
-	ioJsonTest(t, "jogging.yml", "Jogging.json")
-}
-
-func TestJsonLibrary(t *testing.T) {
-	ioJsonTest(t, "library.yml", "Library.json")
-}
-
-func TestJsonMandatorySentences(t *testing.T) {
-	ioJsonTest(t, "mandatory-sentences.yml", "Mandatory-sentences.json")
-}
-
-func TestJsonMcda1(t *testing.T) {
-	ioJsonTest(t, "mcda1.yml", "Mcda1.json")
-}
-
-func TestJsonOddLoop(t *testing.T) {
-	ioJsonTest(t, "odd-loop.yml", "Odd-loop.json")
-}
-
-func TestJsonParaconsistency(t *testing.T) {
-	ioJsonTest(t, "paraconsistency.yml", "Paraconsistency.json")
-}
-
-func TestJsonPollockRedLight(t *testing.T) {
-	ioJsonTest(t, "pollock-red-light.yml", "Pollock-red-light.json")
-}
-
-func TestJsonPorsche(t *testing.T) {
-	ioJsonTest(t, "porsche.yml", "Porsche.json")
-}
-
-func TestJsonPrakkenSartorMurder(t *testing.T) {
-	ioJsonTest(t, "prakken-sartor-murder.yml", "Prakken-sartor-murder.json")
-}
-
-func TestJsonReinstatement(t *testing.T) {
-	ioJsonTest(t, "reinstatement.yml", "Reinstatement.json")
-}
-
-func TestJsonRiskyOperation(t *testing.T) {
-	ioJsonTest(t, "risky-operation.yml", "Risky-operation.json")
-}
-
-func TestJsonSelfDefeat(t *testing.T) {
-	ioJsonTest(t, "self-defeat.yml", "Self-defeat.json")
-}
-
-func TestJsonSherlock(t *testing.T) {
-	ioJsonTest(t, "sherlock.yml", "Sherlock.json")
-}
-
-func TestJsonSnake(t *testing.T) {
-	ioJsonTest(t, "snake.yml", "Snake.json")
-}
-
-func TestJsonSupportLoop(t *testing.T) {
-	ioJsonTest(t, "support-loop.yml", "Support-loop.json")
-}
-
-func TestJsonTandem(t *testing.T) {
-	ioJsonTest(t, "tandem.yml", "Tandem.json")
-}
-
-func TestJsonToulmin(t *testing.T) {
-	ioJsonTest(t, "toulmin.yml", "Toulmin.json")
-}
-
-func TestJsonTrivial(t *testing.T) {
-	ioJsonTest(t, "trivial.yml", "Trivial.json")
-}
-
-func TestJsonTweety(t *testing.T) {
-	ioJsonTest(t, "tweety.yml", "Tweety.json")
-}
-
-func TestJsonUnreliableWitness(t *testing.T) {
-	ioJsonTest(t, "unreliable-witness.yml", "Unreliable-witness.json")
-}
-
-func TestJsonVacation(t *testing.T) {
-	ioJsonTest(t, "vacation.yml", "Vacation.json")
+		}
+	}
 }
