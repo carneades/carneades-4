@@ -393,7 +393,10 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 				return caesAg, errors.New(" *** Semantic Error: Scheme: " + yamlArg_Val.Scheme + ", is not defined\n")
 			}
 			caesArg.Scheme = scheme
+		} else {
+			caesArg.Scheme = collOfSchemes["linked"]
 		}
+
 	}
 	// fmt.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", caesAg.Arguments)
 	// Assumptions
@@ -1590,7 +1593,7 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 					fmt.Fprintf(f, "%sarguments:\n", sp2)
 					// first := true
 					for _, arg := range ref_stat.Args {
-						fmt.Fprintf(f, "%s- %s", sp3, arg.Id)
+						fmt.Fprintf(f, "%s- %s\n", sp3, arg.Id)
 						/*if first == true {
 							fmt.Fprintf(f, "[%s", arg.Id)
 							first = false
