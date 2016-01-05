@@ -361,12 +361,10 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 		s := ""
 		switch issue.Standard {
 		case 0:
-			s = "DV"
-		case 1:
 			s = "PE"
-		case 2:
+		case 1:
 			s = "CCE"
-		case 3:
+		case 2:
 			s = "BRD"
 		}
 		nNode.nodeLabel = fmt.Sprintf("%s: %s", issue.Id, s)

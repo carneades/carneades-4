@@ -43,19 +43,19 @@ type (
 	// mapIface map[interface{}]interface{}
 
 	umArgScheme struct {
-		Assumptions     map[string]string // to do - list or map
-		caesAssumptions map[string]string
-		caesExceptions  map[string]string
-		caesPremises    map[string]string
-		caesWeight      caes.WeighingFunction
-		Conclusions     []string
-		Deletions       []string
-		Exceptions      map[string]string // to do - list or map
-		Guards          []string
-		Meta            caes.Metadata
-		Premises        map[string]string // to do - list or map
-		Variables       []string
-		Weight          interface{}
+		Assumptions map[string]string // to do - list or map
+		// caesAssumptions map[string]string
+		// caesExceptions  map[string]string
+		caesPremises map[string]string
+		caesWeight   caes.WeighingFunction
+		Conclusions  []string
+		Deletions    []string
+		Exceptions   map[string]string // to do - list or map
+		Guards       []string
+		Meta         caes.Metadata
+		Premises     map[string]string // to do - list or map
+		Variables    []string
+		Weight       interface{}
 		// string
 		// Constant: float64
 		// Criteria: {Hard: []string Soft: map[string]{Factor: float64 Values: map[string]float64}
@@ -150,9 +150,7 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		iss.id = id
 		// fmt.Printf(" issue: %s standard: \"%s\"\n", id, iss.Standard)
 		switch iss.Standard {
-		case "", "DV", "dv":
-			iss.caesStandard = caes.DV
-		case "PE", "pe":
+		case "", "PE", "pe":
 			iss.caesStandard = caes.PE
 		case "CCE", "cce":
 			iss.caesStandard = caes.CCE
@@ -223,16 +221,16 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		argS.caesPremises = argS.Premises
 		// scan assumptions in argument_schemes
 		// to do
-		argS.caesAssumptions = argS.Assumptions
+		// argS.caesAssumptions = argS.Assumptions
 		// scan exceptions in argument_schemes
 		// to do
-		argS.caesExceptions = argS.Exceptions
+		// argS.caesExceptions = argS.Exceptions
 	}
 	// scan argument_scheme and set caesArgSchemes
 	m.caesArgSchemes = map[string]*caes.Scheme{}
 	for id, as := range m.Argument_schemes {
 		m.caesArgSchemes[id] = &caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
-			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions, Deletions: as.Deletions,
+			Premises: as.caesPremises, Deletions: as.Deletions,
 			Guards: as.Guards, Conclusions: as.Conclusions}
 		collOfSchemes[id] = m.caesArgSchemes[id]
 	}
@@ -782,11 +780,13 @@ func iface2soft(body interface{}, soft map[string]caes.SoftConstraint) (map[stri
 								switch subvT := subvalue.(type) {
 								case float64:
 									factor = subvalue.(float64)
-									if factor < 0.0 || factor > 1.0 {
-										return soft,
-											errors.New("*** Error value 0.00 ... 1.00 exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
-												fmt.Sprintf("%v'\n", subvalue))
-									}
+									//									if factor < 0.0 || factor > 1.0 {
+									//										return soft,
+									//											errors.New("*** Error value 0.00 ... 1.00 exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
+									//												fmt.Sprintf("%v'\n", subvalue))
+									//									}
+								case int:
+									factor = float64(subvalue.(int))
 								default:
 									return soft,
 										errors.New("*** Error float-value exspected in soft criteria '" + subkey.(string) + "' factor:, not '" +
@@ -1108,8 +1108,6 @@ func iface2issues(value interface{}, yamlIssues map[string]umIssue) (map[string]
 									issueValueStr := issueValue.(string)
 									// fmt.Printf("%s\n", issueValueStr)
 									switch issueValueStr {
-									case "DV", "dv":
-										issue.caesStandard = caes.DV
 									case "PE", "pe":
 										issue.caesStandard = caes.PE
 									case "CCE", "cce":
@@ -1698,61 +1696,61 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 		}
 	}
 
-	// Theroy
-	t := caesAg.Theory
-	if t == nil {
-		fmt.Fprintf(f, "# !!! No Theory !!!\n")
-		return
-	}
-	fmt.Fprintf(f, "#  -----------------------------------------------\n")
-	fmt.Fprintf(f, "# Theory\n")
-	fmt.Fprintf(f, "#  -----------------------------------------------\n")
-	if t.Language != nil && len(t.Language) != 0 {
-		fmt.Fprintf(f, "# language:\n")
-		for key, val := range t.Language {
-			fmt.Fprintf(f, "# %s%s: %s\n", sp1, key, val)
-		}
-	}
-	wf := t.WeighingFunctions
-	if wf != nil && len(wf) != 0 {
-		fmt.Fprintf(f, "# weighing_functions:\n")
-		for key, weight := range wf {
-			writeWF(f, key, key, weight)
-			// fmt.Fprintf(f, "# %s- %s\n", sp1, key)
-		}
-	}
-	as := t.ArgSchemes
-	if as != nil && len(as) != 0 {
-		fmt.Fprintf(f, "# argument_schemes:\n")
-		for name, scheme := range as {
-			if name != scheme.Id {
-				fmt.Fprintf(f, "# ERROR name '%s' ist not scheme-id '%s'\n", name, scheme.Id)
-			} else {
-				fmt.Fprintf(f, "# %s%s:\n", sp1, name)
-			}
-			meta := scheme.Metadata
-			if meta != nil && len(meta) != 0 {
-				fmt.Fprintf(f, "# %smeta:\n", sp2)
-				for mkey, mval := range meta {
-					fmt.Fprintf(f, "# %s%s: %v\n", sp3, mkey, mval)
-				}
-			}
+	// // Write out the theory, as a YAML comment, for debugging
+	//	t := caesAg.Theory
+	//	if t == nil {
+	//		fmt.Fprintf(f, "# !!! No Theory !!!\n")
+	//		return
+	//	}
+	//	fmt.Fprintf(f, "#  -----------------------------------------------\n")
+	//	fmt.Fprintf(f, "# Theory\n")
+	//	fmt.Fprintf(f, "#  -----------------------------------------------\n")
+	//	if t.Language != nil && len(t.Language) != 0 {
+	//		fmt.Fprintf(f, "# language:\n")
+	//		for key, val := range t.Language {
+	//			fmt.Fprintf(f, "# %s%s: %s\n", sp1, key, val)
+	//		}
+	//	}
+	//	wf := t.WeighingFunctions
+	//	if wf != nil && len(wf) != 0 {
+	//		fmt.Fprintf(f, "# weighing_functions:\n")
+	//		for key, weight := range wf {
+	//			writeWF(f, key, key, weight)
+	//			// fmt.Fprintf(f, "# %s- %s\n", sp1, key)
+	//		}
+	//	}
+	//	as := t.ArgSchemes
+	//	if as != nil && len(as) != 0 {
+	//		fmt.Fprintf(f, "# argument_schemes:\n")
+	//		for name, scheme := range as {
+	//			if name != scheme.Id {
+	//				fmt.Fprintf(f, "# ERROR name '%s' ist not scheme-id '%s'\n", name, scheme.Id)
+	//			} else {
+	//				fmt.Fprintf(f, "# %s%s:\n", sp1, name)
+	//			}
+	//			meta := scheme.Metadata
+	//			if meta != nil && len(meta) != 0 {
+	//				fmt.Fprintf(f, "# %smeta:\n", sp2)
+	//				for mkey, mval := range meta {
+	//					fmt.Fprintf(f, "# %s%s: %v\n", sp3, mkey, mval)
+	//				}
+	//			}
 
-			writeStrings(f, sp2, "variables", sp3, scheme.Variables)
+	//			writeStrings(f, sp2, "variables", sp3, scheme.Variables)
 
-			weight := scheme.Weight
-			if weight != nil {
-				writeWF(f, "weight", name, weight)
+	//			weight := scheme.Weight
+	//			if weight != nil {
+	//				writeWF(f, "weight", name, weight)
 
-			} // if weigth != nil
-			writeMapStrStr(f, sp2, "premises", sp3, scheme.Premises)
-			writeMapStrStr(f, sp2, "assumptions", sp3, scheme.Assumptions)
-			writeMapStrStr(f, sp2, "exceptions", sp3, scheme.Exceptions)
-			writeStrings(f, sp2, "deletions", sp3, scheme.Deletions)
-			writeStrings(f, sp2, "guards", sp3, scheme.Guards)
-			writeStrings(f, sp2, "conclusions", sp3, scheme.Conclusions)
+	//			} // if weigth != nil
+	//			writeMapStrStr(f, sp2, "premises", sp3, scheme.Premises)
+	//			writeMapStrStr(f, sp2, "assumptions", sp3, scheme.Assumptions)
+	//			writeMapStrStr(f, sp2, "exceptions", sp3, scheme.Exceptions)
+	//			writeStrings(f, sp2, "deletions", sp3, scheme.Deletions)
+	//			writeStrings(f, sp2, "guards", sp3, scheme.Guards)
+	//			writeStrings(f, sp2, "conclusions", sp3, scheme.Conclusions)
 
-		}
-	}
+	//		}
+	//	}
 
 }

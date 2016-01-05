@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   title: Porsche Example
   notes: >
     Illustrates support for Issue-Based Information Systems (IBIS)
@@ -19,8 +19,9 @@ language:
   price/2: The price of a %v is %v.
   type/2: A %v is a %v car.
   speed/2: A %v is a %v car.
-  advertising/0: Volvo advertising claims Volvos are safe.
-  gov_stats/0: Government statistics show Volvos to be fairly safe.
+  safety/2: A %v is a %v safe car.
+  advertising/2: Volvo advertising claims Volvos are safe.
+  gov_stats/2: Government statistics show Volvos to be fairly safe.
 
 # Argument scheme names must be Prolog atoms.
 # Parameters are Prolog variables and thus begin with a capital letter.
@@ -32,13 +33,25 @@ argument_schemes:
   gov_stats_scheme:
       weight:
         constant: 0.8
+      variables: [C,S]
+      premises:
+        1: gov_stats(C,S)
+      conclusions:
+        - safety(C,S)
+
   advertising_scheme:
       weight:
         constant: 0.4  
+      variables: [C,S]
+      premises:
+        1: advertising(C,S)
+      conclusions:
+        - safety(C,S)
+
   car_buying_scheme:
   # schema variables. Every variable used in a premise or conclusion
   # must be declared here.
-      variables: [C,P,S,F]  
+      variables: [C,P,S,F,T]  
       meta:
           notes: >
             This scheme illustrates the use of weighing functions for
@@ -53,25 +66,25 @@ argument_schemes:
                   ## factor: any positive number 
                   ## the factors will be converted into percentages of
                   ## to total sum of all factors
-                  factor: 0.2  
+                  factor: 2  
                   values:
                     low: 1.0
                     medium: 0.5
                     high: 0.0
               type:
-                  factor: 0.2
+                  factor: 2
                   values:
                     sports: 0.0
                     sedan: 0.5
                     family: 1.0
               speed:
-                  factor: 0.2
+                  factor: 2
                   values:
-                    slow: 0.0
-                    medium: 0.5
-                    fast: 1.0
+                    slow: 0.0    # < 100 km/hr
+                    medium: 0.5  # > 100 and < 200 km/hr
+                    fast: 1.0    # >= 200 km/hr
               safety:
-                  factor: 0.4
+                  factor: 4
                   values:
                       low: 0.0
                       medium: 0.5
@@ -105,8 +118,8 @@ statements:
   price(porsche,high): Porsches are expensive.
   safety(porsche,medium): Porsches are fairly safe.
   speed(porsche,fast): Porsches are fast.
-  advertising: Volvo advertising claims Volvos are safe.
-  gov_stats: Government statistics show Volvos to be fairly safe.
+  advertising(volvo,high): Volvo advertising claims Volvos are very safe.
+  gov_stats(volvo,medium): Government statistics show Volvos to be fairly safe.
 
 issues:
   i1:
@@ -137,16 +150,16 @@ arguments:
     scheme: advertising_scheme
     conclusion: safety(volvo,high)
     premises:
-      - advertising
+      - advertising(volvo,high)
   a4:
     scheme: gov_stats_scheme
     conclusion: safety(volvo,medium)
     premises:
-      - gov_stats
+      - gov_stats(volvo,medium)
 
 assumptions:
-    - advertising
-    - gov_stats
+    - advertising(volvo,high)
+    - gov_stats(volvo,medium)
     - price(volvo,medium)
     - speed(volvo,medium)
     - type(volvo,family)
@@ -157,8 +170,8 @@ assumptions:
 
 labels:
   in: 
-    - advertising
-    - gov_stats
+    - advertising(volvo,high)
+    - gov_stats(volvo,medium)
     - price(volvo,medium)
     - speed(volvo,medium)
     - type(volvo,family)
@@ -167,7 +180,7 @@ labels:
     - safety(porsche,medium)
     - speed(porsche,fast)
     - safety(volvo,medium)
-    - buy(porsche)
-  out:
     - buy(volvo)
+  out:
+    - buy(porsche)
     - safety(volvo,high)

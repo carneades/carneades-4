@@ -1,0 +1,74 @@
+meta:
+  title: Lex Superior and Lex Posterior Example
+  notes: >
+    Illustrates deriving an argument preference ordering from 
+    properties of argumentation schemes
+
+language: 
+  forbidden/1: "%v is forbidden."
+  permitted/1: "%v is permitted."
+  consumed/1: "%v has been consumed."
+  crime/0: A crime has been committed.
+
+# language:
+#   forbidden/1: %v is forbidden.
+#   permitted/1: %v is permitted
+#   consumed/1: %v has been consumed.
+#   crime/0: A crime has been committed.
+  
+weighing_functions:
+    # example illustrating the preference relation DSL
+    # order = ordered list | descending | ascending
+    lex:  # lex superior followed by lex posterior
+        preference: 
+          - property: authority
+            order: [local, state, federal] # weakest to strongest
+          - property: effective_date
+            order: ascending   # later dates have higher priority
+  
+argument_schemes:
+    earlier_federal_law:  # some hypothetical federal law
+      meta: 
+        authority: federal
+        effective_date: 1989-06-14
+      weight: lex    
+    later_state_law: # some hypothetical state law
+      meta:
+        authority: state
+        effective_date: 2008-04-13
+      weight: lex
+
+statements:
+  forbidden(cannabis): Cannabis consumption is illegal.
+  permitted(cannabis): Cannabis consumption is legal.
+  consumed(cannabis): Cannabis was consumed.
+  crime: A crime has been committed.
+
+issues:
+  i1:
+    positions: [forbidden(cannabis), permitted(cannabis)]
+
+arguments:
+  a1:
+    scheme: earlier_federal_law
+    conclusion: forbidden(cannabis)
+  a2:
+    scheme: later_state_law
+    conclusion: permitted(cannabis)
+  a3:
+    conclusion: crime
+    premises:
+      - forbidden(cannabis)
+      - consumed(cannabis)
+
+assumptions:
+    - consumed(cannabis)
+
+labels:
+  in: 
+    - consumed(cannabis)
+    - forbidden(cannabis)
+    - crime
+  out:
+    - permitted(cannabis)
+

@@ -51,6 +51,7 @@ func TestYaml(t *testing.T) {
 			fmt.Printf(" -  -  -  -  -  -  Start Export %s \n", yamlTmp+filename2)
 			f, err := os.Create(yamlTmp + filename2)
 			check(t, err)
+			defer os.Remove(f.Name())
 			// ag.ApplyLabelling(l)
 
 			// fmt.Printf(" Export-Assumptions: %v \n", ag.Assumptions)

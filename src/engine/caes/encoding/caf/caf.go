@@ -316,7 +316,7 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		if s := schemes[a.Scheme]; s != nil {
 			arg.Scheme = s
 		} else {
-			s := caes.Scheme{Id: a.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+			s := caes.Scheme{Id: a.Scheme, Weight: caes.LinkedWeighingFunction}
 			schemes[a.Scheme] = &s
 		}
 		arg.Weight = a.Weight

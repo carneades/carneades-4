@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	caes_json "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
+	// 	caes_json "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
 	"github.com/fjl/go-couchdb"
 	"io/ioutil"
 	"log"
@@ -30,10 +30,10 @@ type UuidsStruct struct {
 	Uuids []string `json:"uuids"`
 }
 
-var even_loop = caes_json.TempArgGraphDB{Meta: map[string]interface{}{"title": "Even Loop Example"},
-	Statements: map[string]caes_json.TempStatement{"P": {Text: "P"}, "Q": {Text: "Q"}},
-	Arguments: map[string]caes_json.TempArgument{"a1": {Premises: []interface{}{"P"}, Conclusion: "Q"},
-		"a2": {Premises: []interface{}{"Q"}, Conclusion: "P"}}}
+//var even_loop = caes_json.TempArgGraphDB{Meta: map[string]interface{}{"title": "Even Loop Example"},
+//	Statements: map[string]caes_json.TempStatement{"P": {Text: "P"}, "Q": {Text: "Q"}},
+//	Arguments: map[string]caes_json.TempArgument{"a1": {Premises: []interface{}{"P"}, Conclusion: "Q"},
+//		"a2": {Premises: []interface{}{"Q"}, Conclusion: "P"}}}
 
 func TestCouchDB(t *testing.T) {
 	flag.Parse()
@@ -120,11 +120,11 @@ func TestCouchDB(t *testing.T) {
 		log.Fatal(" ***Error: json.Unmarshal(body, &uuids):", err)
 	}
 	fmt.Printf("Unmarchal: %v\n[]uuids: %v", uuids, uuids.Uuids)
-	uuidIdx := 0
+	// 	uuidIdx := 0
 
-	fmt.Printf("\n Create a new Dokument \n")
-	//          ---------------------------
-	_, err = db.Put(uuids.Uuids[uuidIdx], even_loop, "")
-	check(t, err)
+	//	fmt.Printf("\n Create a new Dokument \n")
+	//	//          ---------------------------
+	//	_, err = db.Put(uuids.Uuids[uuidIdx], even_loop, "")
+	//	check(t, err)
 
 }

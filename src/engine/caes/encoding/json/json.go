@@ -91,8 +91,6 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 		tmpIss := Issue{Meta: iss.Metadata}
 		std := "??"
 		switch iss.Standard {
-		case caes.DV:
-			std = "DV"
 		case caes.PE:
 			std = "PE"
 		case caes.CCE:
@@ -238,8 +236,6 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 		refCaesIssue.Id = issueId
 		refCaesIssue.Metadata = jsonIssue.Meta
 		switch jsonIssue.Standard {
-		case "DV":
-			refCaesIssue.Standard = caes.DV
 		case "PE":
 			refCaesIssue.Standard = caes.PE
 		case "CCE":
@@ -284,7 +280,7 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 		if s := collOfSchemes[jsonArg.Scheme]; s != nil {
 			refCaesArg.Scheme = s
 		} else {
-			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
+			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction}
 			refCaesArg.Scheme = &s
 			collOfSchemes[jsonArg.Scheme] = &s
 		}

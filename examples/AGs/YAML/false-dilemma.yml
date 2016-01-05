@@ -1,22 +1,32 @@
-meta:
-  title: Example of a False Dilemma
+meta: 
+  title: The Unreliable Witness Example
+  note: > 
+    Illustrates a kind of self defeat, where the argument undercuts itself. 
+    ¬app(a1)See also the even loop example.
 
 statements:
-  stopped beating: You have stopped beating your spouse.
-  ¬stopped beating: You have not stopped beating your spouse.
-  loaded question: That is a loaded question.
+  saysUnreliable:  Witness John says he is unreliable.
+  unreliable: Witness John is unreliable.
+  reliable: Witness John is reliable.
+  ¬app(a1): Argument a1 is not applicable.
 
 issues:
-  stopped beating?: 
-    meta:
-      title: Have you stopped beating your spouse?
-    positions: 
-      - stopped beating
-      - ¬stopped beating
-      - loaded question
+  i1: 
+    positions: [reliable, unreliable]
+
+arguments:
+  a1:
+    conclusion: unreliable
+    premises: [saysUnreliable]
+    undercutter: ¬app(a1)
+  a2:
+    conclusion: ¬app(a1)
+    premises: [unreliable]
+
+assumptions: [saysUnreliable]
 
 labels:
-  out: 
-    - stopped beating
-    - ¬stopped beating
-    - loaded question
+  undecided: [unreliable,¬app(a1)]
+  out: [reliable]
+  in: [saysUnreliable]
+

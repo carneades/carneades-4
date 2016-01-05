@@ -153,6 +153,7 @@ func ioGmlTest(t *testing.T, filename1 string, filename2 string) {
 	//	fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
 	file, err = os.Create(aifTmp + filename2)
 	gmlcheck(t, err)
+	defer os.Remove(file.Name())
 	graphml.Export(file, ag)
 
 }
