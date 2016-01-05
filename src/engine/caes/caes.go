@@ -12,9 +12,10 @@ package caes
 
 import (
 	"fmt"
-	"github.com/pborman/uuid"
+	// "github.com/pborman/uuid"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -530,6 +531,17 @@ func (l Language) Apply(term string) string {
 }
 
 func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
+	gensym := func() string {
+		prefix := "a"
+		// return uuid.New()
+		i := 1
+		for _, ok := ag.Arguments[prefix+strconv.Itoa(i)]; ok; _, ok = ag.Arguments[prefix+strconv.Itoa(i)] {
+			i++
+		}
+		fmt.Printf("i=%v\n", i)
+		return prefix + strconv.Itoa(i)
+	}
+
 	fmt.Printf("InstantiateScheme(%v,%v)\n", id, values)
 	if ag.Theory != nil {
 		scheme, ok := ag.Theory.ArgSchemes[id]
@@ -576,12 +588,12 @@ func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 			// construct an argument for each conclusion and add
 			// the argument to the graph
 			for _, c := range conclusions {
-				id := uuid.New()
+				id := gensym()
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
 				uc := Statement{Id: "not(applicable(" + id + "))",
-					Text: "Argument " + id + "is not applicable."}
+					Text: id + " is not applicable."}
 				ag.Statements[uc.Id] = &uc
 
 				// Construct the argument and add it to the graph

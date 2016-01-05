@@ -11,13 +11,14 @@ package caes
 
 import (
 	"bufio"
-	"bytes"
+	// "bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"regexp"
 	"syscall"
 	"time"
 )
@@ -57,8 +58,8 @@ main :-
 // ArgDesc: Structure describing an argument instantiating an
 // argument scheme
 type ArgDesc struct {
-	scheme string   `json:"scheme"` // id of the scheme
-	values []string `json:"values"` // values instantiating the variables of the scheme
+	Scheme string   // id of the scheme
+	Values []string // values instantiating the variables of the scheme
 }
 
 // Translate the theory and assumptions to CHR in SWI-Prolog and
@@ -257,28 +258,33 @@ func (ag *ArgGraph) Infer() (bool, error) {
 	runCmd(cmd)
 
 	//// Debugging code:
-	buf1 := new(bytes.Buffer)
-	buf1.ReadFrom(stdout)
-	fmt.Printf("output:\n%v\n", buf1.String())
+	//	buf1 := new(bytes.Buffer)
+	//	buf1.ReadFrom(stdout)
+	//	fmt.Printf("output:\n%v\n", buf1.String())
 
 	// Read the output and construct CAES arguments by instantiating
 	// schemes in the theory and adding statements and arguments to
-	fmt.Printf("1\n")
 	// the argument graph
 	scanner := bufio.NewScanner(stdout)
+	// Wrap the individual JSON objects in a JSON array
+	bytes := []byte{}
 	for scanner.Scan() {
-		var d ArgDesc
-		fmt.Printf("scanned text: %v\n", scanner.Text())
-		err := json.Unmarshal(scanner.Bytes(), &d)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Unmarshalling an argument description:", err)
-		} else {
-			fmt.Printf("3\n")
-			ag.InstantiateScheme(d.scheme, d.values)
-		}
+		bytes = append(bytes, scanner.Bytes()...)
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "Reading stdout of the SWI Prolog process:", err)
+	re, err := regexp.Compile("}[[:space:]]*{")
+	if err != nil {
+		return false, err
+	}
+	bytes = re.ReplaceAll(bytes, []byte("},\n{"))
+	bytes = []byte("[" + string(bytes) + "]")
+	fmt.Printf("output:\n%v\n", string(bytes))
+	var d []ArgDesc
+	err = json.Unmarshal(bytes, &d)
+	if err != nil {
+		return false, err
+	}
+	for _, a := range d {
+		ag.InstantiateScheme(a.Scheme, a.Values)
 	}
 
 	// Use issue schemes of the theory to derive and update the issues

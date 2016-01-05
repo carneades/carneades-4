@@ -129,33 +129,33 @@ issues:
       - safety(volvo,medium)
       - safety(volvo,high)
 
-arguments:
-  a1:
-    scheme: car_buying_scheme
-    conclusion: buy(porsche)
-    premises:
-      - type(porsche,sports)
-      - price(porsche,high)
-      - safety(porsche,medium)
-      - speed(porsche,fast)
-  a2:
-    scheme: car_buying_scheme
-    conclusion: buy(volvo)
-    premises:
-      - type(volvo,family)
-      - price(volvo,medium)
-      - speed(volvo,medium)
-      - safety(volvo,high)
-  a3:
-    scheme: advertising_scheme
-    conclusion: safety(volvo,high)
-    premises:
-      - advertising(volvo,high)
-  a4:
-    scheme: gov_stats_scheme
-    conclusion: safety(volvo,medium)
-    premises:
-      - gov_stats(volvo,medium)
+# arguments:
+#   a1:
+#     scheme: car_buying_scheme
+#     conclusion: buy(porsche)
+#     premises:
+#       - type(porsche,sports)
+#       - price(porsche,high)
+#       - safety(porsche,medium)
+#       - speed(porsche,fast)
+#   a2:
+#     scheme: car_buying_scheme
+#     conclusion: buy(volvo)
+#     premises:
+#       - type(volvo,family)
+#       - price(volvo,medium)
+#       - speed(volvo,medium)
+#       - safety(volvo,high)
+#   a3:
+#     scheme: advertising_scheme
+#     conclusion: safety(volvo,high)
+#     premises:
+#       - advertising(volvo,high)
+#   a4:
+#     scheme: gov_stats_scheme
+#     conclusion: safety(volvo,medium)
+#     premises:
+#       - gov_stats(volvo,medium)
 
 assumptions:
     - advertising(volvo,high)
