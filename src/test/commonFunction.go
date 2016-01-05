@@ -12,6 +12,9 @@ import (
 
 const yamlDir = "../../examples/AGs/YAML/"
 const yamlTmp = "/tmp/"
+const jsonDir = "../../examples/AGs/AIF/"
+const jsonTmp = "/tmp/"
+const graphmlTmp = "/tmp/"
 
 func check(t *testing.T, e error) {
 	if e != nil {
