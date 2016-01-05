@@ -78,13 +78,16 @@ func NewArgGraph() *ArgGraph {
 }
 
 func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
+	// fmt.Printf(" AG = %v \n", ag)
 	tmpAG := NewArgGraph()
 	// Metadata
 	tmpAG.Meta = ag.Metadata
+	// fmt.Printf(" AG.Metadata = %v \n", ag.Metadata)
 	// References
 	tmpAG.References = ag.References
 	// Issues
 	for _, iss := range ag.Issues {
+		// fmt.Printf(" Issue: %v \n", iss.Id)
 		tmpIss := Issue{Meta: iss.Metadata}
 		std := "??"
 		switch iss.Standard {
@@ -113,6 +116,7 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	}
 	// Statements
 	for _, stat := range ag.Statements {
+		// fmt.Printf(" Statement: %v \n", stat.Id)
 		tmpStat := Statement{Meta: stat.Metadata, Text: stat.Text}
 		lbl := ""
 		switch stat.Label {
@@ -129,6 +133,9 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	}
 	//  Arguments
 	for _, arg := range ag.Arguments {
+		// fmt.Printf(" Argument: %s\n", arg.Id)
+		// fmt.Printf(" Argument: %v Scheme: %v ", arg.Id, arg.Scheme)
+		// fmt.Printf(" Scheme-Id: %v \n", arg.Scheme.Id)
 		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme.Id}
 		if arg.Undercutter != nil {
 			tmpArg.Undercutter = arg.Undercutter.Id
@@ -158,12 +165,11 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 		}
 
 		tmpAG.Arguments[arg.Id] = tmpArg
-
-		// Assumptions
-		for k, _ := range ag.Assumptions {
-			tmpAG.Assumptions = append(tmpAG.Assumptions, k)
-		}
-
+	}
+	// Assumptions
+	for k, _ := range ag.Assumptions {
+		// fmt.Printf("  Assumption: %v \n", k)
+		tmpAG.Assumptions = append(tmpAG.Assumptions, k)
 	}
 	return *tmpAG, nil
 }
@@ -193,7 +199,7 @@ func Export(f io.Writer, ag *caes.ArgGraph) error {
 }
 
 func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
-
+	// fmt.Printf("Json2Cases=%v\n", jsonAG)
 	// ArgGraph --> cases.ArgGraph
 	caesAG := caes.NewArgGraph()
 	// Metadata
@@ -201,12 +207,13 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 	// References
 	caesAG.References = jsonAG.References
 	// Scheme
-	schemes := map[string]*caes.Scheme{}
+	collOfSchemes := caes.BasicSchemes // map[string]*caes.Scheme{}
 
 	// statements
 	caesStatMap := map[string]*caes.Statement{}
 
 	for statId, jsonStat := range jsonAG.Statements {
+		// fmt.Printf(" import statement: %v\n", statId)
 		caesStat := new(caes.Statement)
 		caesStat.Id = statId
 		caesStatMap[statId] = caesStat
@@ -226,6 +233,7 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 	}
 	// issues
 	for issueId, jsonIssue := range jsonAG.Issues {
+		// fmt.Printf(" import issues: %v\n", issueId)
 		refCaesIssue := new(caes.Issue)
 		refCaesIssue.Id = issueId
 		refCaesIssue.Metadata = jsonIssue.Meta
@@ -262,24 +270,28 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 	// arguments
 
 	for jsonArg_Id, jsonArg := range jsonAG.Arguments {
+		// fmt.Printf(" import argument: %v\n", jsonArg_Id)
 		refCaesArg := new(caes.Argument)
-		caesAG.Arguments[refCaesArg.Id] = refCaesArg
-
+		caesAG.Arguments[jsonArg_Id] = refCaesArg
+		// for name, value := range caesAG.Arguments {
+		//	fmt.Printf(" caes-Argument: %v = %v \n", name, value)
+		// }
 		// Argument.Id
 		refCaesArg.Id = jsonArg_Id
 		// Argument.Metadata
 		refCaesArg.Metadata = jsonArg.Meta
 		// Argument.Scheme
-		if s := schemes[jsonArg.Scheme]; s != nil {
+		if s := collOfSchemes[jsonArg.Scheme]; s != nil {
 			refCaesArg.Scheme = s
 		} else {
 			s := caes.Scheme{Id: jsonArg.Scheme, Weight: caes.LinkedWeighingFunction, Valid: caes.DefaultValidityCheck}
 			refCaesArg.Scheme = &s
+			collOfSchemes[jsonArg.Scheme] = &s
 		}
 		// Argument.Weight
-		// if jsonArg.Weight != 0.0 {
-		refCaesArg.Weight = jsonArg.Weight
-		// }
+		if jsonArg.Weight != 0.0 {
+			refCaesArg.Weight = jsonArg.Weight
+		}
 		// Argument.Premise
 		for _, jsonArg_prem := range jsonArg.Premises {
 			jsonArgPremRole := ""
@@ -364,13 +376,14 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 
 func Import(inFile io.Reader) (*caes.ArgGraph, error) {
 	data, err := ioutil.ReadAll(inFile)
+	// fmt.Printf("Read-json-Datei: \nErr: %v len(data): %v \n", err, len(data))
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("Read-Datei: \nErr: %v len(data): %v \n", err, len(data))
 
 	jsonAG := ArgGraph{}
 	err = json.Unmarshal(data, &jsonAG)
+
 	if err != nil {
 		return nil, err
 	}
