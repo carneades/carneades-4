@@ -158,7 +158,7 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 			iss.caesStandard = caes.BRD
 		default:
 			return nil,
-				errors.New("*** Error: issues: ... standard: expected DV,PE, CCE, BRD, wrong: " + iss.Standard + " \n")
+				errors.New("*** Error: issues: ... standard: expected PE, CCE, BRD, wrong: " + iss.Standard + " \n")
 		}
 	}
 	// scan Stantements set caesStatements
@@ -1116,7 +1116,7 @@ func iface2issues(value interface{}, yamlIssues map[string]umIssue) (map[string]
 										issue.caesStandard = caes.BRD
 									default:
 										return yamlIssues,
-											errors.New("*** Error: issues: ... standard: expected DV,PE, CCE, BRD, wrong: " + fmt.Sprintf("%v", issueValue) + " \n")
+											errors.New("*** Error: issues: ... standard: expected PE, CCE, BRD, wrong: " + fmt.Sprintf("%v", issueValue) + " \n")
 									}
 								default:
 									return yamlIssues,
@@ -1554,12 +1554,10 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 			s := "???"
 			switch is_val.Standard {
 			case 0:
-				s = "DV"
-			case 1:
 				s = "PE"
-			case 2:
+			case 1:
 				s = "CCE"
-			case 3:
+			case 2:
 				s = "BRD"
 			}
 			fmt.Fprintf(f, "%s\n", s)
