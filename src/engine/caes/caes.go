@@ -533,12 +533,14 @@ func (l Language) Apply(term string) string {
 func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 	gensym := func() string {
 		prefix := "a"
-		// return uuid.New()
-		i := 1
+		// Assume exisiting arguments have been given ids using the
+		// system. Thus initializing i using the number of existing
+		// arguments is likely to produce an unused id.
+		i := len(ag.Arguments) + 1
+		// increment i until no argument id with this index is already in use
 		for _, ok := ag.Arguments[prefix+strconv.Itoa(i)]; ok; _, ok = ag.Arguments[prefix+strconv.Itoa(i)] {
 			i++
 		}
-		fmt.Printf("i=%v\n", i)
 		return prefix + strconv.Itoa(i)
 	}
 
