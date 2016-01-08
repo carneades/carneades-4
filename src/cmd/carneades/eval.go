@@ -181,6 +181,10 @@ func evalCmd() {
 		return
 	}
 
+	// Apply the theory of the argument graph, if any, to
+	// derive further arguments
+	ag.Infer()
+
 	// evaluate the argument graph, using grounded semantics
 	// and update the labels of the statements in the argument graph
 	l := ag.GroundedLabelling()

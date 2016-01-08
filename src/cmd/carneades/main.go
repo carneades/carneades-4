@@ -12,7 +12,7 @@ import (
 )
 
 const name = "The Carneades Argumentation System"
-const version = "4.1"
+const version = "4.2"
 const source = "https://github.com/carneades/carneades-4"
 const blog = "https://carneades.github.io/"
 
