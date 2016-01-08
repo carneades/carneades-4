@@ -4,17 +4,16 @@ meta:
 statements: 
   P: 
     text: P 
-    label: out
   Q:
     text: Q
     assumed: true
-    label: in
   R: 
     text: R
-    label: in
 
 arguments:
   a1:
     conclusion: R
 
-
+labels:
+  in: [Q, R]
+  out: [P]

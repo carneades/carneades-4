@@ -7,16 +7,12 @@ meta:
 statements: 
   dutch: 
     text: Wiebe is Dutch.
-    label: in
   tall: 
     text: Wiebe is tall.
-    label: in
   frisian: 
     text: Wiebe is Frisian.
-    label: in
   ¬app(a1): 
     text: a1 is not applicable.
-    label: out
 
 assumptions: [frisian]
 
@@ -28,5 +24,9 @@ arguments:
   a2:
     conclusion: tall
     premises: [dutch]
+
+labels:
+  in: [dutch, tall, frisian]
+  out: [¬app(a1)]
 
 

@@ -9,19 +9,14 @@ meta:
 statements: 
   snores: 
     text: Henry is snoring in the library.
-    label: in
   professor: 
     text: Henry is a professor.
-    label: in
   misbehaves: 
     text: Henry is misbehaving
-    label: in
   accessDenied: 
     text: Henry is denied access to the library.
-    label: out
   accessNotDenied: 
     text: Henry is not denied access to the library.
-    label: in
 
 assumptions: [snores, professor]
 
@@ -45,3 +40,6 @@ arguments:
     premises: [misbehaves, professor]
 
 
+labels:
+  in: [snores, professor, misbehaves, accessNotDenied]
+  out: [accessDenied]

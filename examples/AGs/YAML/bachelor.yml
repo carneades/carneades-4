@@ -7,16 +7,12 @@ meta:
 statements: 
   bachelor: 
     text: Fred is a bachelor.
-    label: out
   married: 
     text: Fred is married.
-    label: out
   wearsRing: 
     text: Fred wears a ring.
-    label: in
   partyAnimal: 
     text: Fred is a party animal.
-    label: in
 
 assumptions: [wearsRing, partyAnimal]
 
@@ -35,4 +31,8 @@ arguments:
     conclusion: married
     premises: [wearsRing]
 
+
+labels:
+  in: [wearsRing, partyAnimal]
+  out: [bachelor, married]
 

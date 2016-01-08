@@ -100,11 +100,15 @@ argument_schemes:
           - buy(C)
 
 issue_schemes:
-    choice: [buy(O1), ..., buy(On)]
-    safety: [safety(O,V1), ..., safety(O,Vn)]
-    price: [price(O,P1), ..., price(O,Pn)]
-    speed: [speed(O,S1), ..., speed(O,Sn)]
-    type: [type(O,T1), ..., type(O,Tn)]
+    buy: ["buy(O1)", "...", "buy(On)"]
+    safety: 
+      - safety(O,V1)
+      - ...
+      - safety(O,Vn)
+    price: ["price(O,P1)", "...", "price(O,Pn)"]
+    speed: ["speed(O,S1)", "...", "speed(O,Sn)"]
+    type: ["type(O,T1)", "...", "type(O,Tn)"]
+    not:  ["not(P)", "P"]
 
 statements:
   buy(porsche): Buy a Porsche.
@@ -114,20 +118,20 @@ statements:
   speed(volvo,medium): Volvos have a medium maximum speed.
   safety(volvo,high): Volvos are very safe.
   safety(volvo,medium):  Volvos are fairly safe.
-  type(porsche,sports): Porsches are sports cars.
+#   type(porsche,sports): Porsches are sports cars.
   price(porsche,high): Porsches are expensive.
   safety(porsche,medium): Porsches are fairly safe.
   speed(porsche,fast): Porsches are fast.
   advertising(volvo,high): Volvo advertising claims Volvos are very safe.
   gov_stats(volvo,medium): Government statistics show Volvos to be fairly safe.
 
-issues:
-  i1:
-    positions: [buy(porsche), buy(volvo)]
-  i2:
-    positions:
-      - safety(volvo,medium)
-      - safety(volvo,high)
+# issues:
+#   i1:
+#     positions: [buy(porsche), buy(volvo)]
+#   i2:
+#     positions:
+#       - safety(volvo,medium)
+#       - safety(volvo,high)
 
 # arguments:
 #   a1:
@@ -175,7 +179,7 @@ labels:
     - price(volvo,medium)
     - speed(volvo,medium)
     - type(volvo,family)
-    - type(porsche,sports)
+ #   - type(porsche,sports)
     - price(porsche,high)
     - safety(porsche,medium)
     - speed(porsche,fast)

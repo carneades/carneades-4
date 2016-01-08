@@ -3,22 +3,18 @@ meta:
 statements: 
     s11395: 
         text: The object is red. 
-        label: undecided
     s11394: 
         text: The object looks red. 
         assumed: true
-        label: in
     s11393: 
         text: Things which look red are normally red. 
         assumed: true
-        label: in
     s11392: 
         text: The object is illuminated by a red light. 
         assumed: true
-        label: in
     ¬app(a1): 
         text: ¬app(a1) 
-        label: in
+
 arguments: 
     a1:
         premises: [s11394,s11393]
@@ -27,3 +23,8 @@ arguments:
     a1.2:
         premises: [s11392]
         conclusion: ¬app(a1)
+
+labels:
+  in: [s11394, s11393, 311392, ¬app(a1)]
+  undecided: [s11395]
+

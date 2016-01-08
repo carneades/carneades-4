@@ -5,31 +5,24 @@ statements:
     s11520: 
         text: Harry was born in Bermuda. 
         assumed: true
-        label: in
     s11519: 
         text: A man born in Bermuda will generally be a British subject. 
-        label: in
     s11518: 
         text: Harry has become an American and thus is no longer a British subject. 
-        label: in
     s11517: 
         text: Civil Code Section 123 
         assumed: true
-        label: in
     s11516: 
         text: Harry has become an American citizen. 
         assumed: true
-        label: in
     s11515: 
         text: Persons who become American citizens are no longer British subjects. 
         assumed: true
-        label: in
     ¬app(a1): 
         text: ¬app(a1) 
-        label: in
     s11521: 
         text: Harry is a British subject. 
-        label: undecided
+
 arguments: 
     a1:
         premises:
@@ -48,4 +41,6 @@ arguments:
             backing: s11517
         conclusion: s11519
 
-
+labels:
+  in: [s11520, s11519, s11518, s11517, s11516, s11515, ¬app(a1)]
+  undecided: [s11521]

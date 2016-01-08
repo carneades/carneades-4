@@ -8,15 +8,12 @@ statements:
   jw: 
     text: John wants to ride on the tandem.
     assumed: true
-    label: in
   mw: 
     text: Mary wants to ride on the tandem.
     assumed: true
-    label: in
   sw: 
     text: Suzy wants to ride on the tandem.
     assumed: true
-    label: in
   jt: John is riding on the tandem.
   ¬jt: John is not riding on the tandem. 
   mt: Mary is riding on the tandem.
@@ -67,3 +64,5 @@ arguments:
     conclusion: ¬st
     premises: [jmt]
 
+labels:
+  in: [jw, mw, sw]

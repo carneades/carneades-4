@@ -7,15 +7,13 @@ source: >
    Conference on Artificial Intelligence (IJCAI-2011), (2011), pp. 1113-1119.
 
 statements: 
-  italy: 
-    text: "Let's go to Italy."
-    label: out
-  greece: 
-    text: "Let's go to Greece."
-    label: out
+  italy: "Let's go to Italy."
+  greece: "Let's go to Greece."
 
 issues:
   i1:
     positions: [italy, greece]
     standard: PE
 
+labels:
+  out: [italy, greece]
