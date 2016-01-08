@@ -12,7 +12,8 @@ package caes
 
 import (
 	"fmt"
-	// "github.com/pborman/uuid"
+	"github.com/mndrix/golog/read"
+	"github.com/mndrix/golog/term"
 	"os"
 	"regexp"
 	"strconv"
@@ -32,13 +33,14 @@ type Argument struct {
 }
 
 type ArgGraph struct {
-	Metadata    Metadata
-	Issues      map[string]*Issue // id to *Issue
-	Statements  map[string]*Statement
-	Arguments   map[string]*Argument
-	References  map[string]Metadata // key -> metadata
-	Theory      *Theory
-	Assumptions map[string]bool // keys are atomic formulas or statement keys
+	Metadata         Metadata
+	Issues           map[string]*Issue // id to *Issue
+	Statements       map[string]*Statement
+	Arguments        map[string]*Argument
+	References       map[string]Metadata // key -> metadata
+	Theory           *Theory
+	Assumptions      map[string]bool  // keys are atomic formulas or statement keys
+	ExpectedLabeling map[string]Label // for testing
 }
 
 type Issue struct {
@@ -163,13 +165,14 @@ func NewTheory() *Theory {
 
 func NewArgGraph() *ArgGraph {
 	return &ArgGraph{
-		Metadata:    NewMetadata(),
-		Issues:      map[string]*Issue{},
-		Statements:  map[string]*Statement{},
-		Arguments:   map[string]*Argument{},
-		References:  make(map[string]Metadata),
-		Assumptions: map[string]bool{},
-		Theory:      NewTheory(),
+		Metadata:         NewMetadata(),
+		Issues:           map[string]*Issue{},
+		Statements:       map[string]*Statement{},
+		Arguments:        map[string]*Argument{},
+		References:       make(map[string]Metadata),
+		Assumptions:      map[string]bool{},
+		Theory:           NewTheory(),
+		ExpectedLabeling: map[string]Label{},
 	}
 }
 
@@ -277,15 +280,14 @@ func (arg *Argument) Applicable(l Labelling) bool {
 	return true
 }
 
-// Returns the predicate of statements representing
+// Returns the predicate of strings representing
 // predicate-subject-object triples, or the empty string
-// if the statement is not a triple.  Triples are assumed
+// if the string does not represent a triple.  Triples are assumed
 // to be presented using Prolog syntax for atomic formulas:
 // predicate(Subject, Object)
-// To do: do a better job of checking that the statement
+// To do: do a better job of checking that the string
 // has the required form.
-func (s *Statement) Predicate() string {
-	wff := s.Id
+func Predicate(wff string) string {
 	v := strings.Split(wff, "(")
 	if len(v) == 2 {
 		str := v[0]
@@ -295,15 +297,19 @@ func (s *Statement) Predicate() string {
 	}
 }
 
-// Returns the object of statements representing
+func Arity(wff string) int {
+	v := strings.Split(wff, ",")
+	return len(v)
+}
+
+// Returns the object of strings representing
 // predicate-subject-object triples, or the empty string
-// if the statement is not a triple.  Triples are assumed
+// if the string does not represent is not a triple.  Triples are assumed
 // to be presented using Prolog syntax for atomic formulas:
 // predicate(Subject, Object)
 // To do: do a better job of checking that the statement
 // has the required form.
-func (s *Statement) Object() string {
-	wff := s.Id
+func Object(wff string) string {
 	v := strings.Split(wff, ",")
 	if len(v) == 2 {
 		str := v[len(v)-1]
@@ -315,15 +321,15 @@ func (s *Statement) Object() string {
 
 func (arg *Argument) PropertyValue(p string, l Labelling) (string, bool) {
 	for _, pr := range arg.Premises {
-		if p == pr.Stmt.Predicate() {
+		if p == Predicate(pr.Stmt.Id) {
 			if l[pr.Stmt] == In {
-				return pr.Stmt.Object(), true
+				return Object(pr.Stmt.Id), true
 			} else {
 				i := pr.Stmt.Issue
 				if i != nil {
 					for _, pos := range i.Positions {
 						if l[pos] == In {
-							return pos.Object(), true
+							return Object(pos.Id), true
 						}
 					}
 				}
@@ -523,15 +529,81 @@ func substitute(bindings map[string]string, term string) string {
 }
 
 // Applies the formatting strings of a language to
-// represent a term, presumably in natural language
-func (l Language) Apply(term string) string {
-	// Temporary dummy implementation, representing the term unchanged
-	// Doing this properly requires a term parser
-	return term
+// represent a wff, presumably in natural language
+func (l Language) Apply(wff string) string {
+	functor := Predicate(wff)
+	arity := Arity(wff)
+
+	// Create a slice of fresh Prolog variables,
+	// where the size of the slice is the same as the arity of
+	// of the functor
+	vars := []term.Term{}
+	for i := 0; i < arity; i++ {
+		vars = append(vars, term.NewVar("V"+strconv.Itoa(i)))
+	}
+
+	// Construct a term from the functor and variables
+	c := term.Compound{Func: functor, Args: vars}
+	// Read the string representation of c to work around
+	// a limitation of the Prolog library, which does not
+	// seem to allow terms constructed with Compound to be
+	// unified with compound terms read in by the parser,
+	r, err := read.NewTermReader(c.String() + ".")
+	term1, err := r.Next()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not apply the language to: %v\n", wff)
+		return wff
+	}
+
+	// Parse the wff to construct a term
+	r, err = read.NewTermReader(wff + ".")
+	term2, err := r.Next()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not apply the language to: %v\n", wff)
+		return wff
+	}
+
+	// Unify the two terms
+	bindings, err := term1.Unify(term.NewBindings(), term2)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Apply: %v\n", err)
+		return wff
+	}
+
+	// Create a slice of terms, by mapping each variable in the
+	// slice above to its value in the binding returned by the unification
+	// function
+	terms := []interface{}{}
+
+	m := term.Variables(term1)
+	for _, v := range vars {
+		v2, _ := m.Lookup(v.String())
+		t, err := bindings.Resolve(v2.(*term.Variable))
+		if err != nil {
+			// leave the variable unbound
+			fmt.Fprintf(os.Stderr, "Apply: %v\n", err)
+			terms = append(terms, v)
+		} else {
+			terms = append(terms, t)
+		}
+	}
+
+	// Use Sprintf to instantiate the template of the functor in the
+	// language spec
+
+	spec := functor + "/" + strconv.Itoa(arity)
+	template, ok := l[spec]
+	if !ok {
+		fmt.Fprintf(os.Stderr, "Functor not defined in the language: %v\n", spec)
+		return wff
+	}
+
+	return fmt.Sprintf(template, terms...)
 }
 
 func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
-	gensym := func() string {
+	genArgId := func() string {
 		prefix := "a"
 		// Assume exisiting arguments have been given ids using the
 		// system. Thus initializing i using the number of existing
@@ -542,9 +614,9 @@ func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 			i++
 		}
 		return prefix + strconv.Itoa(i)
+		// return fmt.Sprintf("%s(%s)", id, strings.Join(values, ","))
 	}
 
-	fmt.Printf("InstantiateScheme(%v,%v)\n", id, values)
 	if ag.Theory != nil {
 		scheme, ok := ag.Theory.ArgSchemes[id]
 		if ok {
@@ -590,7 +662,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 			// construct an argument for each conclusion and add
 			// the argument to the graph
 			for _, c := range conclusions {
-				id := gensym()
+				id := genArgId()
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph

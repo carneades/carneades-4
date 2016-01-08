@@ -20,8 +20,8 @@ language:
   type/2: A %v is a %v car.
   speed/2: A %v is a %v car.
   safety/2: A %v is a %v safe car.
-  advertising/2: Volvo advertising claims Volvos are safe.
-  gov_stats/2: Government statistics show Volvos to be fairly safe.
+  advertising/2: Advertising claims %v are %v.
+  gov_stats/2: Government statistics show %v to %v safe.
 
 # Argument scheme names must be Prolog atoms.
 # Parameters are Prolog variables and thus begin with a capital letter.
@@ -118,7 +118,7 @@ statements:
   speed(volvo,medium): Volvos have a medium maximum speed.
   safety(volvo,high): Volvos are very safe.
   safety(volvo,medium):  Volvos are fairly safe.
-#   type(porsche,sports): Porsches are sports cars.
+#  type(porsche,sports): Porsches are sports cars.
   price(porsche,high): Porsches are expensive.
   safety(porsche,medium): Porsches are fairly safe.
   speed(porsche,fast): Porsches are fast.
