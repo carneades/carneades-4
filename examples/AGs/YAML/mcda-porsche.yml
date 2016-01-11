@@ -118,7 +118,7 @@ statements:
   speed(volvo,medium): Volvos have a medium maximum speed.
   safety(volvo,high): Volvos are very safe.
   safety(volvo,medium):  Volvos are fairly safe.
-#  type(porsche,sports): Porsches are sports cars.
+  type(porsche,sports): Porsches are sports cars.
   price(porsche,high): Porsches are expensive.
   safety(porsche,medium): Porsches are fairly safe.
   speed(porsche,fast): Porsches are fast.
@@ -179,7 +179,7 @@ labels:
     - price(volvo,medium)
     - speed(volvo,medium)
     - type(volvo,family)
- #   - type(porsche,sports)
+    - type(porsche,sports)
     - price(porsche,high)
     - safety(porsche,medium)
     - speed(porsche,fast)
@@ -188,3 +188,8 @@ labels:
   out:
     - buy(porsche)
     - safety(volvo,high)
+    # - not(applicable(a1))
+    # - not(applicable(a2))
+    # - not(applicable(a3))
+    # - not(applicable(a4))
+    # - not(applicable(a5))

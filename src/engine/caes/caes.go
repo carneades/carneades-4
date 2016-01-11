@@ -26,6 +26,7 @@ type Argument struct {
 	Id          string
 	Metadata    Metadata
 	Scheme      *Scheme
+	Parameters  []string // the values of the scheme variables, in the same order
 	Premises    []Premise
 	Conclusion  *Statement
 	Undercutter *Statement
@@ -149,8 +150,9 @@ func DefaultValidityCheck(*Argument) bool {
 
 func NewArgument() *Argument {
 	return &Argument{
-		Metadata: NewMetadata(),
-		Premises: []Premise{},
+		Metadata:   NewMetadata(),
+		Premises:   []Premise{},
+		Parameters: []string{},
 	}
 }
 
@@ -280,23 +282,21 @@ func (arg *Argument) Applicable(l Labelling) bool {
 	return true
 }
 
-// Returns the predicate of strings representing
-// predicate-subject-object triples, or the empty string
-// if the string does not represent a triple.  Triples are assumed
-// to be presented using Prolog syntax for atomic formulas:
-// predicate(Subject, Object)
-// To do: do a better job of checking that the string
-// has the required form.
+// Returns the predicate of strings representing logical terms of the
+// form predicate(t0, ..., tn). Returns the input string if the
+// if it does not have this form.
 func Predicate(wff string) string {
 	v := strings.Split(wff, "(")
 	if len(v) == 2 {
 		str := v[0]
 		return strings.Trim(str, " ")
 	} else {
-		return ""
+		return wff
 	}
 }
 
+// Returns the arity of a term, given a string representation of the
+// term, using Prolog syntax
 func Arity(wff string) int {
 	v := strings.Split(wff, ",")
 	return len(v)
@@ -602,7 +602,7 @@ func (l Language) Apply(wff string) string {
 	return fmt.Sprintf(template, terms...)
 }
 
-func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
+func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 	genArgId := func() string {
 		prefix := "a"
 		// Assume exisiting arguments have been given ids using the
@@ -614,20 +614,20 @@ func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 			i++
 		}
 		return prefix + strconv.Itoa(i)
-		// return fmt.Sprintf("%s(%s)", id, strings.Join(values, ","))
+		// return fmt.Sprintf("%s(%s)", id, strings.Join(parameters, ","))
 	}
 
 	if ag.Theory != nil {
 		scheme, ok := ag.Theory.ArgSchemes[id]
 		if ok {
 			// bind each schema variable to its value
-			if len(scheme.Variables) != len(values) {
-				fmt.Fprintf(os.Stderr, "Scheme variables (%v) and values (%v) do not match: %v\n", scheme.Variables, values)
+			if len(scheme.Variables) != len(parameters) {
+				fmt.Fprintf(os.Stderr, "Scheme formal (%v) and actual parameters (%v) do not match: %v\n", scheme.Variables, parameters)
 				return
 			}
 			bindings := map[string]string{}
 			for i, v := range scheme.Variables {
-				bindings[v] = values[i]
+				bindings[v] = parameters[i]
 			}
 
 			// construct the premises and conclusions,
@@ -673,6 +673,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, values []string) {
 				// Construct the argument and add it to the graph
 				arg := Argument{Id: id,
 					Scheme:      scheme,
+					Parameters:  parameters,
 					Premises:    premises,
 					Undercutter: &uc,
 					Conclusion:  c}

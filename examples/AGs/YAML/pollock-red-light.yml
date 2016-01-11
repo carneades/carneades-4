@@ -25,6 +25,6 @@ arguments:
         conclusion: ¬app(a1)
 
 labels:
-  in: [s11394, s11393, 311392, ¬app(a1)]
+  in: [s11394, s11393, s11392, ¬app(a1)]
   undecided: [s11395]
 
