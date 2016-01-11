@@ -44,7 +44,7 @@ func TestJson(t *testing.T) {
 			// -----------------------
 			//	fmt.Printf(" ## Labeling json-Datei: \n")
 			//	printLabeling(l2)
-			err = checkLabeling(l, ag.Statements)
+			err = checkLabeling(l, ag.Statements, ag.ExpectedLabeling)
 			if err != nil {
 				fmt.Printf(" yaml-Import: %v, Labeling fail %v \n", fi.Name(), err)
 			}
@@ -88,7 +88,7 @@ func TestJson(t *testing.T) {
 			// -----------------------
 			//	fmt.Printf(" ## Labeling json-Datei: \n")
 			//	printLabeling(l2)
-			err = checkLabeling(l2, ag2.Statements)
+			err = checkLabeling(l2, ag2.Statements, ag.ExpectedLabeling)
 			if err != nil {
 				fmt.Printf(" json-Import: %v, Labeling fail %v \n", strings.Replace(fi.Name(), ".yml", ".json", 1), err)
 			}

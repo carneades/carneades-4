@@ -67,6 +67,7 @@ type (
 		Meta        caes.Metadata
 		Premises    interface{}
 		Scheme      string
+		Parameters  []string
 		umpremises  []umPremis
 		Undercutter string
 		Weigth      float64 //
@@ -419,6 +420,7 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 	// if yamlLbls not empty
 	// fmt.Printf(" Labels: %v \n", m.caesLabels)
 	if m.caesLabels != nil && len(m.caesLabels) != 0 {
+		caesAg.ExpectedLabeling = m.caesLabels
 		for _, caesArg_Stat := range caesAg.Statements {
 			lbl, found := m.caesLabels[caesArg_Stat.Id]
 			if found == true {
@@ -429,27 +431,29 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 			}
 		}
 	}
-	//check
-	for lbl_Id, lbl_val := range m.caesLabels {
-		found = false
-	LoopLbl:
-		for _, caesArg_Stat := range caesAg.Statements {
-			if lbl_Id == caesArg_Stat.Id {
-				found = true
-				break LoopLbl
+	//check-Labels
+	if caesAg.Theory == nil {
+		for lbl_Id, lbl_val := range m.caesLabels {
+			found = false
+		LoopLbl:
+			for _, caesArg_Stat := range caesAg.Statements {
+				if lbl_Id == caesArg_Stat.Id {
+					found = true
+					break LoopLbl
+				}
 			}
-		}
-		if !found {
-			lbl_str := ""
-			switch lbl_val {
-			case caes.In:
-				lbl_str = "In"
-			case caes.Out:
-				lbl_str = "Out"
-			case caes.Undecided:
-				lbl_str = "Undecided"
+			if !found {
+				lbl_str := ""
+				switch lbl_val {
+				case caes.In:
+					lbl_str = "In"
+				case caes.Out:
+					lbl_str = "Out"
+				case caes.Undecided:
+					lbl_str = "Undecided"
+				}
+				return caesAg, errors.New(" *** Semantic Error: " + lbl_str + "- Label: " + lbl_Id + ", is not a Statement-ID\n")
 			}
-			return caesAg, errors.New(" *** Semantic Error: " + lbl_str + "- Label: " + lbl_Id + ", is not a Statement-ID\n")
 		}
 	}
 
@@ -1229,9 +1233,11 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					}
 				case "nas", "undercutter", "not app statement":
 					outArg.Undercutter = iface2string(attValue)
+
 					// fmt.Printf(" %s \n", outArg.undercutter)
 				case "scheme":
 					outArg.Scheme = iface2string(attValue)
+
 					//					_, isIn := caes.BasicSchemes[outArg.scheme]
 					//					if isIn == false {
 					//						errStr := "*** ERROR: In argument wrong scheme value: " + outArg.scheme + "(expected: "
@@ -1248,6 +1254,13 @@ func iface2argument(inArg interface{}, outArg umArgument) (umArgument, error) {
 					//							errors.New(errStr + ")\n")
 					//					}
 					//					// fmt.Printf(" %s \n", outArg.scheme)
+				case "parameters":
+
+					fmt.Printf(" parameters: %v\n", attValue)
+					outArg.Parameters, err = iface2parameters(attValue)
+					if err != nil {
+						return outArg, err
+					}
 				default:
 					return outArg,
 						errors.New("*** ERROR: Wrong argument attribute: " + fmt.Sprintf("%v", attName) + " (expected: conclusion, premises, weight, undercutter, scheme or metadata)\n")
@@ -1283,6 +1296,26 @@ func iface2weight(attValue interface{}) (float64, error) {
 	}
 	// fmt.Printf("     weight: %v\n", *weight)
 	return weight, nil
+}
+
+func iface2parameters(inArg interface{}) ([]string, error) {
+	outArg := []string{}
+	switch tinArg := inArg.(type) {
+	case []interface{}:
+		for _, para := range inArg.([]interface{}) {
+			switch tpara := para.(type) {
+			case string:
+				outArg = append(outArg, para.(string))
+			default:
+				return nil,
+					errors.New("*** Error: parameters: expected strings, not type" + fmt.Sprintf("%v", tpara) + "\n")
+			}
+		}
+	default:
+		return nil,
+			errors.New("*** Error: parameters: expected list of strings, not type" + fmt.Sprintf("%v", tinArg) + "\n")
+	}
+	return outArg, nil
 }
 
 func iface2premises(inArg interface{}) ([]umPremis, error) {
@@ -1692,6 +1725,65 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 		for md_key, md_val := range md {
 			writeKeyValue1(f, sp3, md_key, md_val)
 		}
+	}
+	if caesAg.ExpectedLabeling != nil && len(caesAg.ExpectedLabeling) != 0 {
+		fmt.Fprintf(f, "labels:\n")
+		in := []string{}
+		out := []string{}
+		undec := []string{}
+		for stat, lbl := range caesAg.ExpectedLabeling {
+			switch lbl {
+			case caes.Undecided:
+				undec = append(undec, stat)
+			case caes.In:
+				in = append(in, stat)
+			case caes.Out:
+				out = append(out, stat)
+			}
+
+		}
+		if len(in) != 0 {
+			fmt.Fprintf(f, "%sin: ", sp2)
+			first := true
+			for _, stat := range in {
+				if !first {
+					fmt.Fprintf(f, ", %s", mkYamlString(stat))
+				} else {
+					fmt.Fprintf(f, "[%s", mkYamlString(stat))
+					first = false
+				}
+			}
+			fmt.Fprintf(f, "]\n")
+		}
+
+		if len(out) != 0 {
+			fmt.Fprintf(f, "%sout: ", sp2)
+			first := true
+			for _, stat := range out {
+				if !first {
+					fmt.Fprintf(f, ", %s", mkYamlString(stat))
+				} else {
+					fmt.Fprintf(f, "[%s", mkYamlString(stat))
+					first = false
+				}
+			}
+			fmt.Fprintf(f, "]\n")
+		}
+
+		if len(undec) != 0 {
+			fmt.Fprintf(f, "%sundecided: ", sp2)
+			first := true
+			for _, stat := range undec {
+				if !first {
+					fmt.Fprintf(f, ", %s", mkYamlString(stat))
+				} else {
+					fmt.Fprintf(f, "[%s", mkYamlString(stat))
+					first = false
+				}
+			}
+			fmt.Fprintf(f, "]\n")
+		}
+
 	}
 
 	// // Write out the theory, as a YAML comment, for debugging

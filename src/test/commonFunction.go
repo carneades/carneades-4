@@ -23,15 +23,18 @@ func check(t *testing.T, e error) {
 	}
 }
 
-func checkLabeling(l caes.Labelling, stats map[string]*caes.Statement) error {
+func checkLabeling(l caes.Labelling, stats map[string]*caes.Statement, expectedLbls map[string]caes.Label) error {
 	errStr := ""
 	for _, stat := range stats {
-		lbl := l[stat]
-		if stat.Label != lbl {
-			if errStr == "" {
-				errStr = fmt.Sprintf(" statement: %s, expected Label: %v, calculated Label: %v \n", stat.Id, stat.Label, lbl)
-			} else {
-				errStr = fmt.Sprintf("%s statement: %s, expected Label: %v, calculated Label: %v \n", errStr, stat.Id, stat.Label, lbl)
+		calcLbl := l[stat]
+		expLbl, found := expectedLbls[stat.Id]
+		if found {
+			if expLbl != calcLbl {
+				if errStr == "" {
+					errStr = fmt.Sprintf(" statement: %s, expected Label: %v, calculated Label: %v \n", stat.Id, expLbl, calcLbl)
+				} else {
+					errStr = errStr + fmt.Sprintf(" statement: %s, expected Label: %v, calculated Label: %v \n", stat.Id, expLbl, calcLbl)
+				}
 			}
 		}
 	}

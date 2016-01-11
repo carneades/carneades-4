@@ -37,7 +37,7 @@ func TestYaml(t *testing.T) {
 			// printLabeling(l)
 			// fmt.Printf("---------- End: printLabeling %s ----------\n", filename1)
 
-			err = checkLabeling(l, ag.Statements)
+			err = checkLabeling(l, ag.Statements, ag.ExpectedLabeling)
 			if err != nil {
 				fmt.Printf(" check labeling fail: %s \n", err.Error())
 			}
@@ -51,7 +51,7 @@ func TestYaml(t *testing.T) {
 			fmt.Printf(" -  -  -  -  -  -  Start Export %s \n", yamlTmp+filename2)
 			f, err := os.Create(yamlTmp + filename2)
 			check(t, err)
-			defer os.Remove(f.Name())
+			// defer os.Remove(f.Name())
 			// ag.ApplyLabelling(l)
 
 			// fmt.Printf(" Export-Assumptions: %v \n", ag.Assumptions)
@@ -62,6 +62,7 @@ func TestYaml(t *testing.T) {
 			check(t, err)
 			ag, err = yaml.Import(file)
 			// fmt.Printf(" Import-Assumptions: %v \n", ag.Assumptions)
+			fmt.Printf(" -  -  -  -  -  -  End Import %s \n", yamlTmp+filename2)
 			check(t, err)
 			// fmt.Printf("---------- WriteArgGraph 02  %s ----------\n", filename2)
 			// yaml.ExportWithReferences(os.Stdout, ag)
