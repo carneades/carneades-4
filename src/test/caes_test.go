@@ -36,8 +36,8 @@ func TestCAES(t *testing.T) {
 			// skip non-YAML files
 			ag, err := yaml.Import(f)
 			checkErr(err)
-			ok, err := ag.Infer()
-			if !ok {
+			err = ag.Infer()
+			if err != nil {
 				fmt.Printf("Infer error: %v\n", err)
 				checkErr(err)
 			}

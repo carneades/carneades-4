@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -454,8 +455,21 @@ func (ag *ArgGraph) Infer() error {
 	if err != nil {
 		return err
 	}
+
+	// Create an index of the previous arguments constructed
+	// to avoid constructing equivalent instanstiations of schemes
+	prevArgs := map[string]bool{}
+	for _, a := range ag.Arguments {
+		if a != nil {
+			prevArgs[a.Scheme.Id+"("+strings.Join(a.Parameters, ",")+")"] = true
+		}
+	}
 	for _, a := range d {
-		ag.InstantiateScheme(a.Scheme, a.Values)
+		// Check that an equivalent argument is not already in the graph
+		if _, exists := prevArgs[a.Scheme+"("+strings.Join(a.Values, ",")+")"]; !exists {
+			ag.InstantiateScheme(a.Scheme, a.Values)
+			prevArgs[a.Scheme+"("+strings.Join(a.Values, ",")+")"] = true
+		}
 	}
 
 	// Use issue schemes of the theory to derive or update the issues
