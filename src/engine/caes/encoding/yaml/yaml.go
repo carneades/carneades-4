@@ -395,6 +395,9 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 		} else {
 			caesArg.Scheme = collOfSchemes["linked"]
 		}
+		// Parameters
+		// fmt.Printf(" set parameter arg: %s Parameter: %v\n", caesArg.Id, yamlArg_Val.Parameters)
+		caesArg.Parameters = yamlArg_Val.Parameters
 
 	}
 	// fmt.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", caesAg.Arguments)
@@ -1709,6 +1712,17 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 			}
 			if ref_caesAg_Arg.Scheme != nil {
 				fmt.Fprintf(f, "%sscheme: %s\n", sp2, ref_caesAg_Arg.Scheme.Id)
+			}
+			if ref_caesAg_Arg.Parameters != nil && len(ref_caesAg_Arg.Parameters) != 0 {
+				fmt.Fprintf(f, "%sparameters: ", sp2)
+				for idx, para := range ref_caesAg_Arg.Parameters {
+					if idx == 0 {
+						fmt.Fprintf(f, "[%s", para)
+					} else {
+						fmt.Fprintf(f, ", %s", para)
+					}
+				}
+				fmt.Fprintf(f, "]\n")
 			}
 			if ref_caesAg_Arg.Undercutter != nil {
 				fmt.Fprintf(f, "%sundercutter: %s\n", sp2, ref_caesAg_Arg.Undercutter.Id)

@@ -43,6 +43,7 @@ type (
 		id          string
 		Meta        map[string]interface{} `json:"meta"`
 		Scheme      string                 `json:"scheme"`      // name of the scheme
+		Parameters  []string               `json:"parameters"`  // list of parameter-variables in Scheme
 		Premises    []interface{}          `json:"premises"`    // statement or role: statement
 		Conclusion  string                 `json:"conclusion"`  // Statement
 		Undercutter string                 `json:"undercutter"` // Statement
@@ -62,7 +63,7 @@ type (
 		Arguments   map[string]Argument      `json:"arguments"`
 		References  map[string]caes.Metadata `json:"references"`
 		Assumptions []string                 `json:"assumptions"` // statement ids
-		//		Labels      Labels               `json:"labels"`
+		Labels      *Labels                  `json:"labels"`
 	}
 )
 
@@ -134,7 +135,7 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 		// fmt.Printf(" Argument: %s\n", arg.Id)
 		// fmt.Printf(" Argument: %v Scheme: %v ", arg.Id, arg.Scheme)
 		// fmt.Printf(" Scheme-Id: %v \n", arg.Scheme.Id)
-		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme.Id}
+		tmpArg := Argument{Meta: arg.Metadata, Weight: arg.Weight, Scheme: arg.Scheme.Id, Parameters: arg.Parameters}
 		if arg.Undercutter != nil {
 			tmpArg.Undercutter = arg.Undercutter.Id
 		}
@@ -168,6 +169,36 @@ func Caes2Json(ag *caes.ArgGraph) (ArgGraph, error) {
 	for k, _ := range ag.Assumptions {
 		// fmt.Printf("  Assumption: %v \n", k)
 		tmpAG.Assumptions = append(tmpAG.Assumptions, k)
+	}
+	// Labels
+	if ag.ExpectedLabeling != nil && len(ag.ExpectedLabeling) != 0 {
+		// fmt.Printf("labels: \n")
+		in := []string{}
+		out := []string{}
+		undec := []string{}
+		for stat, lbl := range ag.ExpectedLabeling {
+			switch lbl {
+			case caes.Undecided:
+				undec = append(undec, stat)
+			case caes.In:
+				in = append(in, stat)
+			case caes.Out:
+				out = append(out, stat)
+			}
+		}
+		if len(in) != 0 || len(out) != 0 || len(undec) != 0 {
+			tmpAG.Labels = &Labels{}
+		}
+		if len(in) != 0 {
+			tmpAG.Labels.In = in
+		}
+		if len(out) != 0 {
+			tmpAG.Labels.Out = out
+		}
+		if len(undec) != 0 {
+			tmpAG.Labels.Undecided = undec
+		}
+
 	}
 	return *tmpAG, nil
 }
@@ -288,6 +319,10 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 		if jsonArg.Weight != 0.0 {
 			refCaesArg.Weight = jsonArg.Weight
 		}
+		// Argument.Parameters
+		if jsonArg.Parameters != nil {
+			refCaesArg.Parameters = jsonArg.Parameters
+		}
 		// Argument.Premise
 		for _, jsonArg_prem := range jsonArg.Premises {
 			jsonArgPremRole := ""
@@ -364,6 +399,28 @@ func Json2Caes(jsonAG ArgGraph) (*caes.ArgGraph, error) {
 	// Assumptions
 	for _, s := range jsonAG.Assumptions {
 		caesAG.Assumptions[s] = true
+	}
+
+	// Labels
+	if jsonAG.Labels != nil {
+
+		el := map[string]caes.Label{}
+		if jsonAG.Labels.In != nil {
+			for _, stat := range jsonAG.Labels.In {
+				el[stat] = caes.In
+			}
+		}
+		if jsonAG.Labels.Out != nil {
+			for _, stat := range jsonAG.Labels.Out {
+				el[stat] = caes.Out
+			}
+		}
+		if jsonAG.Labels.Undecided != nil {
+			for _, stat := range jsonAG.Labels.Undecided {
+				el[stat] = caes.Undecided
+			}
+		}
+		caesAG.ExpectedLabeling = el
 	}
 
 	return caesAG, nil
