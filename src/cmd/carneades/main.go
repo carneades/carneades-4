@@ -8,13 +8,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/carneades/carneades-4/src/common"
 	"os"
 )
-
-const name = "The Carneades Argumentation System"
-const version = "4.2"
-const source = "https://github.com/carneades/carneades-4"
-const blog = "https://carneades.github.io/"
 
 const help = `
 Carneades is a tool for evaluating and visualizing argument graphs.
@@ -33,7 +29,7 @@ Execute "carneades help [command]" for further information.
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Printf("%s\nversion: %s\nsource: %s\nblog: %s\nTry 'carneades help' for instructions.\n", name, version, source, blog)
+		fmt.Printf("%s\nversion: %s\nsource: %s\nblog: %s\nTry 'carneades help' for instructions.\n", common.Name, common.Version, common.Source, common.Blog)
 	} else {
 		switch os.Args[1] {
 		case "eval":

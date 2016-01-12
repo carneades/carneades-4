@@ -619,6 +619,9 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 	if ag.Theory != nil {
 		scheme, ok := ag.Theory.ArgSchemes[id]
+		if !ok {
+			scheme, ok = BasicSchemes[id]
+		}
 		if ok {
 			// bind each schema variable to its value
 			if len(scheme.Variables) != len(parameters) {

@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"github.com/carneades/carneades-4/src/common"
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/aif"
@@ -32,13 +33,18 @@ type templateHandler struct {
 	filename     string
 	templatesDir string
 	templ        *template.Template
+	Version      string // Carneades version number
+}
+
+func newTemplateHandler(templatesDir string, filename string) *templateHandler {
+	return &templateHandler{filename: filename, templatesDir: templatesDir, Version: common.Version}
 }
 
 func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.once.Do(func() {
 		t.templ = template.Must(template.ParseFiles(filepath.Join(t.templatesDir, t.filename)))
 	})
-	t.templ.Execute(w, nil)
+	t.templ.Execute(w, t)
 }
 
 func CarneadesServer(port string, templatesDir string) {
@@ -253,15 +259,15 @@ func CarneadesServer(port string, templatesDir string) {
 		}
 	}
 
-	http.Handle("/", &templateHandler{filename: "carneades.html", templatesDir: templatesDir})
-	http.Handle("/help", &templateHandler{filename: "help.html", templatesDir: templatesDir})
-	http.Handle("/eval-form", &templateHandler{filename: "eval-form.html", templatesDir: templatesDir})
-	http.Handle("/eval-help", &templateHandler{filename: "eval-help.html", templatesDir: templatesDir})
+	http.Handle("/", newTemplateHandler(templatesDir, "carneades.html"))
+	http.Handle("/help", newTemplateHandler(templatesDir, "help.html"))
+	http.Handle("/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
+	http.Handle("/eval-help", newTemplateHandler(templatesDir, "eval-help.html"))
 	http.HandleFunc("/eval", evalHandler)
-	http.Handle("/dung-form", &templateHandler{filename: "dung-form.html", templatesDir: templatesDir})
-	http.Handle("/dung-help", &templateHandler{filename: "dung-help.html", templatesDir: templatesDir})
+	http.Handle("/dung-form", newTemplateHandler(templatesDir, "dung-form.html"))
+	http.Handle("/dung-help", newTemplateHandler(templatesDir, "dung-help.html"))
 	http.HandleFunc("/dung", dungHandler)
-	http.Handle("/imprint", &templateHandler{filename: "imprint.html", templatesDir: templatesDir})
+	http.Handle("/imprint", newTemplateHandler(templatesDir, "imprint.html"))
 
 	// start the web server
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
