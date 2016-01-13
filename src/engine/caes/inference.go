@@ -229,6 +229,7 @@ func runCmd(cmd *exec.Cmd) {
 		case <-donec:
 		}
 	}
+	//cmd.Wait() // cleanup
 }
 
 // makeIssue: match the patterns of an issue scheme against the

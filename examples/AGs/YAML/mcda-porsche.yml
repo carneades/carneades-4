@@ -188,8 +188,4 @@ labels:
   out:
     - buy(porsche)
     - safety(volvo,high)
-    # - not(applicable(a1))
-    # - not(applicable(a2))
-    # - not(applicable(a3))
-    # - not(applicable(a4))
-    # - not(applicable(a5))
+
