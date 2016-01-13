@@ -3,7 +3,7 @@ These are instructions for building and running Carneades-4.
 
 ## Carneades Server
 
-Hint: You can use Carneades without having to install any software, on the [Carneades Server](http://carneades.fokus.fraunhofer.de).
+Hint: You can use the [Carneades server](http://carneades.fokus.fraunhofer.de) without having to install any software.
 
 ## Prerequisites
 
@@ -16,6 +16,12 @@ Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 
     $ mkdir ~/go
     $ typeset -x GOPATH=~/go
+
+In addition, the following open source programs are used by the Carneades system at runtime and must be installed:
+
+- The [Graphviz](http://graphviz.org/) system for generating graph vizualizations in various output formats.
+- Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions.
+
 
 ## Building and Running Carneades from Source
 
