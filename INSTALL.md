@@ -3,7 +3,7 @@ These are instructions for building and running Carneades-4.
 
 ## Carneades Server
 
-Hint: You can use Carneades without having to install any software, on the [Carneades Server](http://carneades.fokus.fraunhofer.de).
+Hint: You can use the [Carneades server](http://carneades.fokus.fraunhofer.de) without having to install any software.
 
 ## Prerequisites
 
