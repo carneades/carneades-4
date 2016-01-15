@@ -42,11 +42,17 @@ func TestCAES(t *testing.T) {
 				checkErr(err)
 			}
 			l := ag.GroundedLabelling()
-			for _, s := range ag.Statements {
-				if s.Label != l[s] {
-					success = false
-					fmt.Printf("file: %v; statement: %v; expected: %v; actual: %v\n",
-						fi.Name(), s.Id, s.Label, l[s])
+			for id, expected := range ag.ExpectedLabeling {
+				s, ok := ag.Statements[id]
+				if !ok {
+					fmt.Printf("file: %v; expected a statement for %v\n",
+						fi.Name(), id)
+				} else {
+					actual := l[s]
+					if expected != actual {
+						fmt.Printf("file: %v; statement: %v; expected: %v; actual: %v\n",
+							fi.Name(), id, expected, actual)
+					}
 				}
 			}
 		}

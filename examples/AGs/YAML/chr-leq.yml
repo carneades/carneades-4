@@ -1,0 +1,67 @@
+meta:
+  title: Constraint Handling Rules Demo
+  notes: >
+    This illustrates how argumentation schemes are mapped to 
+    Constraint Handling Rules (CHR) and support the full 
+    generality of CHR.  Any CHR program can be represented with
+    argumentation schemes in Carneades, with the added benefit
+    of generating an argument graph which can be used to visualize
+    and explain the program's reasoning.
+  source: >
+    https://en.wikipedia.org/wiki/Constraint_Handling_Rules
+    
+    Using the SWI Prolog syntax for CHR: 
+    
+    reflexivity  @ X leq X <=> true.
+    antisymmetry @ X leq Y, Y leq X <=> X = Y.
+    transitivity @ X leq Y, Y leq Z ==> X leq Z.
+    idempotence  @ X leq Y \ X leq Y <=> true.
+
+language:
+  leq/2: "%v ≤ %v"
+  eq/2: "%v = %v"
+
+argument_schemes:
+  reflexivity:
+    weight: linked
+    variables: [X]
+    premises:
+      1: leq(X,X)
+    deletions: [1]
+    conclusions:
+      - true
+
+  antisymmetry:
+    weight: linked
+    variables: [X,Y]
+    premises:
+      1: leq(X,Y) 
+      2: leq(Y,X)
+    deletions: [1,2]
+    conclusions:
+      - eq(X,Y)
+
+  transitivity:
+    weight: linked
+    variables: [X,Y,Z]
+    premises:
+      1: leq(X,Y)
+      2: leq(Y,Z)
+    conclusions:
+      - leq(X,Z)
+
+  idempotence:
+    weight: linked
+    variables: [X,Y]
+    premises:
+      1: leq(X,Y)
+      2: leq(X,Y)
+    deletions: [2]
+    conclusions:
+      - true
+
+assumptions:
+  - leq(a,b)
+  - leq(b,c)
+  - leq(c,a)
+

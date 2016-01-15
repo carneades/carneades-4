@@ -229,6 +229,7 @@ func runCmd(cmd *exec.Cmd) {
 		case <-donec:
 		}
 	}
+	//cmd.Wait() // cleanup
 }
 
 // makeIssue: match the patterns of an issue scheme against the
@@ -415,7 +416,27 @@ func (ag *ArgGraph) Infer() error {
 	defer f.Close()
 	defer os.Remove(f.Name())
 
-	err = writeCHR(ag.Theory, ag.Assumptions, f)
+	// Create an index of the previous arguments constructed
+	// to avoid constructing equivalent instanstiations of schemes
+	// and to allow the inference engine to construct undercutters
+	prevArgs := map[string]bool{}
+	for _, a := range ag.Arguments {
+		if a != nil {
+			prevArgs["argument("+a.Scheme.Id+",["+strings.Join(a.Parameters, ",")+"])"] = true
+		}
+	}
+
+	// The assumptions to be handled as goals by the CHR inference engine
+	// consists of the assumptions of the argument graph plus assumptions
+	// for each of the previous arguments
+	assums := map[string]bool{}
+	for k, v := range ag.Assumptions {
+		assums[k] = v
+	}
+	for k, v := range prevArgs {
+		assums[k] = v
+	}
+	err = writeCHR(ag.Theory, assums, f)
 	if err != nil {
 		return err
 	}
@@ -456,19 +477,11 @@ func (ag *ArgGraph) Infer() error {
 		return err
 	}
 
-	// Create an index of the previous arguments constructed
-	// to avoid constructing equivalent instanstiations of schemes
-	prevArgs := map[string]bool{}
-	for _, a := range ag.Arguments {
-		if a != nil {
-			prevArgs[a.Scheme.Id+"("+strings.Join(a.Parameters, ",")+")"] = true
-		}
-	}
 	for _, a := range d {
 		// Check that an equivalent argument is not already in the graph
 		if _, exists := prevArgs[a.Scheme+"("+strings.Join(a.Values, ",")+")"]; !exists {
 			ag.InstantiateScheme(a.Scheme, a.Values)
-			prevArgs[a.Scheme+"("+strings.Join(a.Values, ",")+")"] = true
+			prevArgs["argument("+a.Scheme+",["+strings.Join(a.Values, ",")+"])"] = true
 		}
 	}
 
