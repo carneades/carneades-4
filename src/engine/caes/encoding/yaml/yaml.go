@@ -582,11 +582,8 @@ func iface2weighfunc(value interface{}, name string, yamlWeighFunc map[string]ca
 			return nil, errors.New("*** Error weighing function '" + fmt.Sprintf("%v", value) + "' is not defined")
 		}
 	case nil:
-		wf, in := yamlWeighFunc["linked"]
-		if in {
-			return wf, nil
-		}
-		return nil, errors.New("*** Internal Error: Cannot find the defoult weighting function 'linked'\n")
+		return caes.LinkedWeighingFunction, nil
+		// return nil, errors.New("*** Internal Error: Cannot find the defoult weighting function 'linked'\n")
 	default:
 		return nil, errors.New("*** Error: Not a weighting function " + fmt.Sprintf("%v", value) + ", type " + fmt.Sprintf("%v", subT) + "\n")
 	}
