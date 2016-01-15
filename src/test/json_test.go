@@ -30,14 +30,16 @@ func TestJson(t *testing.T) {
 			fmt.Printf(" =  =  =  =  =  =  Import %s =  =  =  =  =  = \n", fi.Name())
 
 			ag, err = yaml.Import(file)
-
+			file.Close()
 			check(t, err)
+
 			// YAML-Export with reference
 			// ==========================
 
 			file0, err := os.Create(yamlTmp + "ref" + fi.Name())
 			check(t, err)
 			yaml.ExportWithReferences(file0, ag)
+			file0.Close()
 			defer os.Remove(file0.Name())
 
 			l := ag.GroundedLabelling()
@@ -66,6 +68,7 @@ func TestJson(t *testing.T) {
 			check(t, err)
 			ag2, err := cjson.Import(file2)
 			check(t, err)
+			file2.Close()
 			defer os.Remove(file2.Name())
 			// JSON_v02-Export
 			// ===============
@@ -74,13 +77,14 @@ func TestJson(t *testing.T) {
 			file02, err := os.Create(jsonFilePaht_v02)
 			check(t, err)
 			cjson.Export(file02, ag2)
-			file.Close()
-			defer os.Remove(file.Name())
+			file02.Close()
+			defer os.Remove(file02.Name())
 			// YML-Export in Temp-Dir
 			// ==========
 			file3, err := os.Create(yamlTmp + fi.Name())
 			check(t, err)
 			yaml.ExportWithReferences(file3, ag2)
+			file3.Close()
 			defer os.Remove(file3.Name())
 			// Check Labeling JSON
 			// ===================
@@ -94,6 +98,8 @@ func TestJson(t *testing.T) {
 			}
 			// check(t, err)
 
+		} else {
+			file.Close()
 		}
 	}
 }

@@ -203,9 +203,10 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		if err != nil {
 			return nil, err
 		}
-		m.caesWeighingFunctions[name] = wf
-		collOfWeighingFunctions[name] = wf
-
+		if wf != nil {
+			m.caesWeighingFunctions[name] = wf
+			collOfWeighingFunctions[name] = wf
+		}
 	}
 
 	// scan argument_scheme
@@ -523,8 +524,10 @@ func iface2namedweighfunc(value interface{}, yamlWeighFunc map[string]caes.Weigh
 				if err != nil {
 					return yamlWeighFunc, err
 				}
-				yamlWeighFunc[wf_name.(string)] = wf
-				collOfWeighingFunctions[wf_name.(string)] = wf
+				if wf != nil {
+					yamlWeighFunc[wf_name.(string)] = wf
+					collOfWeighingFunctions[wf_name.(string)] = wf
+				}
 			default:
 				return yamlWeighFunc, errors.New("*** Error weighing function name-key, string: expected, not type " + fmt.Sprintf("%v", nameT) + "\n")
 			}
@@ -578,6 +581,12 @@ func iface2weighfunc(value interface{}, name string, yamlWeighFunc map[string]ca
 		} else {
 			return nil, errors.New("*** Error weighing function '" + fmt.Sprintf("%v", value) + "' is not defined")
 		}
+	case nil:
+		wf, in := yamlWeighFunc["linked"]
+		if in {
+			return wf, nil
+		}
+		return nil, errors.New("*** Internal Error: Cannot find the defoult weighting function 'linked'\n")
 	default:
 		return nil, errors.New("*** Error: Not a weighting function " + fmt.Sprintf("%v", value) + ", type " + fmt.Sprintf("%v", subT) + "\n")
 	}
