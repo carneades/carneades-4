@@ -298,8 +298,13 @@ func Predicate(wff string) string {
 // Returns the arity of a term, given a string representation of the
 // term, using Prolog syntax
 func Arity(wff string) int {
-	v := strings.Split(wff, ",")
-	return len(v)
+	// remove the predicate
+	v1 := strings.Split(wff, "(")
+	if len(v1) == 2 {
+		v2 := strings.Split(v1[1], ",")
+		return len(v2)
+	}
+	return 0
 }
 
 // Returns the object of strings representing
@@ -528,64 +533,106 @@ func substitute(bindings map[string]string, term string) string {
 	return string(result)
 }
 
-// Applies the formatting strings of a language to
-// represent a wff, presumably in natural language
-func (l Language) Apply(wff string) string {
-	functor := Predicate(wff)
-	arity := Arity(wff)
+func readTerm(s string) (result term.Term, ok bool) {
+	r, err := read.NewTermReader(s + ".")
+	t1, err := r.Next()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "readTerm could not parse as Prolog term: %v\n", s)
+		return t1, false // unchanged
+	}
+	return t1, true
+}
 
-	// Create a slice of fresh Prolog variables,
-	// where the size of the slice is the same as the arity of
-	// of the functor
-	vars := []term.Term{}
-	for i := 0; i < arity; i++ {
-		vars = append(vars, term.NewVar("V"+strconv.Itoa(i)))
+func substitute2(bindings map[string]string, term1 string) string {
+	env := term.NewBindings()
+	for k, v := range bindings {
+		var1 := term.NewVar(k)
+		r, err := read.NewTermReader(v + ".")
+		t1, err := r.Next()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "substitute could not parse as Prolog term: %v\n", v)
+			return term1 // unchanged
+		}
+		env, _ = env.Bind(var1, t1) // ignore AlreadyBound errors
 	}
 
-	// Construct a term from the functor and variables
-	c := term.Compound{Func: functor, Args: vars}
-	// Read the string representation of c to work around
-	// a limitation of the Prolog library, which does not
-	// seem to allow terms constructed with Compound to be
-	// unified with compound terms read in by the parser,
-	r, err := read.NewTermReader(c.String() + ".")
-	term1, err := r.Next()
+	r, err := read.NewTermReader(term1 + ".")
+	t1, err := r.Next()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not apply the language to: %v\n", wff)
-		return wff
+		fmt.Fprintf(os.Stderr, "substitute could not parse as Prolog term: %v\n", term1)
+		return term1 // unchanged
 	}
+	t2 := t1.ReplaceVariables(env)
+	return t2.String()
+}
 
-	// Parse the wff to construct a term
-	r, err = read.NewTermReader(wff + ".")
-	term2, err := r.Next()
+// Unifies two terms, represented as strings with Prolog syntax,
+// and returns the bindings represented as a map.
+func unify(term1 string, term2 string) (bindings map[string]string, ok bool) {
+	bindings = map[string]string{}
+	r, err := read.NewTermReader(term1 + ".")
+	t1, err := r.Next()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not apply the language to: %v\n", wff)
-		return wff
+		fmt.Fprintf(os.Stderr, "Could not parse as Prolog term: %v\n", term1)
+		return bindings, false
+	}
+	r, err = read.NewTermReader(term2 + ".")
+	t2, err := r.Next()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not parse as Prolog term: %v\n", term2)
+		return bindings, false
 	}
 
 	// Unify the two terms
-	bindings, err := term1.Unify(term.NewBindings(), term2)
-
+	b, err := t1.Unify(term.NewBindings(), t2)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Apply: %v\n", err)
-		return wff
+		return bindings, false
 	}
 
-	// Create a slice of terms, by mapping each variable in the
-	// slice above to its value in the binding returned by the unification
-	// function
+	// Lookup the binding of each variable in t1 and t2
+	// and add entries to the bindings map
+	f := func(name string, v interface{}) {
+		// v2, _ := m.Lookup(name)
+		t, err := b.Resolve(v.(*term.Variable))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Resolve: %v\n", err)
+		}
+		bindings[name] = t.String()
+	}
+	m := term.Variables(t1)
+	m.ForEach(f)
+	m = term.Variables(t2)
+	m.ForEach(f)
+	return bindings, true
+}
+
+func (l Language) Apply(term1 string) string {
+	functor := Predicate(term1)
+	arity := Arity(term1)
+	vars := []string{}
 	terms := []interface{}{}
 
-	m := term.Variables(term1)
-	for _, v := range vars {
-		v2, _ := m.Lookup(v.String())
-		t, err := bindings.Resolve(v2.(*term.Variable))
-		if err != nil {
+	if arity > 0 {
+		for i := 0; i < arity; i++ {
+			vars = append(vars, "V"+strconv.Itoa(i))
+		}
+		term2 := functor + "(" + strings.Join(vars, ",") + ")"
+		m, ok := unify(term1, term2)
+		if !ok {
 			// leave the variable unbound
-			fmt.Fprintf(os.Stderr, "Apply: %v\n", err)
-			terms = append(terms, v)
-		} else {
-			terms = append(terms, t)
+			fmt.Fprintf(os.Stderr, "Terms not unifiable: %s; %s\n", term1, term2)
+			return term1
+		}
+
+		for _, v := range vars {
+			t, ok := m[v]
+			if !ok {
+				// leave the variable unbound
+				fmt.Fprintf(os.Stderr, "Unbound variable: %s\n", v)
+				terms = append(terms, v)
+			} else {
+				terms = append(terms, t)
+			}
 		}
 	}
 
@@ -596,7 +643,7 @@ func (l Language) Apply(wff string) string {
 	template, ok := l[spec]
 	if !ok {
 		fmt.Fprintf(os.Stderr, "Functor not defined in the language: %v\n", spec)
-		return wff
+		return term1
 	}
 
 	return fmt.Sprintf(template, terms...)
@@ -628,6 +675,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				fmt.Fprintf(os.Stderr, "Scheme formal (%v) and actual parameters (%v) do not match: %v\n", scheme.Variables, parameters)
 				return
 			}
+
 			bindings := map[string]string{}
 			for i, v := range scheme.Variables {
 				bindings[v] = parameters[i]
@@ -665,22 +713,23 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			// construct an argument for each conclusion and add
 			// the argument to the graph
 			for _, c := range conclusions {
-				id := genArgId()
+				argid := genArgId()
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
-				uc := Statement{Id: "not(applicable(" + id + "))",
-					Text: id + " is not applicable."}
-				ag.Statements[uc.Id] = &uc
+				ucid := "not(applicable(argument(" + scheme.Id + ",[" + strings.Join(parameters, ",") + "])))"
+				uc := Statement{Id: ucid,
+					Text: argid + " is not applicable."}
+				ag.Statements[ucid] = &uc
 
 				// Construct the argument and add it to the graph
-				arg := Argument{Id: id,
+				arg := Argument{Id: argid,
 					Scheme:      scheme,
 					Parameters:  parameters,
 					Premises:    premises,
 					Undercutter: &uc,
 					Conclusion:  c}
-				ag.Arguments[id] = &arg
+				ag.Arguments[argid] = &arg
 				c.Args = append(c.Args, &arg)
 			}
 		} else {

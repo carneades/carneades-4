@@ -37,7 +37,7 @@ const header = `
 :- use_module(library(chr)).
 :- use_module(library(http/json)).
 :- use_module(library(http/json_convert)).
-:- chr_constraint argument/2, go/0.
+:- chr_constraint argument/2, go/0, n/0.
 :- json_object argument(scheme:text, values:list(text)).
 :- initialization main.
 
@@ -46,13 +46,12 @@ terms_strings([H|T],[SH|ST]) :-
   term_string(H,SH),
   terms_strings(T,ST).
 
-argument(I,P) <=> 
+argument(I,P) ==> 
   term_string(I,S),
   terms_strings(P,L),
   prolog_to_json(argument(S,L),J), 
   json_write(current_output, J), 
-  nl | 
-  true.
+  nl. 
 
 main :-
   assumptions,
@@ -229,7 +228,6 @@ func runCmd(cmd *exec.Cmd) {
 		case <-donec:
 		}
 	}
-	//cmd.Wait() // cleanup
 }
 
 // makeIssue: match the patterns of an issue scheme against the
@@ -414,7 +412,7 @@ func (ag *ArgGraph) Infer() error {
 		return err
 	}
 	defer f.Close()
-	defer os.Remove(f.Name())
+	// defer os.Remove(f.Name())
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes

@@ -23,7 +23,6 @@ language:
 
 argument_schemes:
   reflexivity:
-    weight: linked
     variables: [X]
     premises:
       1: leq(X,X)
@@ -32,7 +31,6 @@ argument_schemes:
       - true
 
   antisymmetry:
-    weight: linked
     variables: [X,Y]
     premises:
       1: leq(X,Y) 
@@ -42,7 +40,6 @@ argument_schemes:
       - eq(X,Y)
 
   transitivity:
-    weight: linked
     variables: [X,Y,Z]
     premises:
       1: leq(X,Y)
@@ -51,7 +48,6 @@ argument_schemes:
       - leq(X,Z)
 
   idempotence:
-    weight: linked
     variables: [X,Y]
     premises:
       1: leq(X,Y)
