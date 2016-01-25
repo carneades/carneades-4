@@ -81,8 +81,8 @@ argument_schemes:
                   factor: 2
                   values:
                     slow: 0.0    # < 100 km/hr
-                    medium: 0.5  # > 100 and < 200 km/hr
-                    fast: 1.0    # >= 200 km/hr
+                    medium: 1.0  # > 100 and < 200 km/hr
+                    fast: 0.5   # >= 200 km/hr
               safety:
                   factor: 4
                   values:
