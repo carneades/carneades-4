@@ -288,6 +288,8 @@ func Object(t Term) (result Term, ok bool) {
 // is bound to a variable, the second variable is also
 // substituted if it is bound in env, recursively.
 func Substitute(t Term, env Bindings) Term {
+	visited := map[Variable]bool{}
+
 	switch t.Type() {
 	case AtomType, BoolType, IntType, FloatType, StringType:
 		return t
@@ -305,10 +307,11 @@ func Substitute(t Term, env Bindings) Term {
 		return List(l)
 	case VariableType:
 		result := t
+		visited[t.(Variable)] = true
 		t2, ok := env[t.(Variable)]
 		for ok == true {
 			result = t2
-			if t2.Type() == VariableType {
+			if t2.Type() == VariableType && !visited[t2.(Variable)] {
 				t2, ok = env[t2.(Variable)]
 				continue
 			} else {
