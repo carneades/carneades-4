@@ -91,12 +91,24 @@ func (t Atom) String() string {
 	return string(t)
 }
 
+func (t Bool) String() string {
+	if t {
+		return "true"
+	} else {
+		return "false"
+	}
+}
+
 func (t Int) String() string {
 	return strconv.Itoa(int(t))
 }
 
 func (t Float) String() string {
 	return fmt.Sprintf("%f", t)
+}
+
+func (t String) String() string {
+	return string(t)
 }
 
 func (t Compound) String() string {
