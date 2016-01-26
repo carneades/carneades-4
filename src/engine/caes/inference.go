@@ -29,7 +29,7 @@ import (
 
 // resource limits for Prolog processes
 const (
-	timeLimit  = 15     // seconds
+	timeLimit  = 15     // Seconds
 	stackLimit = "256m" // MB
 )
 
@@ -207,26 +207,6 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 		return errors.New("Could not write the constraint handling rules to a temporary file.")
 	} else {
 		return nil
-	}
-}
-
-// Run a command with a time limit
-func runCmd(cmd *exec.Cmd) {
-	// Run the command in its own process group, so that each
-	// process can be interrupted separately.
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	err := cmd.Start()
-	if err != nil {
-		// wait or timeout
-		donec := make(chan error, 1)
-		go func() {
-			donec <- cmd.Wait()
-		}()
-		select {
-		case <-time.After(timeLimit * time.Second):
-			cmd.Process.Kill()
-		case <-donec:
-		}
 	}
 }
 
@@ -412,7 +392,7 @@ func (ag *ArgGraph) Infer() error {
 		return err
 	}
 	defer f.Close()
-	// defer os.Remove(f.Name())
+	defer os.Remove(f.Name())
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes
@@ -451,7 +431,12 @@ func (ag *ArgGraph) Infer() error {
 	//	if err != nil {
 	//		return err
 	//	}
-	runCmd(cmd)
+
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
 
 	// Read the output and construct CAES arguments by instantiating
 	// schemes in the theory and adding statements and arguments to
@@ -459,8 +444,33 @@ func (ag *ArgGraph) Infer() error {
 	scanner := bufio.NewScanner(stdout)
 	// Wrap the individual JSON objects in a JSON array
 	bytes := []byte{}
-	for scanner.Scan() {
-		bytes = append(bytes, scanner.Bytes()...)
+
+	//	for scanner.Scan() {
+	//		bytes = append(bytes, scanner.Bytes()...)
+	//	}
+
+	// Limit the runtime of the SWI Prolog command
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Wait()
+	}()
+	//	select {
+	//	case <-time.After(timeLimit * time.Second):
+	//		cmd.Process.Kill()
+	//	case <-done:
+	//	}
+	finished := false
+	for !finished {
+		select {
+		case <-time.After(timeLimit * time.Second):
+			cmd.Process.Kill()
+			finished = true
+		case <-done:
+			finished = true
+		default:
+			scanner.Scan()
+			bytes = append(bytes, scanner.Bytes()...)
+		}
 	}
 	re, err := regexp.Compile("}[[:space:]]*{")
 	if err != nil {
@@ -469,6 +479,7 @@ func (ag *ArgGraph) Infer() error {
 	bytes = re.ReplaceAll(bytes, []byte("},\n{"))
 	bytes = []byte("[" + string(bytes) + "]")
 
+	// Unmarshall the bytes
 	var d []ArgDesc
 	err = json.Unmarshal(bytes, &d)
 	if err != nil {
