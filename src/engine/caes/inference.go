@@ -15,8 +15,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mndrix/golog/read"
-	"github.com/mndrix/golog/term"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -25,6 +23,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/mndrix/golog/read"
+	"github.com/mndrix/golog/term"
 )
 
 // resource limits for Prolog processes
@@ -460,9 +461,10 @@ func (ag *ArgGraph) Infer() error {
 	//	case <-done:
 	//	}
 	finished := false
+	timer := time.After(timeLimit * time.Second)
 	for !finished {
 		select {
-		case <-time.After(timeLimit * time.Second):
+		case <-timer:
 			cmd.Process.Kill()
 			finished = true
 		case <-done:
