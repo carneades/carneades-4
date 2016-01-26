@@ -63,6 +63,10 @@ func (t Atom) Type() Type {
 	return AtomType
 }
 
+func (t Bool) Type() Type {
+	return BoolType
+}
+
 func (t Int) Type() Type {
 	return IntType
 }
