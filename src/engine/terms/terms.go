@@ -51,13 +51,17 @@ type Variable struct {
 	index *big.Int
 }
 
+func NewVariable(name string) Variable {
+	return Variable{Name: name, index: big.NewInt(0)}
+}
+
 // This mutable representation of variable bindings
 // should be suitable and sufficient implementing Constraint
 // Handling Rules, but is presumably not adequate
 // for implementing a Prolog-style inference engine,
 // which requires a way to backtrack to a previous
 // set of bindings
-type Bindings map[Variable]Term
+type Bindings map[string]Term // variables are represented as strings
 
 func (t Atom) Type() Type {
 	return AtomType
@@ -132,7 +136,11 @@ func (t List) String() string {
 }
 
 func (v Variable) String() string {
-	return v.Name + v.index.String()
+	if v.index == nil || v.index.Cmp(big.NewInt(0)) == 0 {
+		return v.Name
+	} else {
+		return v.Name + v.index.String()
+	}
 }
 
 func (t Compound) Arity() int {
@@ -214,7 +222,7 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
 			return false
 		}
-		env2 := make(map[Variable]Term)
+		env2 := make(Bindings)
 		for i, _ := range t1.(Compound).Args {
 			ok := Match(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
 			if !ok {
@@ -230,7 +238,7 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 		if len(t1.(List)) != len(t2.(List)) {
 			return false
 		}
-		env2 := make(map[Variable]Term)
+		env2 := make(Bindings)
 		for i, _ := range t1.(List) {
 			ok := Match(t1.(List)[i], t2.(List)[i], env2)
 			if !ok {
@@ -243,9 +251,9 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 		}
 		return true
 	case VariableType:
-		t3, ok := env[t1.(Variable)]
+		t3, ok := env[t1.String()]
 		if !ok { // variable was not yet bound in env
-			env[t1.(Variable)] = t2
+			env[t1.String()] = t2
 			return true
 		} else {
 			// return true only if the two instances of the variable
@@ -261,15 +269,31 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 	}
 }
 
-func isTriple(t Term) bool {
-	return t.Type() == CompoundType && t.(Compound).Arity() == 2
+func Arity(t Term) int {
+	if t.Type() != CompoundType {
+		return 0
+	}
+	return t.(Compound).Arity()
 }
 
-func Predicate(t Term) (result string, ok bool) {
-	if isTriple(t) {
+func isTriple(t Term) bool {
+	return Arity(t) == 2
+}
+
+func Functor(t Term) (result string, ok bool) {
+	switch t.Type() {
+	case AtomType:
+		return t.String(), true
+	case CompoundType:
 		return t.(Compound).Functor, true
+	default:
+		return result, false
 	}
-	return result, false
+}
+
+// Predicate is a synonym for Functor
+func Predicate(t Term) (string, bool) {
+	return Functor(t)
 }
 
 func Subject(t Term) (result Term, ok bool) {
@@ -312,11 +336,11 @@ func Substitute(t Term, env Bindings) Term {
 	case VariableType:
 		result := t
 		visited[t.(Variable)] = true
-		t2, ok := env[t.(Variable)]
+		t2, ok := env[t.String()]
 		for ok == true {
 			result = t2
 			if t2.Type() == VariableType && !visited[t2.(Variable)] {
-				t2, ok = env[t2.(Variable)]
+				t2, ok = env[t2.String()]
 				continue
 			} else {
 				break

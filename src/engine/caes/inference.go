@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/carneades/carneades-4/src/engine/terms"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -23,9 +24,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
-
-	"github.com/mndrix/golog/read"
-	"github.com/mndrix/golog/term"
+	// "github.com/mndrix/golog/read"
+	// "github.com/mndrix/golog/term"
 )
 
 // resource limits for Prolog processes
@@ -222,96 +222,85 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 // If all goes well, the argument graph is updated and nil is returned
 func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error) {
 
-	// Catch and handle panics raised by the term parser
-	defer func() {
-		if p := recover(); p != nil {
-			err = fmt.Errorf("Error when trying to make an issue: %v", p)
-		}
-	}()
-
 	// skip issue schemes with no patterns
 	if len(patterns) == 0 {
 		fmt.Fprintf(os.Stderr, "Issue scheme with no patterns: %v\n", issueScheme)
 		return
 	}
-	// Try to unify the first pattern with each statement
+	// Try to match the first pattern with each statement
 	// in the argument graph.
-	r, err := read.NewTermReader(patterns[0] + ".")
-	term1, err := r.Next()
+	term1, ok := terms.ReadString(patterns[0])
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Issue scheme pattern not a term: %v\n", patterns[0])
+	if !ok {
+		fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", patterns[0])
 		return
 	}
 	for wff, stmt := range ag.Statements {
-		// For each matching statement, iterate over the statements
-		// again to try to find other positions of the issue. Whether or
-		// not a statement is a position depends on the remaining patterns
-		// of the issue scheme.
-		r, err := read.NewTermReader(wff + ".")
-		term2, err := r.Next()
-		if err != nil {
+		term2, ok := terms.ReadString(wff)
+		if !ok {
 			fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff)
 			continue
 		}
-		bindings, err := term1.Unify(term.NewBindings(), term2)
-		if err != nil {
-			continue // terms are not unifiable
+		bindings := make(terms.Bindings)
+		ok = terms.Match(term1, term2, bindings)
+		if !ok {
+			continue // terms do not match
 		} else {
+			fmt.Printf("debug: %v matches %v\n", term1, term2)
 			candidates := []*Statement{stmt}
-			// Create a copy of bindings with all variables ending
+
+			// Check if the issue scheme defines an enumeration.
+			isEnumeration := len(patterns) > 1 && patterns[1] == "..."
+
+			// Create a copy of bindings with all variables with names ending
 			// in integer indexes unbound
-			m := term.Variables(term1)
-			bindings2 := term.NewBindings()
-			m.ForEach(func(key string, val interface{}) {
-				suffix := key[len(key)-1:]
+			bindings2 := make(terms.Bindings)
+			for v, t := range bindings {
+				suffix := v[len(v)-1:]
 				_, err := strconv.Atoi(suffix)
 				if err != nil {
 					// the variable does not end with an integer suffix
 					// so keep its binding
-					v := val.(*term.Variable)
-					t, err := bindings.Resolve(v)
-					if err == nil {
-						bindings2, err = bindings2.Bind(v, t)
-						if err != nil {
-							fmt.Fprintf(os.Stderr, "Could not bind %v to %v\n", v, t)
-						}
-					}
+					bindings2[v] = t
+					fmt.Printf("debug: %v=%v\n", v, t.String())
 				}
-			})
+			}
+
+			// For each matching statement, iterate over the statements
+			// again to try to find other positions of the issue. Whether or
+			// not a statement is a position depends on the remaining patterns
+			// of the issue scheme and, in particular, whether or not the
+			// issue scheme is an enumeration.
 
 			for wff2, stmt2 := range ag.Statements {
-				var b term.Bindings
-				if len(patterns) > 1 && patterns[1] == "..." {
-					// The issue scheme defines an enumeration.
-					// Use bindings2 to rebind variables with numerical
-					// suffixes when trying to unify with each statement
-					b = bindings2
-				} else {
-					// The issue scheme does not define an enumeration.
-					// Use the original bindings without rebinding any variables
-					b = bindings
-				}
 				if wff2 == wff {
 					// skip the matching statement found previously
 					continue
 				}
-				r, err := read.NewTermReader(wff2 + ".")
-				term3, err := r.Next()
-				if err != nil {
+				term3, ok := terms.ReadString(wff2)
+				if !ok {
 					fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff2)
 					continue
 				}
-				bindings3, err := term1.Unify(b, term3)
-				if b == bindings {
-					// update the bindings only if the issue scheme
+
+				if !isEnumeration {
+					// update bindings only if the issue scheme
 					// does not define an enumeration
-					bindings = bindings3
-				}
-				if err != nil {
-					continue // terms are not unifiable
+					ok = terms.Match(term1, term3, bindings)
 				} else {
-					candidates = append(candidates, stmt2)
+					// Use a fresh copy of bindings2 for enumeration issue patterns
+					// when trying to unify with each statement
+					b2copy := make(terms.Bindings)
+					for k, v := range bindings2 {
+						b2copy[k] = v
+					}
+					ok = terms.Match(term1, term3, b2copy)
+
+					if !ok {
+						continue // terms do not match
+					} else {
+						candidates = append(candidates, stmt2)
+					}
 				}
 			}
 

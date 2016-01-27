@@ -173,7 +173,7 @@ func CriteriaWeighingFunction(cs *Criteria) WeighingFunction {
 			// If v is not one of the specified values of a soft constraint
 			// the normalized value will be 0.0
 			relativeWeight := sc.Factor / factorSum
-			weight = weight + (relativeWeight * sc.NormalizedValues[v])
+			weight = weight + (relativeWeight * sc.NormalizedValues[v.String()])
 		}
 		return weight
 	}

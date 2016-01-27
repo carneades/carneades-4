@@ -12,10 +12,8 @@ package caes
 
 import (
 	"fmt"
-	"github.com/mndrix/golog/read"
-	"github.com/mndrix/golog/term"
+	"github.com/carneades/carneades-4/src/engine/terms"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -193,17 +191,6 @@ func NewLabelling() Labelling {
 	return Labelling(make(map[*Statement]Label))
 }
 
-//func (l Labelling) Get(stmt *Statement) Label {
-//	//	v, found := l[stmt]
-//	//	if found {
-//	//		return v
-//	//	} else {
-//	//		return Undecided
-//	//	}
-//	return l[stmt]
-//	// ToDo: replace calls to l.Get(s) with l[s] and then delete this method
-//}
-
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
 // and unassumed statements without arguments Out.
@@ -282,66 +269,34 @@ func (arg *Argument) Applicable(l Labelling) bool {
 	return true
 }
 
-// Returns the predicate of strings representing logical terms of the
-// form predicate(t0, ..., tn). Returns the input string if the
-// if it does not have this form.
-func Predicate(wff string) string {
-	v := strings.Split(wff, "(")
-	if len(v) == 2 {
-		str := v[0]
-		return strings.Trim(str, " ")
-	} else {
-		return wff
-	}
-}
-
-// Returns the arity of a term, given a string representation of the
-// term, using Prolog syntax
-func Arity(wff string) int {
-	// remove the predicate
-	v1 := strings.Split(wff, "(")
-	if len(v1) == 2 {
-		v2 := strings.Split(v1[1], ",")
-		return len(v2)
-	}
-	return 0
-}
-
-// Returns the object of strings representing
-// predicate-subject-object triples, or the empty string
-// if the string does not represent is not a triple.  Triples are assumed
-// to be presented using Prolog syntax for atomic formulas:
-// predicate(Subject, Object)
-// To do: do a better job of checking that the statement
-// has the required form.
-func Object(wff string) string {
-	v := strings.Split(wff, ",")
-	if len(v) == 2 {
-		str := v[len(v)-1]
-		return strings.Trim(str, " )")
-	} else {
-		return ""
-	}
-}
-
-func (arg *Argument) PropertyValue(p string, l Labelling) (string, bool) {
+func (arg *Argument) PropertyValue(p string, l Labelling) (result terms.Term, ok bool) {
 	for _, pr := range arg.Premises {
-		if p == Predicate(pr.Stmt.Id) {
-			if l[pr.Stmt] == In {
-				return Object(pr.Stmt.Id), true
-			} else {
-				i := pr.Stmt.Issue
-				if i != nil {
-					for _, pos := range i.Positions {
-						if l[pos] == In {
-							return Object(pos.Id), true
+		term1, ok := terms.ReadString(pr.Stmt.Id)
+		if ok {
+			p2, ok := terms.Predicate(term1)
+			if ok && p2 == p {
+				if l[pr.Stmt] == In {
+					return terms.Object(term1)
+				} else {
+					i := pr.Stmt.Issue
+					if i != nil {
+						for _, pos := range i.Positions {
+							if l[pos] == In {
+								term2, ok := terms.ReadString(pos.Id)
+								if ok {
+									return terms.Object(term2)
+								} else {
+									fmt.Fprintf(os.Stderr, "Could not parse: %s\n", pos.Id)
+									return result, false
+								}
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	return "", false
+	return result, false
 }
 
 // An issue is ready to be resolved if all the arguments of all its positions are
@@ -512,141 +467,39 @@ func (ag *ArgGraph) Inconsistent() bool {
 	return false
 }
 
-// Substitute schema variables in a term with their values
-// White space between punctuation symbols and variables is removed.
-func substitute(bindings map[string]string, term string) string {
-	result := []byte(term)
-	for v, b := range bindings {
-		re1, err := regexp.Compile("[(][[:space:]]*" + v + "[[:space:]]*[,]")
-		re2, err := regexp.Compile("[,][[:space:]]*" + v + "[[:space:]]*[)]")
-		re3, err := regexp.Compile("[,][[:space:]]*" + v + "[[:space:]]*[,]")
-		re4, err := regexp.Compile("[(][[:space:]]*" + v + "[[:space:]]*[)]")
-		if err == nil {
-			result = re1.ReplaceAll(result, []byte("("+b+","))
-			result = re2.ReplaceAll(result, []byte(","+b+")"))
-			result = re3.ReplaceAll(result, []byte(","+b+","))
-			result = re4.ReplaceAll(result, []byte("("+b+")"))
-		} else {
-			return term
-		}
+// Apply a language to a term to construct a string,
+// usually to represent the term in natural language.
+func (l Language) Apply(term1 terms.Term) string {
+	functor, ok := terms.Functor(term1)
+	if !ok {
+		return ""
 	}
-	return string(result)
-}
+	arity := terms.Arity(term1)
 
-func readTerm(s string) (result term.Term, ok bool) {
-	r, err := read.NewTermReader(s + ".")
-	t1, err := r.Next()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "readTerm could not parse as Prolog term: %v\n", s)
-		return t1, false // unchanged
+	if arity == 0 {
+		return l[functor]
 	}
-	return t1, true
-}
-
-func substitute2(bindings map[string]string, term1 string) string {
-	env := term.NewBindings()
-	for k, v := range bindings {
-		var1 := term.NewVar(k)
-		r, err := read.NewTermReader(v + ".")
-		t1, err := r.Next()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "substitute could not parse as Prolog term: %v\n", v)
-			return term1 // unchanged
-		}
-		env, _ = env.Bind(var1, t1) // ignore AlreadyBound errors
-	}
-
-	r, err := read.NewTermReader(term1 + ".")
-	t1, err := r.Next()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "substitute could not parse as Prolog term: %v\n", term1)
-		return term1 // unchanged
-	}
-	t2 := t1.ReplaceVariables(env)
-	return t2.String()
-}
-
-// Unifies two terms, represented as strings with Prolog syntax,
-// and returns the bindings represented as a map.
-func unify(term1 string, term2 string) (bindings map[string]string, ok bool) {
-	bindings = map[string]string{}
-	r, err := read.NewTermReader(term1 + ".")
-	t1, err := r.Next()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not parse as Prolog term: %v\n", term1)
-		return bindings, false
-	}
-	r, err = read.NewTermReader(term2 + ".")
-	t2, err := r.Next()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not parse as Prolog term: %v\n", term2)
-		return bindings, false
-	}
-
-	// Unify the two terms
-	b, err := t1.Unify(term.NewBindings(), t2)
-	if err != nil {
-		return bindings, false
-	}
-
-	// Lookup the binding of each variable in t1 and t2
-	// and add entries to the bindings map
-	f := func(name string, v interface{}) {
-		// v2, _ := m.Lookup(name)
-		t, err := b.Resolve(v.(*term.Variable))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Resolve: %v\n", err)
-		}
-		bindings[name] = t.String()
-	}
-	m := term.Variables(t1)
-	m.ForEach(f)
-	m = term.Variables(t2)
-	m.ForEach(f)
-	return bindings, true
-}
-
-func (l Language) Apply(term1 string) string {
-	functor := Predicate(term1)
-	arity := Arity(term1)
-	vars := []string{}
-	terms := []interface{}{}
 
 	if arity > 0 {
-		for i := 0; i < arity; i++ {
-			vars = append(vars, "V"+strconv.Itoa(i))
+
+		args := []interface{}{}
+		for _, arg := range term1.(terms.Compound).Args {
+			args = append(args, arg.String())
 		}
-		term2 := functor + "(" + strings.Join(vars, ",") + ")"
-		m, ok := unify(term1, term2)
+
+		// Use Sprintf to instantiate the template of the functor in the
+		// language spec
+		spec := functor + "/" + strconv.Itoa(arity)
+		template, ok := l[spec]
 		if !ok {
-			// leave the variable unbound
-			fmt.Fprintf(os.Stderr, "Terms not unifiable: %s; %s\n", term1, term2)
-			return term1
+			fmt.Fprintf(os.Stderr, "Functor not defined in the language: %v\n", spec)
+			return term1.String()
 		}
 
-		for _, v := range vars {
-			t, ok := m[v]
-			if !ok {
-				// leave the variable unbound
-				fmt.Fprintf(os.Stderr, "Unbound variable: %s\n", v)
-				terms = append(terms, v)
-			} else {
-				terms = append(terms, t)
-			}
-		}
+		return fmt.Sprintf(template, args...)
 	}
 
-	// Use Sprintf to instantiate the template of the functor in the
-	// language spec
-
-	spec := functor + "/" + strconv.Itoa(arity)
-	template, ok := l[spec]
-	if !ok {
-		fmt.Fprintf(os.Stderr, "Functor not defined in the language: %v\n", spec)
-		return term1
-	}
-
-	return fmt.Sprintf(template, terms...)
+	return ""
 }
 
 func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
@@ -661,7 +514,6 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			i++
 		}
 		return prefix + strconv.Itoa(i)
-		// return fmt.Sprintf("%s(%s)", id, strings.Join(parameters, ","))
 	}
 
 	if ag.Theory != nil {
@@ -676,9 +528,15 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				return
 			}
 
-			bindings := map[string]string{}
-			for i, v := range scheme.Variables {
-				bindings[v] = parameters[i]
+			bindings := make(terms.Bindings) // map[terms.Variable]terms.Term{}
+			for i, varName := range scheme.Variables {
+				// v := terms.NewVariable(varName)
+				t, ok := terms.ReadString(parameters[i])
+				if ok {
+					bindings[varName] = t
+				} else {
+					fmt.Fprintf(os.Stderr, "Could not parse parameter: %v\n", parameters[i])
+				}
 			}
 
 			// construct the premises and conclusions,
@@ -686,28 +544,38 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			premises := []Premise{}
 			conclusions := []*Statement{}
 
-			for role, term1 := range scheme.Premises {
-				term2 := substitute(bindings, term1)
-				stmt, ok := ag.Statements[term2]
-				if !ok {
-					s := Statement{Id: term2,
-						Text: ag.Theory.Language.Apply(term2)}
-					ag.Statements[term2] = &s
-					stmt = &s
+			for role, p := range scheme.Premises {
+				term1, ok := terms.ReadString(p)
+				if ok {
+					term2 := terms.Substitute(term1, bindings)
+					stmt, ok := ag.Statements[term2.String()]
+					if !ok {
+						s := Statement{Id: term2.String(),
+							Text: ag.Theory.Language.Apply(term2)}
+						ag.Statements[term2.String()] = &s
+						stmt = &s
+					}
+					premises = append(premises, Premise{Role: role, Stmt: stmt})
+				} else {
+					fmt.Fprintf(os.Stderr, "Could not parse premise: %v\n", p)
 				}
-				premises = append(premises, Premise{Role: role, Stmt: stmt})
 			}
 
-			for _, term1 := range scheme.Conclusions {
-				term2 := substitute(bindings, term1)
-				stmt, ok := ag.Statements[term2]
-				if !ok {
-					s := Statement{Id: term2,
-						Text: ag.Theory.Language.Apply(term2)}
-					ag.Statements[term2] = &s
-					stmt = &s
+			for _, c := range scheme.Conclusions {
+				term1, ok := terms.ReadString(c)
+				if ok {
+					term2 := terms.Substitute(term1, bindings)
+					stmt, ok := ag.Statements[term2.String()]
+					if !ok {
+						s := Statement{Id: term2.String(),
+							Text: ag.Theory.Language.Apply(term2)}
+						ag.Statements[term2.String()] = &s
+						stmt = &s
+					}
+					conclusions = append(conclusions, stmt)
+				} else {
+					fmt.Fprintf(os.Stderr, "Could not parse conclusion: %v\n", c)
 				}
-				conclusions = append(conclusions, stmt)
 			}
 
 			// construct an argument for each conclusion and add
@@ -717,7 +585,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
-				ucid := "not(applicable(argument(" + scheme.Id + ",[" + strings.Join(parameters, ",") + "])))"
+				ucid := "n(applicable(argument(" + scheme.Id + ",[" + strings.Join(parameters, ",") + "])))"
 				uc := Statement{Id: ucid,
 					Text: argid + " is not applicable."}
 				ag.Statements[ucid] = &uc
