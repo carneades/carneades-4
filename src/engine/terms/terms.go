@@ -206,6 +206,14 @@ func Equal(t1, t2 Term) bool {
 	}
 }
 
+func copyBindings(env Bindings) Bindings {
+	result := make(Bindings)
+	for v, t := range env {
+		result[v] = t
+	}
+	return result
+}
+
 // Match updates the bindings only if the match
 // is successful, in which case true is returned.
 // One way match, not unification:  variables
@@ -222,7 +230,7 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
 			return false
 		}
-		env2 := make(Bindings)
+		env2 := copyBindings(env)
 		for i, _ := range t1.(Compound).Args {
 			ok := Match(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
 			if !ok {
@@ -238,7 +246,7 @@ func Match(t1, t2 Term, env Bindings) (ok bool) {
 		if len(t1.(List)) != len(t2.(List)) {
 			return false
 		}
-		env2 := make(Bindings)
+		env2 := copyBindings(env)
 		for i, _ := range t1.(List) {
 			ok := Match(t1.(List)[i], t2.(List)[i], env2)
 			if !ok {

@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/terms"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -24,6 +23,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/carneades/carneades-4/src/engine/terms"
 	// "github.com/mndrix/golog/read"
 	// "github.com/mndrix/golog/term"
 )
@@ -229,24 +230,23 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 	}
 	// Try to match the first pattern with each statement
 	// in the argument graph.
-	term1, ok := terms.ReadString(patterns[0])
+	pattern, ok := terms.ReadString(patterns[0])
 
 	if !ok {
 		fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", patterns[0])
 		return
 	}
-	for wff, stmt := range ag.Statements {
-		term2, ok := terms.ReadString(wff)
+	for wff1, stmt := range ag.Statements {
+		term1, ok := terms.ReadString(wff1)
 		if !ok {
-			fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff)
+			fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff1)
 			continue
 		}
 		bindings := make(terms.Bindings)
-		ok = terms.Match(term1, term2, bindings)
+		ok = terms.Match(pattern, term1, bindings)
 		if !ok {
 			continue // terms do not match
 		} else {
-			fmt.Printf("debug: %v matches %v\n", term1, term2)
 			candidates := []*Statement{stmt}
 
 			// Check if the issue scheme defines an enumeration.
@@ -262,7 +262,6 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 					// the variable does not end with an integer suffix
 					// so keep its binding
 					bindings2[v] = t
-					fmt.Printf("debug: %v=%v\n", v, t.String())
 				}
 			}
 
@@ -273,34 +272,33 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 			// issue scheme is an enumeration.
 
 			for wff2, stmt2 := range ag.Statements {
-				if wff2 == wff {
+				if wff2 == wff1 {
 					// skip the matching statement found previously
 					continue
 				}
-				term3, ok := terms.ReadString(wff2)
+				term2, ok := terms.ReadString(wff2)
 				if !ok {
 					fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff2)
 					continue
 				}
 
+				match := false
 				if !isEnumeration {
 					// update bindings only if the issue scheme
 					// does not define an enumeration
-					ok = terms.Match(term1, term3, bindings)
+					match = terms.Match(pattern, term2, bindings)
 				} else {
 					// Use a fresh copy of bindings2 for enumeration issue patterns
-					// when trying to unify with each statement
 					b2copy := make(terms.Bindings)
 					for k, v := range bindings2 {
 						b2copy[k] = v
 					}
-					ok = terms.Match(term1, term3, b2copy)
-
-					if !ok {
-						continue // terms do not match
-					} else {
-						candidates = append(candidates, stmt2)
-					}
+					match = terms.Match(pattern, term2, b2copy)
+				}
+				if !match {
+					continue // terms do not match
+				} else {
+					candidates = append(candidates, stmt2)
 				}
 			}
 
