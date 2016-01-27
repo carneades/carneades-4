@@ -10,12 +10,15 @@ package terms
 
 import (
 	"fmt"
+	"math/big"
 	"os"
 	"strings"
 	sc "text/scanner"
 	// "go/scanner"
 	// "go/token"
 )
+
+const trace = false
 
 func ReadString(src string) (result Term, ok bool) {
 	// src is the input that we want to tokenize.
@@ -25,13 +28,6 @@ func ReadString(src string) (result Term, ok bool) {
 	s.Init(strings.NewReader(src))
 	s.Error = err
 
-	/* var tok rune
-	for tok != sc.EOF {
-		tok = s.Scan()
-		fmt.Println("At position", s.Pos(), ":", s.TokenText())
-	}
-	*/
-
 	result, _, ok = readBIConstraint(&s)
 	return
 }
@@ -40,16 +36,20 @@ func err(s *sc.Scanner, str string) {
 }
 
 func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
-	fmt.Printf("readBIConstraint : \n")
+	if trace {
+		fmt.Printf("readBIConstraint : \n")
+	}
 	t, tok, ok = expression(s, s.Scan())
-	if tok == sc.EOF {
+	if tok == sc.EOF || !ok {
 		return
 	}
 	if tok == ',' {
 		t1 := List{t}
 		for tok == ',' {
 			t, tok, ok = expression(s, s.Scan())
-			fmt.Printf("<<< expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			if trace {
+				fmt.Printf("<<< expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			}
 			if !ok {
 				return t1, tok, false
 			}
@@ -67,9 +67,13 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 }
 
 func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("expression : '%s'\n", f(tok1))
+	if trace {
+		fmt.Printf("expression : '%s'\n", f(tok1))
+	}
 	t, tok, ok = simple_expression(s, tok1)
-	fmt.Printf("<<< simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	if trace {
+		fmt.Printf("<<< simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
 	op := ""
 	// named operator
 	if tok <= 0 {
@@ -117,7 +121,9 @@ func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	ex := Compound{Functor: op}
 	tex := []Term{t}
 	t, tok, ok = simple_expression(s, s.Scan())
-	fmt.Printf("<<< simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	if trace {
+		fmt.Printf("<<< simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
 	if !ok {
 		return
 	}
@@ -127,7 +133,9 @@ func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 }
 
 func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("simple_expression : '%s'\n", f(tok1))
+	if trace {
+		fmt.Printf("simple_expression : '%s'\n", f(tok1))
+	}
 	// sign
 	monop := ""
 	if tok1 == '+' {
@@ -139,7 +147,9 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		}
 	}
 	t, tok, ok = sterm(s, tok1)
-	fmt.Printf("<<< sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	if trace {
+		fmt.Printf("<<< sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
 
 	op := ""
 	if tok <= 0 {
@@ -172,8 +182,10 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if op != "" {
 		ex := Compound{Functor: op}
 		tex := []Term{t}
-		t, tok, ok = sterm(s, tok)
-		fmt.Printf("<<< sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		t, tok, ok = simple_expression(s, tok)
+		if trace {
+			fmt.Printf("<<< rec. simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 		if !ok {
 			return
 		}
@@ -189,9 +201,13 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 }
 
 func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("sterm : '%s'\n", f(tok1))
+	if trace {
+		fmt.Printf("sterm : '%s'\n", f(tok1))
+	}
 	t, tok, ok = factor(s, tok1)
-	fmt.Printf("<<< factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	if trace {
+		fmt.Printf("<<< factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
 	op := ""
 	// named operator
 	if tok <= 0 {
@@ -211,7 +227,7 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		}
 	} else {
 		// sign operator
-		// tok2 := s.Peek()
+		tok2 := s.Peek()
 		switch tok {
 		case '*':
 			op = "*"
@@ -219,6 +235,15 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			op = "/"
 		case '%':
 			op = "%"
+		case '&':
+			if tok2 != '&' {
+				err(s, "missing '&' after '&' in expression")
+				return t, tok, false
+			} else {
+				tok = s.Scan()
+			}
+			tok = s.Scan()
+			op = "&&"
 		}
 	}
 	if op == "" {
@@ -228,7 +253,9 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	ex := Compound{Functor: op}
 	tex := []Term{t}
 	t, tok, ok = sterm(s, s.Scan())
-	fmt.Printf("<<< sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	if trace {
+		fmt.Printf("<<< sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
 	if !ok {
 		return
 	}
@@ -239,7 +266,9 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 }
 
 func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("factor : '%s'\n", f(tok1))
+	if trace {
+		fmt.Printf("factor : '%s'\n", f(tok1))
+	}
 	tok = tok1
 	ok = true
 
@@ -254,7 +283,9 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		pos := s.Pos()
 		for tok == ',' {
 			t, tok, ok = expression(s, s.Scan())
-			fmt.Printf("<<< expression in [ factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			if trace {
+				fmt.Printf("<<< expression in [ factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			}
 			if !ok {
 				t = list
 				return
@@ -274,7 +305,9 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	case '(':
 		pos := s.Pos()
 		t, tok, ok = expression(s, s.Scan())
-		fmt.Printf("<<< expression in ( factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< expression in ( factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 		if !ok {
 			return
 		}
@@ -285,36 +318,51 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		tok = s.Scan()
 	case sc.Ident:
 		t, tok, ok = factor_name(s.TokenText(), s, s.Scan())
-		fmt.Printf("<<< factor_name: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< factor_name: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	case sc.Int:
 		t, tok, ok = sInt(s)
-		fmt.Printf("<<< sInt: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< sInt: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	case sc.Float:
 		t, tok, ok = sFloat(s)
-		fmt.Printf("<<< sFloat: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< sFloat: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	case sc.Char:
 		t, tok, ok = sChar(s)
-		fmt.Printf("<<< sChar: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< sChar: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	case sc.String:
 		t, tok, ok = sString(s)
-		fmt.Printf("<<< sString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< sString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	case sc.RawString:
 		t, tok, ok = sString(s)
-		fmt.Printf("<<< sRawString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		if trace {
+			fmt.Printf("<<< sRawString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
 	// case sc.Comment:
 	case sc.EOF:
 		err(s, "EOF missing term")
-		return nil, tok, false
+		return Atom("nil"), tok, false
 	default:
 		err(s, fmt.Sprintf("unexpected character '%c', expect <variable>, <name>, <constant>, '(' or '['", tok))
-		t = nil
+		t = Atom("nil")
+		return t, tok, false
 	}
 	return t, tok, true
 }
 
 func factor_name(name string, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("factor_name : %s '%s'\n", name, f(tok1))
-	t = nil
+	if trace {
+		fmt.Printf("factor_name : %s '%s'\n", name, f(tok1))
+	}
+	t = Atom("nil")
 	ok = true
 	tok = tok1
 	if tok != '(' {
@@ -347,7 +395,9 @@ func factor_name(name string, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bo
 }
 
 func sInt(s *sc.Scanner) (Term, rune, bool) {
-	fmt.Printf("sInt : '%s'\n", s.TokenText())
+	if trace {
+		fmt.Printf("sInt : '%s'\n", s.TokenText())
+	}
 	var (
 		i   int
 		err error
@@ -360,7 +410,9 @@ func sInt(s *sc.Scanner) (Term, rune, bool) {
 }
 
 func sFloat(s *sc.Scanner) (Term, rune, bool) {
-	fmt.Printf("sFloat : '%s'\n", s.TokenText())
+	if trace {
+		fmt.Printf("sFloat : '%s'\n", s.TokenText())
+	}
 	var (
 		f   float64
 		err error
@@ -373,7 +425,9 @@ func sFloat(s *sc.Scanner) (Term, rune, bool) {
 }
 
 func sString(s *sc.Scanner) (Term, rune, bool) {
-	fmt.Printf("sString : '%s'\n", s.TokenText())
+	if trace {
+		fmt.Printf("sString : '%s'\n", s.TokenText())
+	}
 	var (
 		str string
 		err error
@@ -386,7 +440,9 @@ func sString(s *sc.Scanner) (Term, rune, bool) {
 }
 
 func sChar(s *sc.Scanner) (Term, rune, bool) {
-	fmt.Printf("sChar : '%s'\n", s.TokenText())
+	if trace {
+		fmt.Printf("sChar : '%s'\n", s.TokenText())
+	}
 	var (
 		c   rune
 		err error
@@ -425,7 +481,9 @@ func f(tok rune) string {
 }
 
 func bi_0(n string, tk rune) (t Term, tok rune, ok bool) {
-	fmt.Printf("bi_0 : '%s'\n", n)
+	if trace {
+		fmt.Printf("bi_0 : '%s'\n", n)
+	}
 	tok = tk
 	ok = true
 	switch n {
@@ -439,7 +497,7 @@ func bi_0(n string, tk rune) (t Term, tok rune, ok bool) {
 
 	c := n[0]
 	if c >= 'A' && c <= 'Z' {
-		t = Variable{Name: n}
+		t = Variable{Name: n, index: big.NewInt(0)}
 		return
 	} else {
 		t = Atom(n)

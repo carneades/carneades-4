@@ -13,12 +13,19 @@ func Test_terms(t *testing.T) {
 	// ReadString("prime(N) ==> N>2 | M is N-1, prime(m). prime(A) \\ prime(B) <=> B mod A =:= 0 | true")
 
 	// tt("E")
+
 	tt("23")
 	tt("\"str\"")
 	tt("3.147")
 	tt("abc")
 	tt("foo(a, b, c)")
 	tt("baz(a+3, b*7, bar(x,Y))")
+	tt("[foo(), baz(2*3+4*5,VAR,atom), X]")
+	tt("[a, b,]")
+	tt("2*3*4+5*6*7")
+	tt("2+3+4*5+6+7")
+	tt("2+(3+4)*(5+6)+7")
+	// tt("(a=b) && (a<b) && (a>b) || (a<>b) || (a!= b) && (a <= b) || (a >= b) && (a in b)")
 }
 
 func tt(str string) {
