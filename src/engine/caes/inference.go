@@ -442,11 +442,6 @@ func (ag *ArgGraph) Infer() error {
 	go func() {
 		done <- cmd.Wait()
 	}()
-	//	select {
-	//	case <-time.After(timeLimit * time.Second):
-	//		cmd.Process.Kill()
-	//	case <-done:
-	//	}
 	finished := false
 	timer := time.After(timeLimit * time.Second)
 	for !finished {

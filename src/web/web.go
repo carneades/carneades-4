@@ -3,6 +3,16 @@ package web
 import (
 	"bytes"
 	"fmt"
+	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/carneades/carneades-4/src/common"
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/agxml"
@@ -16,17 +26,10 @@ import (
 	ddot "github.com/carneades/carneades-4/src/engine/dung/encoding/dot"
 	dgml "github.com/carneades/carneades-4/src/engine/dung/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/dung/encoding/tgf"
-	"html/template"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"os/exec"
-	"path/filepath"
-	"strings"
-	"sync"
 )
 
-const afLimit = 20 // max number of arguments handled by the Dung solver
+const afLimit = 20   // max number of arguments handled by the Dung solver
+const timeLimit = 15 // seconds, for running Dot
 
 type templateHandler struct {
 	once         sync.Once
@@ -138,11 +141,22 @@ func CarneadesServer(port string, templatesDir string) {
 				errorTemplate.Execute(w, err.Error())
 				return
 			}
-			err = cmd.Run()
-			if err != nil {
-				errorTemplate.Execute(w, err.Error())
-				return
+			// Limit the runtime of dot
+			cmd.Start()
+			done := make(chan error, 1)
+			go func() {
+				done <- cmd.Wait()
+			}()
+			select {
+			case <-time.After(timeLimit * time.Second):
+				cmd.Process.Kill()
+			case err := <-done:
+				if err != nil {
+					errorTemplate.Execute(w, err.Error())
+					return
+				}
 			}
+
 		default:
 			errorTemplate.Execute(w, fmt.Sprintf("unknown or unsupported output format: %s\n", outputFormat))
 			return
@@ -249,10 +263,20 @@ func CarneadesServer(port string, templatesDir string) {
 				errorTemplate.Execute(w, err.Error())
 				return
 			}
-			err = cmd.Run()
-			if err != nil {
-				errorTemplate.Execute(w, err.Error())
-				return
+			// limit the runtime of Dot
+			cmd.Start()
+			done := make(chan error, 1)
+			go func() {
+				done <- cmd.Wait()
+			}()
+			select {
+			case <-time.After(timeLimit * time.Second):
+				cmd.Process.Kill()
+			case err := <-done:
+				if err != nil {
+					errorTemplate.Execute(w, err.Error())
+					return
+				}
 			}
 		default: // text
 			printExtensions(extensions)
