@@ -49,14 +49,6 @@ argument_schemes:
     conclusions:
       - n(applicable(argument(expert_opinion,[W,D,S])))
 
-  expert_opinion_applicable:
-    variables: [W,D,S]
-    premises:
-      1: argument(expert_opinion,[W,D,S])
-      2: foo(W)
-    conclusions:
-      - applicable(argument(expert_opinion,[W,D,S]))
-
   expert_opinion_bias:
     variables: [W]
     premises:
