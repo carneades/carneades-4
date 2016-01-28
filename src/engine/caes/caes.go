@@ -548,6 +548,11 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				term1, ok := terms.ReadString(p)
 				if ok {
 					term2 := terms.Substitute(term1, bindings)
+					// Leave argument(S,P) premises implicit; Enthymeme!
+					pred, ok := terms.Predicate(term2)
+					if ok && pred == "argument" {
+						continue
+					}
 					stmt, ok := ag.Statements[term2.String()]
 					if !ok {
 						s := Statement{Id: term2.String(),

@@ -1,0 +1,77 @@
+meta:
+  title: Walton Argumentation Schemes
+  notes: >
+    Here we illustrate one way to represent many of Doug Walton's argumentation
+    schemes, including critical questions. This is work in progress.
+  source: >
+    Walton, Douglas and Reed, Chris and Macagno, Fabrizio (2008). 
+    Argumentation Schemes. Cambridge University Press.
+
+language:
+  expert/2: "%s is an expert in the %v domain."
+  in_domain/2: "%s is in the domain of %s."
+  asserts/2: "%s asserts that %s is true."
+  untrustworthy/1: "%s is untrustworthy."
+  biased/1: "%s is biased."
+  n/1: 'It is not true that: "%s"'
+  foo/1: "%s is foo."
+  applicable/1: "Argument %s is applicable."
+
+statements:
+  expert(joe,climate): Joe is a climate expert.
+  in_domain(n(caused_by(global_warming,humans)),climate): >
+    The claim that global warming is not caused by humans is in the climate domain.
+  asserts(joe,n(caused_by(global_warming,humans))): >
+    Joe asserts that global warming is not caused by humans.
+  n(caused_by(global_warming,humans)): >
+    Global warming is not caused by humans.
+
+argument_schemes:
+  expert_opinion:
+    variables: [W,D,S]
+    premises:
+      1: expert(W,D)
+      2: in_domain(S,D)
+      3: asserts(W,S)
+      # 4: based_on_evidence(asserts(W,S))  # assumptions not yet supported
+    conclusions:
+      - S
+
+  expert_untrustworthy:
+    meta:
+      note: >
+        Example undercutter (exception).  The argument premise is used to select
+        and identify the argument to be undercut.  
+    variables: [W,D,S]
+    premises:
+      1: argument(expert_opinion,[W,D,S])
+      2: untrustworthy(W)
+    conclusions:
+      - n(applicable(argument(expert_opinion,[W,D,S])))
+
+  expert_opinion_applicable:
+    variables: [W,D,S]
+    premises:
+      1: argument(expert_opinion,[W,D,S])
+      2: foo(W)
+    conclusions:
+      - applicable(argument(expert_opinion,[W,D,S]))
+
+  expert_opinion_bias:
+    variables: [W]
+    premises:
+      1: biased(W)
+    conclusions:
+      - untrustworthy(W)
+
+assumptions:
+  - expert(joe,climate)
+  - asserts(joe,n(caused_by(global_warming,humans)))
+  - in_domain(n(caused_by(global_warming,humans)),climate)
+  - biased(joe)
+
+
+
+
+
+

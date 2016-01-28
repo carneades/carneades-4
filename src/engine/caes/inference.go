@@ -284,9 +284,20 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 
 				match := false
 				if !isEnumeration {
-					// update bindings only if the issue scheme
-					// does not define an enumeration
-					match = terms.Match(pattern, term2, bindings)
+					// try matching against each of the remaining patterns
+					// and update the bindings and add the statement as
+					// as candidate if any pattern matches
+					for _, p := range patterns[1:] {
+						pattern2, ok := terms.ReadString(p)
+						if !ok {
+							fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", p)
+							continue
+						}
+						match = terms.Match(pattern2, term2, bindings)
+						if match {
+							break
+						}
+					}
 				} else {
 					// Use a fresh copy of bindings2 for enumeration issue patterns
 					b2copy := make(terms.Bindings)
