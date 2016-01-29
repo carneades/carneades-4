@@ -33,7 +33,8 @@ argument_schemes:
       1: expert(W,D)
       2: in_domain(S,D)
       3: asserts(W,S)
-      # 4: based_on_evidence(asserts(W,S))  # assumptions not yet supported
+    assumptions:
+      - based_on_evidence(asserts(W,S)) 
     conclusions:
       - S
 
