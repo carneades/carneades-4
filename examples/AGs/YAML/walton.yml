@@ -34,7 +34,7 @@ argument_schemes:
       2: in_domain(S,D)
       3: asserts(W,S)
     assumptions:
-      - based_on_evidence(asserts(W,S)) 
+      1: based_on_evidence(asserts(W,S)) 
     conclusions:
       - S
 
