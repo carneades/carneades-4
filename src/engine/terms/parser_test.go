@@ -26,6 +26,8 @@ func Test_terms(t *testing.T) {
 	tt("2+3+4*5+6+7")
 	tt("2+(3+4)*(5+6)+7")
 	// tt("(a=b) && (a<b) && (a>b) || (a<>b) || (a!= b) && (a <= b) || (a >= b) && (a in b)")
+	tt("'foo'('Joe Smith')")
+	tt("[b,c,d|X]")
 }
 
 func tt(str string) {
