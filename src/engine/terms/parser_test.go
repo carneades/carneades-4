@@ -8,31 +8,41 @@ import (
 
 func Test_terms(t *testing.T) {
 	// src is the input that we want to tokenize.
-	// src := []byte("cos(x) + 1i*sin(x) // Euler")
-	// ReadString("[function/2, p(x,Y) ==> Y < 23.4 | r(x),( gcd(N) \\ gcd(M) <=> N<=M| L is M mod N, gcd(L)), Z, ]")
-	// ReadString("prime(N) ==> N>2 | M is N-1, prime(m). prime(A) \\ prime(B) <=> B mod A =:= 0 | true")
+	// src := []byte(t, "cos(x) + 1i*sin(x) // Euler")
+	// ReadString(t, "[function/2, p(x,Y) ==> Y < 23.4 | r(x),( gcd(N) \\ gcd(M) <=> N<=M| L is M mod N, gcd(L)), Z, ]")
+	// ReadString(t, "prime(N) ==> N>2 | M is N-1, prime(m). prime(A) \\ prime(B) <=> B mod A =:= 0 | true")
 
-	// tt("E")
+	// tt(t, "E")
 
-	tt("23")
-	tt("\"str\"")
-	tt("3.147")
-	tt("abc")
-	tt("foo(a, b, c)")
-	tt("baz(a+3, b*7, bar(x,Y))")
-	tt("[foo(), baz(2*3+4*5,VAR,atom), X]")
-	tt("[a, b,]")
-	tt("2*3*4+5*6*7")
-	tt("2+3+4*5+6+7")
-	tt("2+(3+4)*(5+6)+7")
-	// tt("(a=b) && (a<b) && (a>b) || (a<>b) || (a!= b) && (a <= b) || (a >= b) && (a in b)")
-	tt("'foo'('Joe Smith')")
-	tt("[b,c,d|X]")
+	tt(t, "23")
+	tt(t, "\"str\"")
+	tt(t, "3.147")
+	tt(t, "abc")
+	tt(t, "foo(a, b, c)")
+	tt(t, "baz(a+3, b*7, bar(x,Y))")
+	tt(t, "[foo(), baz(2*3+4*5,VAR,atom), X]")
+
+	tt(t, "2*3*4+5*6*7")
+	tt(t, "2+3+4*5+6+7")
+	tt(t, "2+(3+4)*(5+6)+7")
+	// tt(t, "(a=b) && (a<b) && (a>b) || (a<>b) || (a!= b) && (a <= b) || (a >= b) && (a in b)")
+	tt(t, "[b,c,d|X]")
+
+	tt(t, "'Joe Smith'")
+	tt(t, "'foo'('Joe Smith')")
+	tt(t, "_t(-_a,_B)")
+	// Fehler
+	/*tt(t, "Fehler")
+	tt(t, "[a, b,]")
+	tt(t, "[a|b]")
+	*/
 }
 
-func tt(str string) {
+func tt(t *testing.T, str string) {
 	fmt.Printf("----> %s \n", str)
 	term, ok := terms.ReadString(str)
-
 	fmt.Printf("<---- %s = OK: %v Term: %s \n", str, ok, term.String())
+	if !ok {
+		t.Errorf(fmt.Sprintf("Scan \"%s\" failed, term: %s", str, term.String()))
+	}
 }

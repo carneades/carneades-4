@@ -32,7 +32,9 @@ func ReadString(src string) (result Term, ok bool) {
 	return
 }
 func err(s *sc.Scanner, str string) {
-	fmt.Fprintln(os.Stderr, "*** Parse Error before[", s.Pos(), "]:", str)
+	if str != "illegal char literal" {
+		fmt.Fprintln(os.Stderr, "*** Parse Error before[", s.Pos(), "]:", str)
+	}
 }
 
 func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
@@ -168,14 +170,11 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			op = "+"
 			tok = s.Scan()
 		case '|':
-			if tok2 != '|' {
-				err(s, "missing '|' after '|' in expression")
-			} else {
+			if tok2 == '|' {
 				tok = s.Scan()
+				tok = s.Scan()
+				op = "||"
 			}
-			tok = s.Scan()
-			op = "||"
-
 		}
 	}
 
@@ -293,10 +292,32 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			list = append(list, t)
 		}
 		t = list
-		// to do |
-		/*if tok == '|' {
-			// [ expr | variable ]
-		}*/
+		// [ expr | variable ]
+		if tok == '|' {
+			tok = s.Scan()
+			if tok == sc.Ident {
+				n := s.TokenText()
+				c := n[0]
+				ok = true
+				if c < 'A' || c > 'Z' {
+					err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", n))
+					ok = false
+				}
+				v := Variable{Name: n, index: big.NewInt(0)}
+				tok = s.Scan()
+				t := Compound{Functor: "|", Args: append(list, v)}
+				if tok == ']' {
+					return t, s.Scan(), ok
+				} else {
+					err(s, fmt.Sprintf("missing closed ']' after '[ ... | %s", n))
+					return t, tok, false
+				}
+			} else {
+				err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", f(tok)))
+				return t, tok, false
+
+			}
+		}
 		if tok != ']' {
 			err(s, fmt.Sprintf("missing closed ']' for the open '[' at position %s", pos))
 			return t, tok, false
@@ -332,7 +353,8 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			fmt.Printf("<<< sFloat: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 		}
 	case sc.Char:
-		t, tok, ok = sChar(s)
+		// t, tok, ok = sChar(s)
+		t, tok, ok = factor_name(s.TokenText(), s, s.Scan())
 		if trace {
 			fmt.Printf("<<< sChar: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 		}
@@ -441,17 +463,10 @@ func sString(s *sc.Scanner) (Term, rune, bool) {
 
 func sChar(s *sc.Scanner) (Term, rune, bool) {
 	if trace {
-		fmt.Printf("sChar : '%s'\n", s.TokenText())
+		fmt.Printf("sChar : %s\n", s.TokenText())
 	}
-	var (
-		c   rune
-		err error
-	)
-	_, err = fmt.Sscan(s.TokenText(), &c)
-	if err == nil {
-		return String(c), s.Scan(), true
-	}
-	return String(c), s.Scan(), false
+
+	return Atom(fmt.Sprintf("%s", s.TokenText())), s.Scan(), true
 }
 
 func f(tok rune) string {
