@@ -43,17 +43,17 @@ type (
 	// mapIface map[interface{}]interface{}
 
 	umArgScheme struct {
-		Assumptions     map[string]string // to do - list or map
+		Assumptions     interface{} // map[string]string - list or map
 		caesAssumptions map[string]string
 		caesExceptions  map[string]string
 		caesPremises    map[string]string
 		caesWeight      caes.WeighingFunction
 		Conclusions     []string
 		Deletions       []string
-		Exceptions      map[string]string // to do - list or map
+		Exceptions      interface{} // map[string]string - list or map
 		Guards          []string
 		Meta            caes.Metadata
-		Premises        map[string]string // to do - list or map
+		Premises        interface{} // map[string]string - list or map
 		Variables       []string
 		Weight          interface{}
 		// string
@@ -220,13 +220,22 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		}
 		// scan premises in argument_schemes
 		//  to do
-		argS.caesPremises = argS.Premises
+		argS.caesPremises, err = iface2mapStringString("premises", argS.Premises)
+		if err != nil {
+			return nil, err
+		}
 		// scan assumptions in argument_schemes
 		// to do
-		argS.caesAssumptions = argS.Assumptions
+		argS.caesAssumptions, err = iface2mapStringString("assumption", argS.Assumptions)
+		if err != nil {
+			return nil, err
+		}
 		// scan exceptions in argument_schemes
 		// to do
-		argS.caesExceptions = argS.Exceptions
+		argS.caesExceptions, err = iface2mapStringString("exceptions", argS.Exceptions)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// scan argument_scheme and set caesArgSchemes
 	m.caesArgSchemes = map[string]*caes.Scheme{}
@@ -463,6 +472,41 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 
 	return caesAg, nil
 
+}
+
+func iface2mapStringString(lbl string, value interface{}) (result map[string]string, err error) {
+	result = map[string]string{}
+	if value == nil {
+		return nil, nil
+	}
+	switch tValue := value.(type) {
+	case map[interface{}]interface{}:
+		for key, val := range value.(map[interface{}]interface{}) {
+			keyStr := ""
+			switch key.(type) {
+			case string:
+				keyStr = key.(string)
+			default:
+				keyStr = fmt.Sprintf("%v", key)
+			}
+			valStr := ""
+			switch val.(type) {
+			case string:
+				valStr = val.(string)
+			default:
+				valStr = fmt.Sprintf("%v", val)
+			}
+			result[keyStr] = valStr
+		}
+	case []interface{}:
+		for idx, val := range value.([]interface{}) {
+			result[fmt.Sprintf("%d", idx+1)] = fmt.Sprintf("%v", val)
+		}
+	default:
+		return result, errors.New(fmt.Sprintf(" *** Syntax Error: In %s not a map nor a list. Wrong type: %v \n", lbl, tValue))
+
+	}
+	return
 }
 
 func iface2string(value interface{}) string {
@@ -1806,7 +1850,7 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 
 	}
 
-	// // Write out the theory, as a YAML comment, for debugging
+	//	// Write out the theory, as a YAML comment, for debugging
 	//	t := caesAg.Theory
 	//	if t == nil {
 	//		fmt.Fprintf(f, "# !!! No Theory !!!\n")
