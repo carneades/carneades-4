@@ -30,9 +30,9 @@ argument_schemes:
   expert_opinion:
     variables: [W,D,S]
     premises:
-      - expert(W,D)
-      - in_domain(S,D)
-      - asserts(W,S)
+      1: expert(W,D)
+      2: in_domain(S,D)
+      3: asserts(W,S)
     assumptions:
       1: based_on_evidence(asserts(W,S)) 
     conclusions:
