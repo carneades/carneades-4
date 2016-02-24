@@ -28,7 +28,10 @@ const (
 	VariableType
 )
 
+type Vars []Variable
+
 type Term interface {
+	OccurVars() Vars
 	String() string
 	Type() Type
 }
@@ -40,8 +43,12 @@ type Float float64
 type String string
 
 type Compound struct {
-	Functor string
-	Args    []Term
+	Functor           string
+	Prio              int
+	occurVars         Vars
+	identifyOccurVars bool
+	IsActive          bool
+	Args              []Term
 }
 
 type List []Term
@@ -61,7 +68,47 @@ func NewVariable(name string) Variable {
 // for implementing a Prolog-style inference engine,
 // which requires a way to backtrack to a previous
 // set of bindings
-type Bindings map[string]Term // variables are represented as strings
+// type Bindings map[string]Term // variables are represented as strings
+
+type Bindings *BindEle
+type BindEle struct {
+	Var  Variable
+	T    Term
+	Next Bindings
+}
+
+func AddBinding(v Variable, t Term, b Bindings) Bindings {
+	// fmt.Printf(" Add Binding %s-%d == %s \n", v.String(), v.index, t.String())
+	return &BindEle{Var: v, T: t, Next: b}
+}
+
+func GetBinding(v Variable, b Bindings) (t Term, ok bool) {
+	// fmt.Printf(" GetBinding %s-%d %v \n", v.String(), v.index, b)
+	name := v.Name
+	id := v.index
+	if id == nil {
+		for b != nil {
+			if b.Var.Name == name && b.Var.index == nil {
+				// fmt.Printf(" Binding found %s \n", b.T.String())
+				return b.T, true
+			}
+			b = b.Next
+			// fmt.Printf(" NextBinding %s %v \n", name, b)
+		}
+	} else {
+
+		for b != nil {
+			if b.Var.Name == name && b.Var.index != nil && b.Var.index.Cmp(id) == 0 {
+				// fmt.Printf(" Binding found %s \n", b.T.String())
+				return b.T, true
+			}
+			b = b.Next
+			// fmt.Printf(" NextBinding %s %v \n", name, b)
+		}
+	}
+	// fmt.Printf(" Binding not found \n")
+	return nil, false
+}
 
 func (t Atom) Type() Type {
 	return AtomType
@@ -120,11 +167,71 @@ func (t String) String() string {
 }
 
 func (t Compound) String() string {
+	if t.Prio != 0 {
+		prio := t.Prio
+		f := t.Functor
+		switch f {
+		case "||", "&&", "in", "or", "div", "mod":
+			f = " " + f + " "
+		}
+		switch t.Arity() {
+		case 1:
+			if t.Args[0].Type() == CompoundType {
+				prio1 := t.Args[0].(Compound).Prio
+				if prio1 == 0 {
+					return f + t.Args[0].String()
+				}
+				if prio1 < prio {
+					return f + "(" + t.Args[0].String() + ")"
+				}
+			}
+			return f + t.Args[0].String()
+		case 2:
+			if t.Args[0].Type() == CompoundType {
+				prio1 := t.Args[0].(Compound).Prio
+				if t.Args[1].Type() == CompoundType {
+					prio2 := t.Args[1].(Compound).Prio
+					switch {
+					case prio1 < prio && prio2 < prio:
+						return "(" + t.Args[0].String() + ") " + f + " (" + t.Args[1].String() + ")"
+					case prio1 < prio:
+						return "(" + t.Args[0].String() + ") " + f + " " + t.Args[1].String()
+					case prio2 < prio:
+						return t.Args[0].String() + " " + f + " (" + t.Args[1].String() + ")"
+					default:
+						return t.Args[0].String() + f + t.Args[1].String()
+					}
+				} else {
+					if prio1 < prio {
+						return "(" + t.Args[0].String() + ") " + f + " " + t.Args[1].String()
+					} else {
+						return t.Args[0].String() + f + t.Args[1].String()
+					}
+				}
+			} else if t.Args[1].Type() == CompoundType && t.Args[1].(Compound).Prio < prio {
+				return t.Args[0].String() + " " + f + " (" + t.Args[1].String() + ")"
+			}
+			return t.Args[0].String() + f + t.Args[1].String()
+
+		}
+	}
+	// Prio == 0
+	if t.Functor == "|" {
+		args := []string{}
+		var oldarg Term = nil
+		for _, arg := range t.Args {
+			if oldarg != nil {
+				args = append(args, oldarg.String())
+			}
+			oldarg = arg
+		}
+		return "[" + strings.Join(args, ", ") + " | " + oldarg.String() + "]"
+	}
 	args := []string{}
 	for _, arg := range t.Args {
 		args = append(args, arg.String())
 	}
-	return t.Functor + "(" + strings.Join(args, ",") + ")"
+	return t.Functor + "(" + strings.Join(args, ", ") + ")"
 }
 
 func (t List) String() string {
@@ -132,7 +239,7 @@ func (t List) String() string {
 	for _, arg := range t {
 		args = append(args, arg.String())
 	}
-	return "[" + strings.Join(args, ",") + "]"
+	return "[" + strings.Join(args, ", ") + "]"
 }
 
 func (v Variable) String() string {
@@ -141,6 +248,51 @@ func (v Variable) String() string {
 	} else {
 		return v.Name + v.index.String()
 	}
+}
+
+func (t Atom) OccurVars() Vars {
+	return nil
+}
+
+func (t Bool) OccurVars() Vars {
+	return nil
+}
+
+func (t Int) OccurVars() Vars {
+	return nil
+}
+
+func (t Float) OccurVars() Vars {
+	return nil
+}
+
+func (t String) OccurVars() Vars {
+	return nil
+}
+
+func (t Compound) OccurVars() Vars {
+	if t.identifyOccurVars {
+		return t.occurVars
+	}
+	occur := Vars{}
+	for _, t2 := range t.Args {
+		occur = append(occur, t2.OccurVars()...)
+	}
+	t.occurVars = occur
+	t.identifyOccurVars = true
+	return t.occurVars
+}
+
+func (t List) OccurVars() Vars {
+	occur := Vars{}
+	for _, t2 := range t {
+		occur = append(occur, t2.OccurVars()...)
+	}
+	return occur
+}
+
+func (t Variable) OccurVars() Vars {
+	return Vars{t}
 }
 
 func (t Compound) Arity() int {
@@ -206,75 +358,213 @@ func Equal(t1, t2 Term) bool {
 	}
 }
 
-func copyBindings(env Bindings) Bindings {
+/*func copyBindings(env Bindings) Bindings {
 	result := make(Bindings)
 	for v, t := range env {
 		result[v] = t
 	}
 	return result
-}
+} */
 
 // Match updates the bindings only if the match
 // is successful, in which case true is returned.
 // One way match, not unification:  variables
 // in t1 are bound to terms in t2.
 func Match(t1, t2 Term, env Bindings) (ok bool) {
+	ok, _ = Match1(t1, t2, env)
+	return ok
+}
+
+func Match1(t1, t2 Term, env Bindings) (ok bool, env2 Bindings) {
 	if t1.Type() != VariableType && t1.Type() != t2.Type() {
-		return false
+		return false, env
 	}
 	switch t1.Type() {
 	case AtomType, BoolType, IntType, FloatType, StringType:
-		return Equal(t1, t2)
+		return Equal(t1, t2), env
 	case CompoundType:
 		if t1.(Compound).Functor != t2.(Compound).Functor ||
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
-			return false
+			return false, env
 		}
-		env2 := copyBindings(env)
+		env2 := env
 		for i, _ := range t1.(Compound).Args {
-			ok := Match(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
+			ok, env2 = Match1(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
 			if !ok {
-				return false
+				return false, env
 			}
 		}
 		// update env with the new bindings
-		for v, t := range env2 {
-			env[v] = t
-		}
-		return true
+		env = env2
+		/*		for v, t := range env2 {
+				env[v] = t
+			} */
+		return true, env
 	case ListType:
 		if len(t1.(List)) != len(t2.(List)) {
-			return false
+			return false, env
 		}
-		env2 := copyBindings(env)
+		env2 := env
 		for i, _ := range t1.(List) {
-			ok := Match(t1.(List)[i], t2.(List)[i], env2)
+			ok, env2 = Match1(t1.(List)[i], t2.(List)[i], env2)
 			if !ok {
-				return false
+				return false, env
 			}
 		}
 		// update env with the new bindings
-		for v, t := range env2 {
+		env = env2
+		/*	for v, t := range env2 {
 			env[v] = t
-		}
-		return true
+		} */
+		return true, env
 	case VariableType:
-		t3, ok := env[t1.String()]
+		t3, ok := GetBinding(t1.(Variable), env)
 		if !ok { // variable was not yet bound in env
-			env[t1.String()] = t2
-			return true
+			env = AddBinding(t1.(Variable), t2, env)
+			return true, env
 		} else {
 			// return true only if the two instances of the variable
 			// would be bound to the same term
 			if Equal(t2, t3) {
-				return true
+				return true, env
 			} else {
-				return false
+				return false, env
 			}
 		}
 	default:
-		return false
+		return false, env
 	}
+}
+
+// rename Variables in head and Unify head with goal
+func Unify(head, goal Term, env Bindings) (ok bool, env2 Bindings) {
+	return Unify1(head, goal, true /* renaming head vars */, Vars{}, env)
+}
+
+func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (ok bool, env2 Bindings) {
+
+	t1Type := t1.Type()
+	if t1Type == VariableType {
+		// to do: late renaming of head-variables
+		renaming = false
+		for t1Type == VariableType {
+			visited = append(visited, t1.(Variable))
+			t3, ok := GetBinding(t1.(Variable), env)
+			if ok {
+				t1 = t3
+				t1Type = t1.Type()
+			} else {
+				break
+			}
+
+		}
+
+	}
+	t2Type := t2.Type()
+	for t2Type == VariableType {
+		visited = append(visited, t2.(Variable))
+		t3, ok := GetBinding(t2.(Variable), env)
+		if ok {
+			t2 = t3
+			t2Type = t2.Type()
+		} else {
+			break
+		}
+	}
+	if t1Type == VariableType {
+		if t2Type == VariableType {
+			if t1.(Variable).Name == t2.(Variable).Name &&
+				(t1.(Variable).index.Cmp(t2.(Variable).index) == 0 ||
+					(t1.(Variable).index == nil && t2.(Variable).index == nil)) {
+				// Var == Var
+				return true, env
+			} else {
+				// Var1 != Var2 , no occur-check
+				env2 = AddBinding(t1.(Variable), t2, env)
+				return true, env2
+			}
+		}
+		if checkOccur(visited, t2, env) {
+			return false, nil
+		}
+		env2 = AddBinding(t1.(Variable), t2, env)
+		return true, env2
+	}
+	if t2Type == VariableType {
+		if checkOccur(visited, t1, env) {
+			return false, nil
+		}
+		// to do: if renaming { rename vars in t1 }
+		env2 = AddBinding(t2.(Variable), t1, env)
+		return true, env2
+	}
+	if t1Type != t2Type {
+		return false, env
+	}
+	switch t1.Type() {
+	case AtomType, BoolType, IntType, FloatType, StringType:
+		return Equal(t1, t2), env
+	case CompoundType:
+		if t1.(Compound).Functor != t2.(Compound).Functor ||
+			t1.(Compound).Arity() != t2.(Compound).Arity() {
+			return false, env
+		}
+		env2 := env
+		for i, _ := range t1.(Compound).Args {
+			ok, env2 = Unify1(t1.(Compound).Args[i], t2.(Compound).Args[i], renaming, visited, env2)
+			if !ok {
+				return false, env
+			}
+		}
+		// update env with the new bindings
+		env = env2
+		/*		for v, t := range env2 {
+				env[v] = t
+			} */
+		return true, env
+	case ListType:
+		if len(t1.(List)) != len(t2.(List)) {
+			return false, env
+		}
+		env2 := env
+		for i, _ := range t1.(List) {
+			ok, env2 = Unify1(t1.(List)[i], t2.(List)[i], renaming, visited, env2)
+			if !ok {
+				return false, env
+			}
+		}
+		// update env with the new bindings
+		env = env2
+		/*	for v, t := range env2 {
+			env[v] = t
+		} */
+		return true, env
+	default:
+		return false, env
+	}
+}
+
+func checkOccur(v Vars, t Term, env Bindings) bool {
+
+	for _, termv := range t.OccurVars() {
+		for _, visitv := range v {
+			if termv.Name == visitv.Name && termv.index.Cmp(visitv.index) == 0 {
+				return true
+			}
+		}
+		t2, ok := GetBinding(termv, env)
+		if ok {
+			for _, termv := range t2.OccurVars() {
+				for _, visitv := range v {
+					if termv.Name == visitv.Name && termv.index.Cmp(visitv.index) == 0 {
+						return true
+					}
+				}
+			}
+		}
+
+	}
+	return false
 }
 
 func Arity(t Term) int {
@@ -344,11 +634,11 @@ func Substitute(t Term, env Bindings) Term {
 	case VariableType:
 		result := t
 		visited[t.(Variable)] = true
-		t2, ok := env[t.String()]
+		t2, ok := GetBinding(t.(Variable), env)
 		for ok == true {
 			result = t2
 			if t2.Type() == VariableType && !visited[t2.(Variable)] {
-				t2, ok = env[t2.String()]
+				t2, ok = GetBinding(t2.(Variable), env)
 				continue
 			} else {
 				break

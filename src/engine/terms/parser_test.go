@@ -49,7 +49,7 @@ func Test_terms(t *testing.T) {
 func tt(t *testing.T, str string) {
 	// fmt.Printf("----> %s \n", str)
 	term, ok := terms.ReadString(str)
-	fmt.Printf("===RUN Scan %s = Term: %s \n", str, term.String())
+	fmt.Printf("===RUN Scan %s \n               Term: %s \n", str, term.String())
 	if !ok {
 		t.Errorf(fmt.Sprintf("Scan \"%s\" failed, term: %s", str, term.String()))
 	}

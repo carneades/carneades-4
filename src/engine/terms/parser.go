@@ -18,6 +18,15 @@ import (
 	// "go/token"
 )
 
+// Precedence  Operator
+//     7 (coded as 0)  Variavle, Function, Konstant
+//     6         mon. Operator +, -, !, ^ and in Go: *, &, <-
+//     5         *, /, %, div, mod, &, &^, <<, >>
+//     4        +, -, ^, or (the | will be used as list-operator, as in [a|B])
+//     3        ==, !=, <, <=, >, >= and =< (only for Prolog-like)
+//     2        &&
+//     1        ||
+
 const trace = false
 
 func ReadString(src string) (result Term, ok bool) {
@@ -108,7 +117,7 @@ func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		if !ok {
 			return t1, tok, ok
 		}
-		t = Compound{Functor: op, Args: []Term{t1, t}}
+		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 1}
 		if trace {
 			fmt.Printf("-<- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 		}
@@ -153,7 +162,7 @@ func and_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		if !ok {
 			return t1, tok, ok
 		}
-		t = Compound{Functor: op, Args: []Term{t1, t}}
+		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 2}
 		if trace {
 			fmt.Printf("-<- and_exp: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
 		}
@@ -225,7 +234,7 @@ func comp_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		return t1, tok, ok
 	}
 
-	return Compound{Functor: op, Args: []Term{t1, t}}, tok, ok
+	return Compound{Functor: op, Args: []Term{t1, t}, Prio: 3}, tok, ok
 }
 
 func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
@@ -274,7 +283,7 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		if !ok {
 			return
 		}
-		t = Compound{Functor: op, Args: []Term{t1, t}}
+		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 4}
 		if trace {
 			fmt.Printf("-<- simple_expression: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
 		}
@@ -349,7 +358,7 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		if !ok {
 			return t1, tok, ok
 		}
-		t = Compound{Functor: op, Args: []Term{t1, t}}
+		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 5}
 		if trace {
 			fmt.Printf("<- sterm: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
 		}
@@ -395,7 +404,7 @@ func mon_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if !ok {
 		return
 	}
-	return Compound{Functor: monop, Args: []Term{t}}, tok, ok
+	return Compound{Functor: monop, Args: []Term{t}, Prio: 6}, tok, ok
 }
 
 func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
