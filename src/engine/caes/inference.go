@@ -172,8 +172,17 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 			}
 			_, err = f.WriteString("]),\n")
 
-			// write the conclusions
-			writeTerms(s.Conclusions)
+			conclusions := []string{}
+			// append the assumptions of the schemes
+			// as additional conclusions
+			for _, stmt := range s.Assumptions {
+				conclusions = append(conclusions, stmt)
+			}
+			// also append the actual conclusions
+			for _, stmt := range s.Conclusions {
+				conclusions = append(conclusions, stmt)
+			}
+			writeTerms(conclusions)
 			_, err = f.WriteString(".\n\n")
 
 		}
@@ -391,7 +400,7 @@ func (ag *ArgGraph) Infer() error {
 		return err
 	}
 	defer f.Close()
-	defer os.Remove(f.Name())
+	// defer os.Remove(f.Name())
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes
