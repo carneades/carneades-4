@@ -8,33 +8,36 @@ meta:
     Argumentation Schemes. Cambridge University Press.
 
 language:
-  expert/2: "%s is an expert in the %v domain."
+  expert/2: "%s is an expert in the %s domain."
   in_domain/2: "%s is in the domain of %s."
   asserts/2: "%s asserts that %s is true."
   untrustworthy/1: "%s is untrustworthy."
   biased/1: "%s is biased."
   n/1: 'It is not true that: "%s"'
-  foo/1: "%s is foo."
   applicable/1: "Argument %s is applicable."
 
 statements:
-  expert(joe,climate): Joe is a climate expert.
-  in_domain(n(caused_by(global_warming,humans)),climate): >
-    The claim that global warming is not caused by humans is in the climate domain.
-  asserts(joe,n(caused_by(global_warming,humans))): >
-    Joe asserts that global warming is not caused by humans.
-  n(caused_by(global_warming,humans)): >
-    Global warming is not caused by humans.
+   expert(joe,climate): Joe is a climate expert.
+   in_domain(n(caused_by(global_warming,humans)),climate): >
+      The claim that global warming is not caused by humans is in the climate domain.
+   asserts(joe,n(caused_by(global_warming,humans))): >
+      Joe asserts that global warming is not caused by humans.
+   n(caused_by(global_warming,humans)): >
+      Global warming is not caused by humans.
+
+#a1 = argument(expert_opinion,[joe,climate,n(caused_by(global_warming,humans))])
 
 argument_schemes:
   expert_opinion:
     variables: [W,D,S]
     premises:
-      - expert(W,D)
-      - in_domain(S,D)
-      - asserts(W,S)
+      expert: expert(W,D)
+      domain: in_domain(S,D)
+      assertion: asserts(W,S)
     assumptions:
-      1: based_on_evidence(asserts(W,S)) 
+      CQ1: based_on_evidence(asserts(W,S)) 
+    exceptions:
+      CQ2: untrustworthy(W)
     conclusions:
       - S
 

@@ -12,10 +12,11 @@ package caes
 
 import (
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/terms"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/carneades/carneades-4/src/engine/terms"
 )
 
 // The data types are sorted alphabetically
@@ -546,27 +547,37 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			premises := []Premise{}
 			conclusions := []*Statement{}
 
-			for role, p := range scheme.Premises {
-				term1, ok := terms.ReadString(p)
-				if ok {
-					term2 := terms.Substitute(term1, bindings)
-					// Leave argument(S,P) premises implicit; Enthymeme!
-					pred, ok := terms.Predicate(term2)
-					if ok && pred == "argument" {
-						continue
+			addPremises := func(m map[string]string, assumptions bool) {
+				for role, p := range m {
+					term1, ok := terms.ReadString(p)
+					if ok {
+						term2 := terms.Substitute(term1, bindings)
+						// Leave argument(S,P) premises implicit; Enthymeme!
+						pred, ok := terms.Predicate(term2)
+						if ok && pred == "argument" {
+							continue
+						}
+						stmt, ok := ag.Statements[term2.String()]
+						if !ok {
+							s := Statement{Id: term2.String(),
+								Text: ag.Theory.Language.Apply(term2)}
+							ag.Statements[term2.String()] = &s
+							stmt = &s
+
+						}
+						if assumptions {
+							ag.Assumptions[term2.String()] = true
+						}
+						premises = append(premises, Premise{Role: role, Stmt: stmt})
+					} else {
+						fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", p)
 					}
-					stmt, ok := ag.Statements[term2.String()]
-					if !ok {
-						s := Statement{Id: term2.String(),
-							Text: ag.Theory.Language.Apply(term2)}
-						ag.Statements[term2.String()] = &s
-						stmt = &s
-					}
-					premises = append(premises, Premise{Role: role, Stmt: stmt})
-				} else {
-					fmt.Fprintf(os.Stderr, "Could not parse premise: %v\n", p)
 				}
 			}
+
+			addPremises(scheme.Premises, false)
+			// add the assumptions as additional premises
+			addPremises(scheme.Assumptions, true)
 
 			for _, c := range scheme.Conclusions {
 				term1, ok := terms.ReadString(c)
