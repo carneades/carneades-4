@@ -15,6 +15,7 @@ language:
   biased/1: "%s is biased."
   n/1: 'It is not true that: "%s"'
   applicable/1: "Argument %s is applicable."
+  based_on_evidence/1: "The assertion %v is based on evidence."
 
 statements:
    expert(joe,climate): Joe is a climate expert.
@@ -24,8 +25,8 @@ statements:
       Joe asserts that global warming is not caused by humans.
    n(caused_by(global_warming,humans)): >
       Global warming is not caused by humans.
-
-#a1 = argument(expert_opinion,[joe,climate,n(caused_by(global_warming,humans))])
+   based_on_evidence(asserts(joe,n(caused_by(global_warming,humans)))): >-
+      Joe's assertion is based on evidence.
 
 argument_schemes:
   expert_opinion:
@@ -35,23 +36,11 @@ argument_schemes:
       domain: in_domain(S,D)
       assertion: asserts(W,S)
     assumptions:
-      CQ1: based_on_evidence(asserts(W,S)) 
+      CQ1: based_on_evidence(asserts(W,S))
     exceptions:
       CQ2: untrustworthy(W)
     conclusions:
       - S
-
-  expert_untrustworthy:
-    meta:
-      note: >
-        Example undercutter (exception).  The argument premise is used to select
-        and identify the argument to be undercut.  
-    variables: [W,D,S]
-    premises:
-      1: argument(expert_opinion,[W,D,S])
-      2: untrustworthy(W)
-    conclusions:
-      - n(applicable(argument(expert_opinion,[W,D,S])))
 
   expert_opinion_bias:
     variables: [W]

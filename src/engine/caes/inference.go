@@ -42,6 +42,7 @@ const header = `
 :- chr_constraint argument/2, go/0, n/0.
 :- json_object argument(scheme:text, values:list(text)).
 :- initialization main.
+:- op(900, fx, ¬).
 
 terms_strings([],[]).
 terms_strings([H|T],[SH|ST]) :-
