@@ -45,7 +45,7 @@ argument_schemes:
   expert_opinion_bias:
     variables: [W]
     premises:
-      1: biased(W)
+      - biased(W)
     conclusions:
       - untrustworthy(W)
 
