@@ -629,7 +629,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
-				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
+				ucid := "¬applicable(" + argId + ")"
 				uc = Statement{Id: ucid,
 					Text: argId + " is not applicable."}
 				ag.Statements[normalize(ucid)] = &uc
@@ -672,7 +672,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				// Construct an undercutter statement (for the undercutter of
 				// undercutter!) and add it to the statements of the graph
 
-				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
+				ucid := "¬applicable(" + argId + ")"
 				uc2 := Statement{Id: ucid,
 					Text: argId + " is not applicable."}
 				ag.Statements[normalize(ucid)] = &uc2

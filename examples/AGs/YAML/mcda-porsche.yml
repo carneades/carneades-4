@@ -108,7 +108,7 @@ issue_schemes:
     price: ["price(O,P1)", "...", "price(O,Pn)"]
     speed: ["speed(O,S1)", "...", "speed(O,Sn)"]
     type: ["type(O,T1)", "...", "type(O,Tn)"]
-    not:  ["n(P)", "P"]
+    not:  ["¬P", "P"]
 
 # statements:
 #   buy(porsche): Buy a Porsche.

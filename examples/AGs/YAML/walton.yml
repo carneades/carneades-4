@@ -19,13 +19,13 @@ language:
 
 statements:
    expert(joe,climate): Joe is a climate expert.
-   in_domain(n(caused_by(global_warming,humans)),climate): >
+   in_domain(¬caused_by(global_warming,humans),climate): >
       The claim that global warming is not caused by humans is in the climate domain.
-   asserts(joe,n(caused_by(global_warming,humans))): >
+   asserts(joe,¬caused_by(global_warming,humans)): >
       Joe asserts that global warming is not caused by humans.
-   n(caused_by(global_warming,humans)): >
+   ¬caused_by(global_warming,humans): >
       Global warming is not caused by humans.
-   based_on_evidence(asserts(joe,n(caused_by(global_warming,humans)))): >
+   based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): >
       Joe's assertion is based on evidence.
 
 argument_schemes:
@@ -51,9 +51,11 @@ argument_schemes:
 
 assumptions:
   - expert(joe, climate)
-  - asserts(joe,n(caused_by(global_warming,humans)))
-  - in_domain(n(caused_by(global_warming, humans)), climate)
+  - asserts(joe,¬caused_by(global_warming,humans))
+  - in_domain(¬caused_by(global_warming, humans), climate)
   - biased(joe)
+
+
 
 
 
