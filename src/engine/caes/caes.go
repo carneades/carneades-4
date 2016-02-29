@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/carneades/carneades-4/src/engine/terms"
 )
@@ -579,6 +578,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			// add the assumptions as additional premises
 			addPremises(scheme.Assumptions, true)
 
+			// instantiate the conclusions of the scheme
 			for _, c := range scheme.Conclusions {
 				term1, ok := terms.ReadString(c)
 				if ok {
@@ -592,31 +592,74 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 					}
 					conclusions = append(conclusions, stmt)
 				} else {
-					fmt.Fprintf(os.Stderr, "Could not parse conclusion: %v\n", c)
+					fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", c)
 				}
 			}
 
 			// construct an argument for each conclusion and add
 			// the argument to the graph
+
+			var uc Statement // the undercutter
 			for _, c := range conclusions {
-				argid := genArgId()
+				argId := genArgId()
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
-				ucid := "n(applicable(argument(" + scheme.Id + ",[" + strings.Join(parameters, ",") + "])))"
-				uc := Statement{Id: ucid,
-					Text: argid + " is not applicable."}
+				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
+				uc = Statement{Id: ucid,
+					Text: argId + " is not applicable."}
 				ag.Statements[ucid] = &uc
 
 				// Construct the argument and add it to the graph
-				arg := Argument{Id: argid,
+				arg := Argument{Id: argId,
 					Scheme:      scheme,
 					Parameters:  parameters,
 					Premises:    premises,
 					Undercutter: &uc,
 					Conclusion:  c}
-				ag.Arguments[argid] = &arg
+				ag.Arguments[argId] = &arg
 				c.Args = append(c.Args, &arg)
+			}
+
+			// instantiate the excpetions of the scheme
+			exceptions := []*Statement{}
+			for _, e := range scheme.Exceptions {
+				term1, ok := terms.ReadString(e)
+				if ok {
+					term2 := terms.Substitute(term1, bindings)
+					stmt, ok := ag.Statements[term2.String()]
+					if !ok {
+						s := Statement{Id: term2.String(),
+							Text: ag.Theory.Language.Apply(term2)}
+						ag.Statements[term2.String()] = &s
+						stmt = &s
+					}
+					exceptions = append(exceptions, stmt)
+				} else {
+					fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", e)
+				}
+			}
+
+			// construct an undercutting argument for each exception
+			// and add it to the argument graph
+			for _, e := range exceptions {
+				argId := genArgId()
+
+				// Construct an undercutter statement (for the undercutter of
+				// undercutter!) and add it to the statements of the graph
+
+				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
+				uc2 := Statement{Id: ucid,
+					Text: argId + " is not applicable."}
+				ag.Statements[ucid] = &uc2
+
+				// Construct the argument and add it to the graph
+				arg := Argument{Id: argId,
+					Premises:    []Premise{Premise{Stmt: e}},
+					Undercutter: &uc2,
+					Conclusion:  &uc}
+				ag.Arguments[argId] = &arg
+				uc.Args = append(uc.Args, &arg)
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "No scheme with this id: %v\n", id)
