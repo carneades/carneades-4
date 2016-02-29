@@ -33,10 +33,32 @@ var CurVarCounter *big.Int
 type chrRule struct {
 	name  string
 	id    int
-	rHead List // removed constraints
-	kHead List // kept constraint
+	delHead List // removed constraints
+	keepHead List // kept constraint
 	guard List // built-in constraint
 	body  List // add CHR and built-in constraint
 }
 
 var CHRruleStore []*chrRule
+
+func CHRsolver () {
+	var ruleFound true
+	var rule *chrRule
+	var env 
+	for ruleFound {
+		ruleFound = false
+		for _, rule = range CHRruleStore {
+			env, ok := UnifyHeads(rule)
+			if ok {break}
+		}
+		if ok {
+			env, ok = 
+		}
+		
+		
+	}
+}
+
+ProceRule
+
+

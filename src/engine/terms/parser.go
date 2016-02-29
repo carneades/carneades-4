@@ -20,7 +20,7 @@ import (
 
 // Precedence  Operator
 //     7 (coded as 0)  Variavle, Function, Konstant
-//     6         mon. Operator +, -, !, ^ and in Go: *, &, <-
+//     6         mon. Operator +, -, !, ^, ¬ and in Go: *, &, <-
 //     5         *, /, %, div, mod, &, &^, <<, >>
 //     4        +, -, ^, or (the | will be used as list-operator, as in [a|B])
 //     3        ==, !=, <, <=, >, >= and =< (only for Prolog-like)
@@ -392,6 +392,8 @@ func mon_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		}
 	case '^':
 		monop = "^"
+	case '¬':
+		monop = "¬"
 	}
 	if monop == "" {
 		return factor(s, tok1)

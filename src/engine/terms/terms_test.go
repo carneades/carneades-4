@@ -178,3 +178,21 @@ func TestUnify9(t *testing.T) {
 		t.Errorf("TestUnify9 failed\n")
 	}
 }
+
+func TestUnify10(t *testing.T) {
+	ok := tunify(t,
+		"p(f(A,A),g(B,B),B)",
+		"p(f(X,Y),g(Y,Z),X)")
+	if !ok {
+		t.Errorf("TestUnify10 failed\n")
+	}
+}
+
+func TestUnify11(t *testing.T) {
+	ok := tunify(t,
+		"p(f(A,A),g(B,B),B)",
+		"p(f(X,Y),g(Y,Z),h(X))")
+	if ok {
+		t.Errorf("TestUnify11 failed\n")
+	}
+}
