@@ -21,7 +21,7 @@ func TestMatch1(t *testing.T) {
 	t2 := Atom("sally")
 	t3 := Compound{Functor: "parent", Args: []Term{t1, t2}}
 	t4 := Compound{Functor: "parent", Args: []Term{Variable{Name: "X"}, Variable{Name: "Y"}}}
-	ok := Match(t4, t3, nil)
+	_, ok := Match(t4, t3, nil)
 	if ok == false {
 		t.Errorf("TestMatch1 failed\n")
 	}
@@ -31,7 +31,7 @@ func TestMatch2(t *testing.T) {
 	// check that a variable is not bound to two different terms
 	t3 := Compound{Functor: "parent", Args: []Term{Atom("joe"), Atom("sally")}}
 	t4 := Compound{Functor: "parent", Args: []Term{Variable{Name: "X"}, Variable{Name: "X"}}}
-	ok := Match(t4, t3, nil)
+	_, ok := Match(t4, t3, nil)
 	if ok == true {
 		t.Errorf("TestMatch2 failed\n")
 	}

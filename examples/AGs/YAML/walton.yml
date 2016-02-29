@@ -25,7 +25,7 @@ statements:
       Joe asserts that global warming is not caused by humans.
    n(caused_by(global_warming,humans)): >
       Global warming is not caused by humans.
-   based_on_evidence(asserts(joe,n(caused_by(global_warming,humans)))): >-
+   based_on_evidence(asserts(joe,n(caused_by(global_warming,humans)))): >
       Joe's assertion is based on evidence.
 
 argument_schemes:
@@ -50,9 +50,9 @@ argument_schemes:
       - untrustworthy(W)
 
 assumptions:
-  - expert(joe,climate)
+  - expert(joe, climate)
   - asserts(joe,n(caused_by(global_warming,humans)))
-  - in_domain(n(caused_by(global_warming,humans)),climate)
+  - in_domain(n(caused_by(global_warming, humans)), climate)
   - biased(joe)
 
 

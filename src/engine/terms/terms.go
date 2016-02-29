@@ -62,14 +62,6 @@ func NewVariable(name string) Variable {
 	return Variable{Name: name, index: big.NewInt(0)}
 }
 
-// This mutable representation of variable bindings
-// should be suitable and sufficient implementing Constraint
-// Handling Rules, but is presumably not adequate
-// for implementing a Prolog-style inference engine,
-// which requires a way to backtrack to a previous
-// set of bindings
-// type Bindings map[string]Term // variables are represented as strings
-
 type Bindings *BindEle
 type BindEle struct {
 	Var  Variable
@@ -225,13 +217,13 @@ func (t Compound) String() string {
 			}
 			oldarg = arg
 		}
-		return "[" + strings.Join(args, ", ") + " | " + oldarg.String() + "]"
+		return "[" + strings.Join(args, ",") + " | " + oldarg.String() + "]"
 	}
 	args := []string{}
 	for _, arg := range t.Args {
 		args = append(args, arg.String())
 	}
-	return t.Functor + "(" + strings.Join(args, ", ") + ")"
+	return t.Functor + "(" + strings.Join(args, ",") + ")"
 }
 
 func (t List) String() string {
@@ -370,28 +362,28 @@ func Equal(t1, t2 Term) bool {
 // is successful, in which case true is returned.
 // One way match, not unification:  variables
 // in t1 are bound to terms in t2.
-func Match(t1, t2 Term, env Bindings) (ok bool) {
-	ok, _ = Match1(t1, t2, env)
-	return ok
-}
+//func Match(t1, t2 Term, env Bindings) (ok bool) {
+//	ok, _ = Match1(t1, t2, env)
+//	return ok
+//}
 
-func Match1(t1, t2 Term, env Bindings) (ok bool, env2 Bindings) {
+func Match(t1, t2 Term, env Bindings) (env2 Bindings, ok bool) {
 	if t1.Type() != VariableType && t1.Type() != t2.Type() {
-		return false, env
+		return env, false
 	}
 	switch t1.Type() {
 	case AtomType, BoolType, IntType, FloatType, StringType:
-		return Equal(t1, t2), env
+		return env, Equal(t1, t2)
 	case CompoundType:
 		if t1.(Compound).Functor != t2.(Compound).Functor ||
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
-			return false, env
+			return env, false
 		}
 		env2 := env
 		for i, _ := range t1.(Compound).Args {
-			ok, env2 = Match1(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
+			env2, ok = Match(t1.(Compound).Args[i], t2.(Compound).Args[i], env2)
 			if !ok {
-				return false, env
+				return env, false
 			}
 		}
 		// update env with the new bindings
@@ -399,16 +391,16 @@ func Match1(t1, t2 Term, env Bindings) (ok bool, env2 Bindings) {
 		/*		for v, t := range env2 {
 				env[v] = t
 			} */
-		return true, env
+		return env, true
 	case ListType:
 		if len(t1.(List)) != len(t2.(List)) {
-			return false, env
+			return env, false
 		}
 		env2 := env
 		for i, _ := range t1.(List) {
-			ok, env2 = Match1(t1.(List)[i], t2.(List)[i], env2)
+			env2, ok = Match(t1.(List)[i], t2.(List)[i], env2)
 			if !ok {
-				return false, env
+				return env, false
 			}
 		}
 		// update env with the new bindings
@@ -416,32 +408,32 @@ func Match1(t1, t2 Term, env Bindings) (ok bool, env2 Bindings) {
 		/*	for v, t := range env2 {
 			env[v] = t
 		} */
-		return true, env
+		return env, true
 	case VariableType:
 		t3, ok := GetBinding(t1.(Variable), env)
 		if !ok { // variable was not yet bound in env
 			env = AddBinding(t1.(Variable), t2, env)
-			return true, env
+			return env, true
 		} else {
 			// return true only if the two instances of the variable
 			// would be bound to the same term
 			if Equal(t2, t3) {
-				return true, env
+				return env, true
 			} else {
-				return false, env
+				return env, false
 			}
 		}
 	default:
-		return false, env
+		return env, false
 	}
 }
 
 // rename Variables in head and Unify head with goal
-func Unify(head, goal Term, env Bindings) (ok bool, env2 Bindings) {
+func Unify(head, goal Term, env Bindings) (env2 Bindings, ok bool) {
 	return Unify1(head, goal, true /* renaming head vars */, Vars{}, env)
 }
 
-func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (ok bool, env2 Bindings) {
+func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindings, ok bool) {
 
 	t1Type := t1.Type()
 	if t1Type == VariableType {
@@ -477,43 +469,43 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (ok bool, en
 				(t1.(Variable).index.Cmp(t2.(Variable).index) == 0 ||
 					(t1.(Variable).index == nil && t2.(Variable).index == nil)) {
 				// Var == Var
-				return true, env
+				return env, true
 			} else {
 				// Var1 != Var2 , no occur-check
 				env2 = AddBinding(t1.(Variable), t2, env)
-				return true, env2
+				return env2, true
 			}
 		}
 		if checkOccur(visited, t2, env) {
-			return false, nil
+			return nil, false
 		}
 		env2 = AddBinding(t1.(Variable), t2, env)
-		return true, env2
+		return env2, true
 	}
 	if t2Type == VariableType {
 		if checkOccur(visited, t1, env) {
-			return false, nil
+			return nil, false
 		}
 		// to do: if renaming { rename vars in t1 }
 		env2 = AddBinding(t2.(Variable), t1, env)
-		return true, env2
+		return env2, true
 	}
 	if t1Type != t2Type {
-		return false, env
+		return env, false
 	}
 	switch t1.Type() {
 	case AtomType, BoolType, IntType, FloatType, StringType:
-		return Equal(t1, t2), env
+		return env, Equal(t1, t2)
 	case CompoundType:
 		if t1.(Compound).Functor != t2.(Compound).Functor ||
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
-			return false, env
+			return env, false
 		}
 		env2 := env
 		for i, _ := range t1.(Compound).Args {
-			ok, env2 = Unify1(t1.(Compound).Args[i], t2.(Compound).Args[i], renaming, visited, env2)
+			env2, ok = Unify1(t1.(Compound).Args[i], t2.(Compound).Args[i], renaming, visited, env2)
 			if !ok {
-				return false, env
+				return env, false
 			}
 		}
 		// update env with the new bindings
@@ -521,16 +513,16 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (ok bool, en
 		/*		for v, t := range env2 {
 				env[v] = t
 			} */
-		return true, env
+		return env, true
 	case ListType:
 		if len(t1.(List)) != len(t2.(List)) {
-			return false, env
+			return env, false
 		}
 		env2 := env
 		for i, _ := range t1.(List) {
-			ok, env2 = Unify1(t1.(List)[i], t2.(List)[i], renaming, visited, env2)
+			env2, ok = Unify1(t1.(List)[i], t2.(List)[i], renaming, visited, env2)
 			if !ok {
-				return false, env
+				return env, false
 			}
 		}
 		// update env with the new bindings
@@ -538,9 +530,9 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (ok bool, en
 		/*	for v, t := range env2 {
 			env[v] = t
 		} */
-		return true, env
+		return env, true
 	default:
-		return false, env
+		return env, false
 	}
 }
 

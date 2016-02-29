@@ -12,10 +12,9 @@ package caes
 
 import (
 	"fmt"
+	"github.com/carneades/carneades-4/src/engine/terms"
 	"os"
 	"strconv"
-
-	"github.com/carneades/carneades-4/src/engine/terms"
 )
 
 // The data types are sorted alphabetically
@@ -193,14 +192,39 @@ func NewLabelling() Labelling {
 	return Labelling(make(map[*Statement]Label))
 }
 
+// Normalize the string representation of a term
+func normalize(s string) string {
+	t, ok := terms.ReadString(s)
+	if ok {
+		return t.String()
+	} else {
+		return s
+	}
+}
+
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
 // and unassumed statements without arguments Out.
 func (l Labelling) init(ag *ArgGraph) {
-	// first make all assumed statements In and all unsupported
+
+	// Normalize the keys of the assumptions table
+	m := map[string]bool{}
+	for k, v := range ag.Assumptions {
+		m[normalize(k)] = v
+	}
+	ag.Assumptions = m
+
+	// Normalize the keys of the statements table
+	m2 := map[string]*Statement{}
+	for k, v := range ag.Statements {
+		m2[normalize(k)] = v
+	}
+	ag.Statements = m2
+
+	// Make all assumed statements In and all unsupported
 	// statements out
 	for _, s := range ag.Statements {
-		if ag.Assumptions[s.Id] {
+		if ag.Assumptions[normalize(s.Id)] {
 			l[s] = In
 		} else if len(s.Args) == 0 {
 			l[s] = Out
@@ -455,7 +479,7 @@ func (ag *ArgGraph) Inconsistent() bool {
 	for _, issue := range ag.Issues {
 		found := false
 		for _, p := range issue.Positions {
-			if ag.Assumptions[p.Id] {
+			if ag.Assumptions[normalize(p.Id)] {
 				if found {
 					// inconsistency, because a previous position
 					// of the issue was found to be assumed true
@@ -530,12 +554,12 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				return
 			}
 
-			bindings := make(terms.Bindings) // map[terms.Variable]terms.Term{}
+			var bindings terms.Bindings
 			for i, varName := range scheme.Variables {
 				// v := terms.NewVariable(varName)
 				t, ok := terms.ReadString(parameters[i])
 				if ok {
-					bindings[varName] = t
+					bindings = terms.AddBinding(terms.NewVariable(varName), t, bindings)
 				} else {
 					fmt.Fprintf(os.Stderr, "Could not parse parameter: %v\n", parameters[i])
 				}
@@ -608,7 +632,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
 				uc = Statement{Id: ucid,
 					Text: argId + " is not applicable."}
-				ag.Statements[ucid] = &uc
+				ag.Statements[normalize(ucid)] = &uc
 
 				// Construct the argument and add it to the graph
 				arg := Argument{Id: argId,
@@ -651,7 +675,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				ucid := "n(applicable(" + argId + "))" // To do: replace n with ¬
 				uc2 := Statement{Id: ucid,
 					Text: argId + " is not applicable."}
-				ag.Statements[ucid] = &uc2
+				ag.Statements[normalize(ucid)] = &uc2
 
 				// Construct the argument and add it to the graph
 				arg := Argument{Id: argId,

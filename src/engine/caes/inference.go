@@ -252,8 +252,8 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 			fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff1)
 			continue
 		}
-		bindings := make(terms.Bindings)
-		ok = terms.Match(pattern, term1, bindings)
+		var bindings terms.Bindings
+		bindings, ok = terms.Match(pattern, term1, bindings)
 		if !ok {
 			continue // terms do not match
 		} else {
@@ -264,14 +264,16 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 
 			// Create a copy of bindings with all variables with names ending
 			// in integer indexes unbound
-			bindings2 := make(terms.Bindings)
-			for v, t := range bindings {
-				suffix := v[len(v)-1:]
+			var bindings2 terms.Bindings
+			for env := bindings; env != nil; env = env.Next {
+				v := env.Var
+				t := env.T
+				suffix := v.Name[len(v.Name)-1:]
 				_, err := strconv.Atoi(suffix)
 				if err != nil {
 					// the variable does not end with an integer suffix
 					// so keep its binding
-					bindings2[v] = t
+					bindings2 = terms.AddBinding(v, t, bindings2)
 				}
 			}
 
@@ -303,18 +305,20 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 							fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", p)
 							continue
 						}
-						match = terms.Match(pattern2, term2, bindings)
+						bindings, match = terms.Match(pattern2, term2, bindings)
 						if match {
 							break
 						}
 					}
 				} else {
 					// Use a fresh copy of bindings2 for enumeration issue patterns
-					b2copy := make(terms.Bindings)
-					for k, v := range bindings2 {
-						b2copy[k] = v
+					var b2copy terms.Bindings
+					for env := bindings2; env != nil; env = env.Next {
+						k := env.Var
+						v := env.T
+						b2copy = terms.AddBinding(k, v, b2copy)
 					}
-					match = terms.Match(pattern, term2, b2copy)
+					b2copy, match = terms.Match(pattern, term2, b2copy)
 				}
 				if !match {
 					continue // terms do not match
