@@ -13,7 +13,6 @@ language:
   asserts/2: "%s asserts that %s is true."
   untrustworthy/1: "%s is untrustworthy."
   biased/1: "%s is biased."
-  n/1: 'It is not true that: "%s"'
   applicable/1: "Argument %s is applicable."
   based_on_evidence/1: "The assertion %v is based on evidence."
 

@@ -8,8 +8,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/carneades/carneades-4/src/common"
 	"os"
+
+	"github.com/carneades/carneades-4/src/common"
 )
 
 const help = `

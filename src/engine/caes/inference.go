@@ -39,7 +39,7 @@ const header = `
 :- use_module(library(chr)).
 :- use_module(library(http/json)).
 :- use_module(library(http/json_convert)).
-:- chr_constraint argument/2, go/0, n/0.
+:- chr_constraint argument/2, go/0, '¬'/1.
 :- json_object argument(scheme:text, values:list(text)).
 :- initialization main.
 :- op(900, fx, ¬).
