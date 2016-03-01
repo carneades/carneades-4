@@ -30,14 +30,16 @@ type history [][]*big.Int
 
 var CurVarCounter *big.Int
 
+type cList []Compound
+
 type chrRule struct {
 	name     string
 	id       int
 	his      history
-	delHead  List // removed constraints
-	keepHead List // kept constraint
-	guard    List // built-in constraint
-	body     List // add CHR and built-in constraint
+	delHead  cList // removed constraints
+	keepHead cList // kept constraint
+	guard    cList // built-in constraint
+	body     List  // add CHR and built-in constraint
 }
 
 var CHRruleStore []*chrRule
@@ -58,7 +60,7 @@ func ruleFired(rule *chrRule) (ok bool) {
 	headList := rule.delHead
 	len_head := len(headList)
 	if len_head != 0 {
-		_, ok = unifyDelHead(rule, headList, 0, len_head, nil)
+		ok = unifyDelHead(rule, headList, 0, len_head, nil)
 		return ok
 	}
 
@@ -68,15 +70,16 @@ func ruleFired(rule *chrRule) (ok bool) {
 		return false
 	}
 
-	_, ok = unifyKeepHead(rule, rule.his, headList, 0, len_head, nil)
+	ok = unifyKeepHead(rule, []*big.Int{}, headList, 0, len_head, nil)
 	return ok
 }
 
-func attributedTerm(t Term) []Term {
-	return []Term{}
+func attributedTerm(t Compound) cList {
+	return cList{}
 }
 
-func unifyDelHead(r *chrRule, headList List, it int, nt int, env Bindings) (env2 Bindings, ok bool) {
+func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok bool) {
+	var env2 Bindings
 	head := headList[it]
 	chrList := attributedTerm(head)
 	len_chr := len(chrList)
@@ -84,31 +87,29 @@ func unifyDelHead(r *chrRule, headList List, it int, nt int, env Bindings) (env2
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
 
-			env2, ok = mUnify(head, chr, env) // mark chr and Unify, if fail unmark chr
+			env2, ok = mDelUnify(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
 			if ok {
 				if it+1 < nt {
-					env2, ok = unifyDelHead(r, headList, it+1, nt, env2)
+					ok = unifyDelHead(r, headList, it+1, nt, env2)
 					if ok {
-						return env2, ok
+						return ok
 					}
 				} else {
 					// the last delHead-match was OK
 					headList = r.keepHead
 					nt = len(headList)
 					if nt != 0 {
-						env2, ok = unifyKeepHead(r, r.his, headList, 0, nt, env2)
+						ok = unifyKeepHead(r, nil, headList, 0, nt, env2)
 						if ok {
-							return env2, ok
+							return ok
 						}
 					} else {
 						// only delHead
-						_, ok := checkGuards(r, env2)
+						ok := checkGuards(r, env2)
 						if ok {
-							return env2, ok
+							return ok
 						}
-
 					}
-
 				} // if it+1 < nt
 			}
 			// mUnify was OK, but rule does not fire OR mUnify was not OK
@@ -117,22 +118,139 @@ func unifyDelHead(r *chrRule, headList List, it int, nt int, env Bindings) (env2
 		}
 		// no constrain from the constraint store match head
 	}
-	return env, false
+	return false
 }
 
-func mUnify(head, chr Term, env Bindings) (env2 Bindings, ok bool) {
+func mDelUnify(id int, head, chr Compound, env Bindings) (env2 Bindings, ok bool) {
 	// mark and unmark chr
 	return Unify(head, chr, env)
 }
 
-func unifyKeepHead(r *chrRule, his history, headList List, it int, nt int, env Bindings) (env2 Bindings, ok bool) {
-	return nil, true
+func mKeepUnify(id int, head, chr Compound, env Bindings) (env2 Bindings, ok bool) {
+	// mark and unmark chr
+	return Unify(head, chr, env)
 }
 
-func checkGuards(rule *chrRule, env Bindings) (env2 Bindings, ok bool) {
-	return env, true
+func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, env Bindings) (ok bool) {
+	var env2 Bindings
+	head := headList[it]
+	chrList := attributedTerm(head)
+	len_chr := len(chrList)
+	if len_chr != 0 {
+		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
+			chr := chrList[ic]
+
+			env2, ok = mKeepUnify(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
+			if ok {
+				if it+1 < nt {
+					if his == nil {
+						// rule with delHead
+						ok = unifyKeepHead(r, nil, headList, it+1, nt, env2)
+					} else {
+						ok = unifyKeepHead(r, append(his, chr.Id), headList, it+1, nt, env2)
+					}
+
+					if ok {
+						return ok
+					}
+				} else {
+					// the last keepHead-match was OK
+					// check history
+					if his == nil || pCHRsNotInHistory(append(his, chr.Id), r.his) {
+
+						ok := checkGuards(r, env2)
+						if ok {
+							return ok
+						}
+
+					}
+
+				} // if it+1 < nt
+
+			}
+			// mUnify was OK, but rule does not fire OR mUnify was not OK
+			// env is the currend environment
+			// try the next constrain of the constrain store
+		}
+		// no constrain from the constraint store match head
+	}
+	return false
 }
 
-func fireRule(rule *chrRule, env Bindings) (ok bool) {
+func pCHRsNotInHistory(chrs []*big.Int, his history) (ok bool) {
 	return true
+}
+
+func checkGuards(r *chrRule, env Bindings) (ok bool) {
+	for _, g := range r.guard {
+		env2, ok := checkGuard(g, env)
+		if !ok {
+			return false
+		}
+		env = env2
+	}
+	fireRule(r, env)
+	return true
+}
+
+func checkGuard(g Compound, env Bindings) (env2 Bindings, ok bool) {
+	g = Substitute(g, env).(Compound)
+	for i, a := range g.Args {
+		g.Args[i], ok = eval(a)
+		if !ok {
+			return env, false
+		}
+	}
+
+	switch g.Functor {
+	case "==":
+		if g.Args[0] == g.Args[1] {
+			return env, true
+		}
+	}
+	return env, false
+}
+
+func eval(t1 Term) (Term, bool) {
+	switch t1.Type() {
+	case AtomType, BoolType, IntType, FloatType, StringType:
+		return t1, true
+	case CompoundType:
+		args := []Term{}
+		tArgs := []Type{}
+		for _, a := range t1.(Compound).Args {
+			a, ok := eval(a)
+			if !ok {
+				return a, false
+			}
+			args = append(args, a)
+			tArgs = append(tArgs, a.Type())
+		}
+		an := len(args)
+		switch t1.(Compound).Functor {
+		case "+":
+			if an == 2 {
+				switch tArgs[0] {
+				case IntType:
+					switch tArgs[1] {
+					case IntType:
+						return args[0].(Int) + args[1].(Int), true
+					}
+				}
+			}
+		}
+		//	case ListType:
+
+		//		for i, _ := range t1.(List) {
+
+		//	case VariableType:
+
+		//	default:
+		return t1, false
+	}
+	return t1, false
+}
+
+func fireRule(rule *chrRule, env Bindings) {
+	return
 }

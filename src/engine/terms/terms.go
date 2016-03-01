@@ -44,6 +44,7 @@ type String string
 
 type Compound struct {
 	Functor           string
+	Id                *big.Int
 	Prio              int
 	occurVars         Vars
 	identifyOccurVars bool
