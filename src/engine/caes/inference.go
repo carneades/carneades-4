@@ -405,7 +405,7 @@ func (ag *ArgGraph) Infer() error {
 		return err
 	}
 	defer f.Close()
-	// defer os.Remove(f.Name())
+	defer os.Remove(f.Name())
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes
