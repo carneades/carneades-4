@@ -90,7 +90,7 @@ func tunify(t *testing.T, str1, str2 string) bool {
 		t.Errorf(fmt.Sprintf("Scan str2 in unify \"%s\" failed, term2: %s", str2, term2.String()))
 	}
 	fmt.Printf("  Unitfy  %s  \n       mit  %s \n", term1.String(), term2.String())
-	ok, env := Unify(term1, term2, nil)
+	env, ok := Unify(term1, term2, nil)
 	fmt.Printf("---Binding---\n")
 	for ; env != nil; env = env.Next {
 		fmt.Printf(" %s == %s \n", env.Var, env.T)
@@ -108,7 +108,7 @@ func TestUnify1(t *testing.T) {
 	t2 := Atom("sally")
 	t3 := Compound{Functor: "parent", Args: []Term{t1, t2}}
 	t4 := Compound{Functor: "parent", Args: []Term{Variable{Name: "X"}, Variable{Name: "Y"}}}
-	ok, _ := Unify(t4, t3, nil)
+	_, ok := Unify(t4, t3, nil)
 	if ok == false {
 		t.Errorf("TestUnify1 failed\n")
 	}
@@ -118,7 +118,7 @@ func TestUnify2(t *testing.T) {
 	// check that a variable is not bound to two different terms
 	t3 := Compound{Functor: "parent", Args: []Term{Atom("joe"), Atom("sally")}}
 	t4 := Compound{Functor: "parent", Args: []Term{Variable{Name: "X"}, Variable{Name: "X"}}}
-	ok, _ := Unify(t4, t3, nil)
+	_, ok := Unify(t4, t3, nil)
 	if ok == true {
 		t.Errorf("TestUnify2 failed\n")
 	}
