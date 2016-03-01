@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/carneades/carneades-4/src/engine/caes"
+	"github.com/carneades/carneades-4/src/engine/terms"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
@@ -33,7 +34,7 @@ type (
 		caesWeighingFunctions map[string]caes.WeighingFunction
 		Issues                map[string]*umIssue
 		Issue_schemes         map[string]*caes.IssueScheme //[]string
-		Labels                *umLabel
+		Tests                 *umLabel
 		Language              caes.Language
 		Meta                  caes.Metadata
 		References            map[string]caes.Metadata
@@ -187,11 +188,12 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 
 	// scan Labels
 	// -----------
-	m.caesLabels = labels2caes(m.Labels)
+	m.caesLabels = labels2caes(m.Tests)
 	// scan Assumtions
 	// ---------------
 	if m.Assumptions != nil && len(m.Assumptions) != 0 {
 		for _, stat := range m.Assumptions {
+			stat = normString(stat)
 			collOfAssumptions[stat] = true
 		}
 	}
@@ -241,8 +243,9 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 	m.caesArgSchemes = map[string]*caes.Scheme{}
 	for id, as := range m.Argument_schemes {
 		m.caesArgSchemes[id] = &caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
-			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions, Deletions: as.Deletions,
-			Guards: as.Guards, Conclusions: as.Conclusions}
+			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions,
+			Deletions: normStringVec(as.Deletions),
+			Guards:    normStringVec(as.Guards), Conclusions: normStringVec(as.Conclusions)}
 		collOfSchemes[id] = m.caesArgSchemes[id]
 	}
 	return m, nil
@@ -267,6 +270,7 @@ func labels2caes(ul *umLabel) map[string]caes.Label {
 func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 	// create Theory
 	// =============
+
 	theory := &caes.Theory{Language: m.Language, WeighingFunctions: m.caesWeighingFunctions, ArgSchemes: m.caesArgSchemes, IssueSchemes: m.Issue_schemes}
 
 	// create ArgGraph
@@ -296,6 +300,7 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 		caesAg.Issues[yamlIssue_Id] = caes_Issue
 		// References: Issue.Positions --> []*Statement, Statement.Issue --> *Issue
 		for _, yamlIssue_Pos := range yamlIssue_Val.Positions {
+			yamlIssue_Pos = normString(yamlIssue_Pos)
 			found = false
 		LoopIss:
 			for _, caesAg_Stat := range caesAg.Statements {
@@ -341,9 +346,10 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 		}*/
 		// References: Argument.Conclusion --> *Statement, Statement.Args --> []*Argument
 		found := false
+		conc := normString(yamlArg_Val.Conclusion)
 	LoopC:
 		for _, caesArg_Stat := range caesAg.Statements {
-			if yamlArg_Val.Conclusion == caesArg_Stat.Id {
+			if conc == caesArg_Stat.Id {
 				caesArg.Conclusion = caesArg_Stat
 				found = true
 				if caesArg_Stat.Args == nil {
@@ -362,9 +368,10 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 		// No undercutter in Statement.Args --> []*Argument
 		if yamlArg_Val.Undercutter != "" {
 			found = false
+			ucut := normString(yamlArg_Val.Undercutter)
 		LoopN:
 			for _, caesArg_Stat := range caesAg.Statements {
-				if yamlArg_Val.Undercutter == caesArg_Stat.Id {
+				if ucut == caesArg_Stat.Id {
 					found = true
 					caesArg.Undercutter = caesArg_Stat
 					break LoopN
@@ -475,6 +482,7 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 }
 
 func iface2mapStringString(lbl string, value interface{}) (result map[string]string, err error) {
+	// and normelaise string
 	result = map[string]string{}
 	if value == nil {
 		return nil, nil
@@ -496,11 +504,11 @@ func iface2mapStringString(lbl string, value interface{}) (result map[string]str
 			default:
 				valStr = fmt.Sprintf("%v", val)
 			}
-			result[keyStr] = valStr
+			result[keyStr] = normString(valStr)
 		}
 	case []interface{}:
 		for idx, val := range value.([]interface{}) {
-			result[fmt.Sprintf("%d", idx+1)] = fmt.Sprintf("%v", val)
+			result[fmt.Sprintf("%d", idx+1)] = normString(fmt.Sprintf("%v", val))
 		}
 	default:
 		return result, errors.New(fmt.Sprintf(" *** Syntax Error: In %s not a map nor a list. Wrong type: %v \n", lbl, tValue))
@@ -1024,7 +1032,7 @@ func iface2statement(value interface{}, yamlStats map[string]*caes.Statement) (m
 				return nil,
 					errors.New("*** Error statemment name must be a string not '" + fmt.Sprintf("%v", st_key) + "'\n")
 			}
-			keyStr := st_key.(string)
+			keyStr := normString(st_key.(string))
 			switch st_value.(type) {
 			case string:
 				yamlStats[keyStr] = &caes.Statement{
@@ -1379,7 +1387,7 @@ func iface2premises(inArg interface{}) ([]umPremis, error) {
 		for idx, stat := range inArg.([]interface{}) {
 			switch stat.(type) {
 			case string:
-				umP := umPremis{stmt: stat.(string)}
+				umP := umPremis{stmt: normString(stat.(string))}
 				if outArg == nil {
 					outArg = []umPremis{umP}
 				} else {
@@ -1413,7 +1421,7 @@ func iface2premises(inArg interface{}) ([]umPremis, error) {
 			}
 			keyStr = strings.ToLower(keyStr)
 			premis.role = keyStr
-			premis.stmt = valStr
+			premis.stmt = normString(valStr)
 			if outArg == nil {
 				outArg = []umPremis{premis}
 			} else {
@@ -1445,6 +1453,22 @@ func iface2references(reference interface{}, yamlRefs map[string]caes.Metadata) 
 		}
 	}
 	return yamlRefs, nil
+}
+
+func normString(src string) (scr2 string) {
+	// fmt.Printf(">%s<\n", src)
+	t, ok := terms.ReadString(src)
+	if ok {
+		return t.String()
+	}
+	return src
+}
+
+func normStringVec(in []string) []string {
+	for i, s := range in {
+		in[i] = normString(s)
+	}
+	return in
 }
 
 // Export

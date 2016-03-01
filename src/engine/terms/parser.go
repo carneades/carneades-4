@@ -40,6 +40,19 @@ func ReadString(src string) (result Term, ok bool) {
 	result, _, ok = readBIConstraint(&s)
 	return
 }
+
+func ParseString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseBIConstraint(&s)
+	return
+}
+
 func err(s *sc.Scanner, str string) {
 	if str != "illegal char literal" {
 		fmt.Fprintln(os.Stderr, "*** Parse Error before[", s.Pos(), "]:", str)
@@ -75,7 +88,42 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 		tok = s.Scan()
 	}
 	if tok != sc.EOF {
-		err(s, fmt.Sprintf("',' or EOF exspected, not '%c'", tok))
+		// err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
+		return t, tok, false
+	}
+	return
+}
+
+func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
+	if trace {
+		fmt.Printf("--> readBIConstraint : \n")
+	}
+	t, tok, ok = expression(s, s.Scan())
+	if trace {
+		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
+	if tok == sc.EOF || !ok {
+		return
+	}
+	if tok == ',' {
+		t1 := List{t}
+		for tok == ',' {
+			t, tok, ok = expression(s, s.Scan())
+			if trace {
+				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			}
+			if !ok {
+				return t1, tok, false
+			}
+			t1 = append(t1, t)
+		}
+		t = t1
+	}
+	if tok == '.' {
+		tok = s.Scan()
+	}
+	if tok != sc.EOF {
+		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
 	}
 	return
 }
