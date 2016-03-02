@@ -195,60 +195,49 @@ func checkGuards(r *chrRule, env Bindings) (ok bool) {
 
 func checkGuard(g Compound, env Bindings) (env2 Bindings, ok bool) {
 	g = Substitute(g, env).(Compound)
-	for i, a := range g.Args {
-		g.Args[i], ok = eval(a)
-		if !ok {
+	if g.Functor == ":=" || g.Functor == "is" || g.Functor == "=" {
+		if !pVar(g.Args[0]) {
 			return env, false
 		}
+		a := Eval(g.Args[1])
+		env2 = AddBinding(g.Args[0].(Variable), a, env)
+		return env2, true
 	}
 
-	switch g.Functor {
-	case "==":
-		if g.Args[0] == g.Args[1] {
+	t1 := Eval(g)
+	switch t1.Type() {
+	case BoolType:
+		if t1.(Bool) == true {
 			return env, true
 		}
+		return env, false
+	case CompoundType:
+		biChrList := attributedTerm(t1.(Compound))
+		len_chr := len(biChrList)
+		if len_chr == 0 {
+			return env, false
+		}
+		for _, chr := range biChrList {
+			if Equal(t1, chr) {
+				return env, true
+			}
+		}
+		// to do for the operators(@): ==, !=, <, <=, >, >=, =<
+		// symmetry: x @ y --> y @ x
+		// transitivity: x @ y && y @ z --> x @ z
+		//
+		// case AtomType, IntType, FloatType, StringType:
+		//	case ListType:
+		//	case VariableType:
 	}
 	return env, false
 }
 
-func eval(t1 Term) (Term, bool) {
-	switch t1.Type() {
-	case AtomType, BoolType, IntType, FloatType, StringType:
-		return t1, true
-	case CompoundType:
-		args := []Term{}
-		tArgs := []Type{}
-		for _, a := range t1.(Compound).Args {
-			a, ok := eval(a)
-			if !ok {
-				return a, false
-			}
-			args = append(args, a)
-			tArgs = append(tArgs, a.Type())
-		}
-		an := len(args)
-		switch t1.(Compound).Functor {
-		case "+":
-			if an == 2 {
-				switch tArgs[0] {
-				case IntType:
-					switch tArgs[1] {
-					case IntType:
-						return args[0].(Int) + args[1].(Int), true
-					}
-				}
-			}
-		}
-		//	case ListType:
-
-		//		for i, _ := range t1.(List) {
-
-		//	case VariableType:
-
-		//	default:
-		return t1, false
+func pVar(t Term) bool {
+	if t.Type() == VariableType {
+		return true
 	}
-	return t1, false
+	return false
 }
 
 func fireRule(rule *chrRule, env Bindings) {

@@ -20,7 +20,7 @@ import (
 
 // Precedence  Operator
 //     7 (coded as 0)  Variavle, Function, Konstant
-//     6         mon. Operator +, -, !, ^, ¬ and in Go: *, &, <-
+//     6         unary operators +, -, !, ^, ¬ and in Go: *, &, <-
 //     5         *, /, %, div, mod, &, &^, <<, >>
 //     4        +, -, ^, or (the | will be used as list-operator, as in [a|B])
 //     3        ==, !=, <, <=, >, >= and =< (only for Prolog-like)
@@ -342,9 +342,9 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
 		fmt.Printf("--> sterm : '%s'\n", f(tok1))
 	}
-	t, tok, ok = mon_factor(s, tok1)
+	t, tok, ok = unary_factor(s, tok1)
 	if trace {
-		fmt.Printf("<-- mon_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 	}
 	for {
 		op := ""
@@ -399,9 +399,9 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		}
 		// factor with op
 		t1 := t
-		t, tok, ok = mon_factor(s, s.Scan())
+		t, tok, ok = unary_factor(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- mon_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 		}
 		if !ok {
 			return t1, tok, ok
@@ -413,48 +413,48 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	}
 }
 
-func mon_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
+func unary_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> mon_factor : '%s'\n", f(tok1))
+		fmt.Printf("--> unary_factor : '%s'\n", f(tok1))
 	}
 	// op +, -, !, ^ and in GO: *, &, <-
 
-	monop := ""
+	unaryop := ""
 	tok2 := s.Peek()
 	switch tok1 {
 	case '+':
-		return mon_factor(s, s.Scan())
+		return unary_factor(s, s.Scan())
 	case '-':
 		if tok2 == '-' {
 			s.Scan()
-			return mon_factor(s, s.Scan())
+			return unary_factor(s, s.Scan())
 		} else {
-			monop = "-"
+			unaryop = "-"
 		}
 	case '!':
 		if tok2 == '!' {
 			s.Scan()
-			return mon_factor(s, s.Scan())
+			return unary_factor(s, s.Scan())
 		} else {
-			monop = "!"
+			unaryop = "!"
 		}
 	case '^':
-		monop = "^"
+		unaryop = "^"
 	case '¬':
-		monop = "¬"
+		unaryop = "¬"
 	}
-	if monop == "" {
+	if unaryop == "" {
 		return factor(s, tok1)
 	}
 
-	t, tok, ok = mon_factor(s, s.Scan())
+	t, tok, ok = unary_factor(s, s.Scan())
 	if trace {
-		fmt.Printf("--> mon_factor : '%s'\n", f(tok1))
+		fmt.Printf("--> unary_factor : '%s'\n", f(tok1))
 	}
 	if !ok {
 		return
 	}
-	return Compound{Functor: monop, Args: []Term{t}, Prio: 6}, tok, ok
+	return Compound{Functor: unaryop, Args: []Term{t}, Prio: 6}, tok, ok
 }
 
 func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
