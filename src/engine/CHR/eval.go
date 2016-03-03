@@ -9,8 +9,8 @@
 package chr
 
 import (
-	. "github.com/carneades/carneades-4/src/engine/terms"
 	// "fmt"
+	. "github.com/carneades/carneades-4/src/engine/terms"
 	// "math/big"
 	// "strconv"
 	// "strings"
@@ -126,6 +126,44 @@ func evalNot(t1 Term, a1 Term, typ1 Type) Term {
 	// !a1 or ¬a1
 	if typ1 == BoolType {
 		return !a1.(Bool)
+	}
+	if typ1 == CompoundType {
+		a := a1.(Compound)
+		n := len(a.Args)
+		if n == 1 {
+			switch a.Functor {
+			case "!", "¬":
+				return a.Args[0]
+			}
+			return t1
+		}
+		if n == 2 {
+			c := Compound{}
+			newc := false
+			args := a.Args
+			arg1 := args[0]
+			arg2 := args[1]
+			switch a.Functor {
+			case "<":
+				c = Compound{Functor: "<=", Args: []Term{arg2, arg1}}
+				newc = true
+			case "<=":
+				c = Compound{Functor: "<", Args: []Term{arg2, arg1}}
+				newc = true
+			case "==":
+				c = Eval(Term(Compound{Functor: "!=", Prio: 3, Args: args})).(Compound)
+				newc = true
+			case "!=":
+				c = Eval(Term(Compound{Functor: "==", Prio: 3, Args: args})).(Compound)
+				newc = true
+			}
+			if newc {
+				c.Id = a.Id
+				c.Prio = a.Prio
+				c.IsActive = a.IsActive
+				return c
+			}
+		}
 	}
 	return t1
 }
@@ -341,6 +379,10 @@ func evalEq(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 		if typ2 == BoolType {
 			return Bool(a1.(Bool) == a2.(Bool))
 		}
+	default:
+		if Equal(a1, a2) {
+			return Bool(true)
+		}
 	}
 	return t1
 }
@@ -373,6 +415,10 @@ func evalNotEq(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 	case BoolType:
 		if typ2 == BoolType {
 			return Bool(a1.(Bool) != a2.(Bool))
+		}
+	default:
+		if Equal(a1, a2) {
+			return Bool(false)
 		}
 	}
 	return t1
@@ -445,8 +491,6 @@ func evalGt(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 			return Bool(a1.(Int) > a2.(Int))
 		case FloatType:
 			return Bool(float64(a1.(Int)) > float64(a2.(Float)))
-		default:
-			return t1
 		}
 	case FloatType:
 		switch typ2 {
@@ -454,15 +498,15 @@ func evalGt(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 			return Bool(float64(a1.(Float)) > float64(a2.(Int)))
 		case FloatType:
 			return Bool(a1.(Float) > a2.(Float))
-		default:
-			return t1
 		}
 	case StringType:
 		if typ2 == StringType {
 			return Bool(a1.(String) > a2.(String))
 		}
 	}
-	return t1
+	t := t1.(Compound)
+	c := Compound{Functor: "<", Id: t.Id, Prio: t.Prio, IsActive: t.IsActive, Args: []Term{a2, a1}}
+	return c
 }
 
 func evalGtEq(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
@@ -474,8 +518,6 @@ func evalGtEq(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 			return Bool(a1.(Int) >= a2.(Int))
 		case FloatType:
 			return Bool(float64(a1.(Int)) >= float64(a2.(Float)))
-		default:
-			return t1
 		}
 	case FloatType:
 		switch typ2 {
@@ -483,29 +525,65 @@ func evalGtEq(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 			return Bool(float64(a1.(Float)) >= float64(a2.(Int)))
 		case FloatType:
 			return Bool(a1.(Float) >= a2.(Float))
-		default:
-			return t1
 		}
 	case StringType:
 		if typ2 == StringType {
 			return Bool(a1.(String) >= a2.(String))
 		}
 	}
-	return t1
+	t := t1.(Compound)
+	c := Compound{Functor: "<=", Id: t.Id, Prio: t.Prio, IsActive: t.IsActive, Args: []Term{a2, a1}}
+	return c
 }
 
 func evalLogAnd(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 	// a1 && a2
-	if typ1 != BoolType || typ2 != BoolType {
-		return t1
+	if typ1 == BoolType && typ2 == BoolType {
+		return a1.(Bool) && a2.(Bool)
 	}
-	return a1.(Bool) && a2.(Bool)
+	if typ1 == BoolType {
+		if a1.(Bool) {
+			return a2
+		} else {
+			return Bool(false)
+		}
+	}
+	if typ2 == BoolType {
+		if a2.(Bool) {
+			return a1
+		} else {
+			return Bool(false)
+		}
+	}
+	if Equal(a1, Eval(Compound{Functor: "!", Prio: 6, Args: []Term{a2}})) {
+		return Bool(false)
+	}
+	return t1
 }
 
 func evalLogOr(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 	// a1 || a2
-	if typ1 != BoolType || typ2 != BoolType {
-		return t1
+	if typ1 == BoolType && typ2 == BoolType {
+		return a1.(Bool) || a2.(Bool)
 	}
-	return a1.(Bool) || a2.(Bool)
+	if typ1 == BoolType {
+		if a1.(Bool) {
+			return a1
+		} else {
+			return a2
+		}
+	}
+	if typ2 == BoolType {
+		if a2.(Bool) {
+			return a2
+		} else {
+			return a1
+		}
+	}
+	a3 := Eval(Compound{Functor: "!", Prio: 6, Args: []Term{a2}})
+	// fmt.Printf(" A1: %s, A2: %s, Eval !A2: %s Equal(A1,!A2) %v\n", a1, a2, a3, Equal(a1, a3))
+	if Equal(a1, a3) {
+		return Bool(true)
+	}
+	return t1
 }

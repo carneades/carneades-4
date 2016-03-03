@@ -318,3 +318,45 @@ func TestEval35(t *testing.T) {
 		t.Errorf("TestEval35 failed\n")
 	}
 }
+
+func TestEval36(t *testing.T) {
+	// check that a variable is not bound to two different terms
+	ok := teval(t, "3>4 && a<= b || 3<4 && a>=b ", "b<=a")
+	if ok != true {
+		t.Errorf("TestEval36 failed\n")
+	}
+}
+
+func TestEval37(t *testing.T) {
+	// check that a variable is not bound to two different terms
+	ok := teval(t, "!(3>4) && a<= b || 3<4 && a>b ", "true")
+	if ok != true {
+		t.Errorf("TestEval37 failed\n")
+	}
+}
+
+func TestEval38(t *testing.T) {
+	// check that a variable is not bound to two different terms
+	ok := teval(t, "a<7 || a>=7", "true")
+	if ok != true {
+		t.Errorf("TestEval38 failed\n")
+	}
+}
+
+func TestEval39(t *testing.T) {
+	// check that a variable is not bound to two different terms
+	ok := teval(t, "a<7 && a>=7", "false")
+	if ok != true {
+		t.Errorf("TestEval39 failed\n")
+	}
+}
+
+/*
+func TestEval40(t *testing.T) {
+	// check that a variable is not bound to two different terms
+	ok := teval(t, "3>4 && 7<= 6 || 3<4 && 7>=6 ", "true")
+	if ok != true {
+		t.Errorf("TestEval40 failed\n")
+	}
+}
+*/
