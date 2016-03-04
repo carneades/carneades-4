@@ -322,6 +322,8 @@ func Equal(t1, t2 Term) bool {
 	case CompoundType:
 		if t1.(Compound).Functor != t2.(Compound).Functor ||
 			t1.(Compound).Arity() != t2.(Compound).Arity() {
+			//		if t1.(Compound).Prio != 3 && t2.(Compound).Prio != 3 { return false }
+			// 	return EqualCompare(t1.(Compound).Functor, )
 			return false
 		}
 		for i, _ := range t1.(Compound).Args {

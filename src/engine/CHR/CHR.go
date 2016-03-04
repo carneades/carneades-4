@@ -18,11 +18,145 @@ import (
 
 var QueryVars Vars
 
-var QuerySore List
+var QueryStore List
 
-var CHRstore List
+var CHRstore store
 
-var BuiltInStore List
+var BuiltInStore store
+
+type argCHR struct {
+	atomArg  map[string]cList
+	boolArg  cList
+	intArg   cList
+	floatArg cList
+	strArg   cList
+	compArg  map[string]cList
+	listArg  cList
+	varArg   cList
+	noArg    cList
+}
+
+type store map[string]*argCHR
+
+func InitStore() {
+	CHRstore = store{}
+	BuiltInStore = store{}
+	QueryStore = List{}
+	QueryVars = Vars{}
+}
+
+func NewArgCHR() *argCHR {
+	return &argCHR{atomArg: map[string]cList{},
+		boolArg: cList{}, intArg: cList{}, floatArg: cList{}, strArg: cList{},
+		compArg: map[string]cList{}, listArg: cList{}, varArg: cList{}, noArg: cList{}}
+}
+
+func addGoal1(g Compound, s store) {
+	aArg, ok := s[g.Functor]
+	if !ok {
+		aArg = NewArgCHR()
+		s[g.Functor] = aArg
+	}
+	args := g.Args
+	if len(args) == 0 {
+		aArg.noArg = append(aArg.noArg, g)
+		return
+	}
+	arg0 := args[0]
+	switch arg0.Type() {
+	case AtomType:
+		cl, ok := aArg.atomArg[string(arg0.(Atom))]
+		if !ok {
+			cl = cList{}
+		}
+		aArg.atomArg[string(arg0.(Atom))] = append(cl, g)
+	case BoolType:
+		aArg.boolArg = append(aArg.boolArg, g)
+	case IntType:
+		aArg.intArg = append(aArg.intArg, g)
+	case FloatType:
+		aArg.floatArg = append(aArg.floatArg, g)
+	case StringType:
+		aArg.strArg = append(aArg.strArg, g)
+	case CompoundType:
+		cl, ok := aArg.compArg[arg0.(Compound).Functor]
+		if !ok {
+			cl = cList{}
+		}
+		aArg.compArg[arg0.(Compound).Functor] = append(cl, g)
+	case ListType:
+		aArg.listArg = append(aArg.listArg, g)
+	}
+	aArg.varArg = append(aArg.varArg, g) // a veriable match to all types
+}
+
+func addGoal(g Compound) {
+	if g.Prio == 0 {
+		addGoal1(g, CHRstore)
+	} else {
+		addGoal1(g, BuiltInStore)
+	}
+}
+
+func attributedTermCHR(t Compound, env Bindings) cList {
+	argAtt, ok := CHRstore[t.Functor]
+	if ok {
+		return attributedTerm(t, argAtt, env)
+	}
+	return cList{}
+}
+
+func attributedTermBI(t Compound, env Bindings) cList {
+	argAtt, ok := BuiltInStore[t.Functor]
+	if ok {
+		return attributedTerm(t, argAtt, env)
+	}
+	return cList{}
+}
+
+func attributedTerm(t Compound, aAtt *argCHR, env Bindings) cList {
+	args := t.Args
+	l := len(args)
+	if l == 0 {
+		return aAtt.noArg
+	}
+	arg0 := args[0]
+	argTyp := arg0.Type()
+	for argTyp == VariableType {
+		t2, ok := GetBinding(arg0.(Variable), env)
+		if ok {
+			arg0 = t2
+			argTyp = arg0.Type()
+		} else {
+			break
+		}
+	}
+	switch arg0.Type() {
+	case AtomType:
+		cl, ok := aAtt.atomArg[string(arg0.(Atom))]
+		if ok {
+			return cl
+		}
+	case BoolType:
+		return aAtt.boolArg
+	case IntType:
+		return aAtt.intArg
+	case FloatType:
+		return aAtt.floatArg
+	case StringType:
+		return aAtt.strArg
+	case CompoundType:
+		cl, ok := aAtt.compArg[arg0.(Compound).Functor]
+		if ok {
+			return cl
+		}
+	case ListType:
+		return aAtt.listArg
+	case VariableType:
+		return aAtt.varArg
+	}
+	return cList{}
+}
 
 type history [][]*big.Int
 
@@ -48,7 +182,7 @@ func CHRsolver() {
 	for ruleFound := true; ruleFound; {
 		ruleFound = false
 		for _, rule := range CHRruleStore {
-			if ruleFired(rule) {
+			if pRuleFired(rule) {
 				ruleFound = true
 				break
 			}
@@ -56,7 +190,7 @@ func CHRsolver() {
 	}
 }
 
-func ruleFired(rule *chrRule) (ok bool) {
+func pRuleFired(rule *chrRule) (ok bool) {
 	headList := rule.delHead
 	len_head := len(headList)
 	if len_head != 0 {
@@ -74,14 +208,14 @@ func ruleFired(rule *chrRule) (ok bool) {
 	return ok
 }
 
-func attributedTerm(t Compound) cList {
-	return cList{}
-}
+//func attributedTerm(t Compound, env Bindings) cList {
+//	return cList{}
+//}
 
 func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok bool) {
 	var env2 Bindings
 	head := headList[it]
-	chrList := attributedTerm(head)
+	chrList := attributedTermCHR(head, env)
 	len_chr := len(chrList)
 	if len_chr != 0 {
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
@@ -134,7 +268,7 @@ func mKeepUnify(id int, head, chr Compound, env Bindings) (env2 Bindings, ok boo
 func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, env Bindings) (ok bool) {
 	var env2 Bindings
 	head := headList[it]
-	chrList := attributedTerm(head)
+	chrList := attributedTermCHR(head, env)
 	len_chr := len(chrList)
 	if len_chr != 0 {
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
@@ -189,7 +323,10 @@ func checkGuards(r *chrRule, env Bindings) (ok bool) {
 		}
 		env = env2
 	}
-	fireRule(r, env)
+	if fireRule(r, env) {
+		return true
+	}
+	// dt do setFail
 	return true
 }
 
@@ -207,12 +344,12 @@ func checkGuard(g Compound, env Bindings) (env2 Bindings, ok bool) {
 	t1 := Eval(g)
 	switch t1.Type() {
 	case BoolType:
-		if t1.(Bool) == true {
+		if t1.(Bool) {
 			return env, true
 		}
 		return env, false
 	case CompoundType:
-		biChrList := attributedTerm(t1.(Compound))
+		biChrList := attributedTermBI(t1.(Compound), nil)
 		len_chr := len(biChrList)
 		if len_chr == 0 {
 			return env, false
@@ -240,6 +377,18 @@ func pVar(t Term) bool {
 	return false
 }
 
-func fireRule(rule *chrRule, env Bindings) {
-	return
+func fireRule(rule *chrRule, env Bindings) bool {
+	goals := Substitute(rule.body, env)
+	if goals.Type() == ListType {
+		for _, g := range goals.(List) {
+			if g.Type() == CompoundType {
+				addGoal(g.(Compound))
+			} else {
+				if g.Type() == BoolType && !g.(Bool) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
