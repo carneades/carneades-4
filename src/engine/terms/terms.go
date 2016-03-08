@@ -619,7 +619,8 @@ func Substitute(t Term, env Bindings) Term {
 		for _, t2 := range t.(Compound).Args {
 			args = append(args, Substitute(t2, env))
 		}
-		return Compound{Functor: t.(Compound).Functor, Args: args}
+		return Compound{Functor: t.(Compound).Functor, Id: t.(Compound).Id,
+			Prio: t.(Compound).Prio, Args: args}
 	case ListType:
 		l := []Term{}
 		for _, t2 := range t.(List) {

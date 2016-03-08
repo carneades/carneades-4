@@ -9,11 +9,11 @@
 package chr
 
 import (
+	"fmt"
 	. "github.com/carneades/carneades-4/src/engine/terms"
-	// "fmt"
 	"math/big"
 	// "strconv"
-	// "strings"
+	"strings"
 )
 
 var QueryVars Vars
@@ -38,7 +38,12 @@ type argCHR struct {
 
 type store map[string]*argCHR
 
+var nextRuleId int = 0
+
 func InitStore() {
+	chrCounter = big.NewInt(0)
+	nextRuleId = 0
+	CHRruleStore = []*chrRule{}
 	CHRstore = store{}
 	BuiltInStore = store{}
 	QueryStore = List{}
@@ -51,7 +56,7 @@ func NewArgCHR() *argCHR {
 		compArg: map[string]cList{}, listArg: cList{}, varArg: cList{}, noArg: cList{}}
 }
 
-func addGoal1(g Compound, s store) {
+func addGoal1(g *Compound, s store) {
 	aArg, ok := s[g.Functor]
 	if !ok {
 		aArg = NewArgCHR()
@@ -90,31 +95,38 @@ func addGoal1(g Compound, s store) {
 	aArg.varArg = append(aArg.varArg, g) // a veriable match to all types
 }
 
-func addGoal(g Compound) {
+var chrCounter *big.Int
+var bigOne = big.NewInt(1)
+
+func addConstraintToStore(g Compound) {
+	// fmt.Printf(" a) Counter %v \n", chrCounter)
+	g.Id = chrCounter
+	chrCounter = new(big.Int).Add(chrCounter, bigOne)
+	// fmt.Printf(" b) Counter++ %v , Id: %v \n", chrCounter, g.Id)
 	if g.Prio == 0 {
-		addGoal1(g, CHRstore)
+		addGoal1(&g, CHRstore)
 	} else {
-		addGoal1(g, BuiltInStore)
+		addGoal1(&g, BuiltInStore)
 	}
 }
 
-func attributedTermCHR(t Compound, env Bindings) cList {
+func readProperConstraintsFromCHR_Store(t *Compound, env Bindings) cList {
 	argAtt, ok := CHRstore[t.Functor]
 	if ok {
-		return attributedTerm(t, argAtt, env)
+		return readProperConstraintsFromStore(t, argAtt, env)
 	}
 	return cList{}
 }
 
-func attributedTermBI(t Compound, env Bindings) cList {
+func readProperConstraintsFromBI_Store(t *Compound, env Bindings) cList {
 	argAtt, ok := BuiltInStore[t.Functor]
 	if ok {
-		return attributedTerm(t, argAtt, env)
+		return readProperConstraintsFromStore(t, argAtt, env)
 	}
 	return cList{}
 }
 
-func attributedTerm(t Compound, aAtt *argCHR, env Bindings) cList {
+func readProperConstraintsFromStore(t *Compound, aAtt *argCHR, env Bindings) cList {
 	args := t.Args
 	l := len(args)
 	if l == 0 {
@@ -164,7 +176,27 @@ type history [][]*big.Int
 
 var CurVarCounter *big.Int
 
-type cList []Compound
+type cList []*Compound
+
+func (t cList) OccurVars() Vars {
+	occur := Vars{}
+	for _, t2 := range t {
+		occur = append(occur, t2.OccurVars()...)
+	}
+	return occur
+}
+
+func (t cList) String() string {
+	args := []string{}
+	for _, arg := range t {
+		args = append(args, arg.String())
+	}
+	return "[" + strings.Join(args, ", ") + "]"
+}
+
+func (t cList) Type() Type {
+	return ListType
+}
 
 type chrRule struct {
 	name     string
@@ -179,14 +211,19 @@ type chrRule struct {
 var CHRruleStore []*chrRule
 
 func CHRsolver() {
-	for ruleFound := true; ruleFound; {
+	printCHRStore()
+	for ruleFound, i := true, 0; ruleFound && i < 1000; i++ {
 		ruleFound = false
 		for _, rule := range CHRruleStore {
+			fmt.Printf(" *** trial rule %s (ID: %d) \n", rule.name, rule.id)
 			if pRuleFired(rule) {
+				fmt.Printf(" *** rule %s (ID: %d) fired\n", rule.name, rule.id)
 				ruleFound = true
 				break
 			}
+			fmt.Printf(" *** rule %s (ID: %d) NOT fired\n", rule.name, rule.id)
 		}
+		printCHRStore()
 	}
 }
 
@@ -214,18 +251,27 @@ func pRuleFired(rule *chrRule) (ok bool) {
 
 func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok bool) {
 	var env2 Bindings
+	var mark bool
 	head := headList[it]
-	chrList := attributedTermCHR(head, env)
+	chrList := readProperConstraintsFromCHR_Store(head, env)
+	fmt.Printf("     *** unify Del-Head %s with [", head)
 	len_chr := len(chrList)
 	if len_chr != 0 {
+		// trace
+		for _, c := range chrList {
+			fmt.Printf("%s, ", c)
+		}
+		fmt.Printf("]\n")
+		// trace
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
 
-			env2, ok = mDelUnify(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
+			env2, ok, mark = markCHRAndUnifyDelHead(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
 			if ok {
 				if it+1 < nt {
 					ok = unifyDelHead(r, headList, it+1, nt, env2)
 					if ok {
+						// not unmarkDelCHR(chr), markt == deleted
 						return ok
 					}
 				} else {
@@ -239,12 +285,15 @@ func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok 
 						}
 					} else {
 						// only delHead
-						ok := checkGuards(r, env2)
+						ok = checkGuards(r, env2)
 						if ok {
 							return ok
 						}
 					}
 				} // if it+1 < nt
+			}
+			if mark {
+				unmarkDelCHR(chr)
 			}
 			// mUnify was OK, but rule does not fire OR mUnify was not OK
 			// env is the currend environment
@@ -255,26 +304,62 @@ func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok 
 	return false
 }
 
-func mDelUnify(id int, head, chr Compound, env Bindings) (env2 Bindings, ok bool) {
+func markCHRAndUnifyDelHead(id int, head, chr *Compound, env Bindings) (env2 Bindings, ok bool, m bool) {
 	// mark and unmark chr
-	return Unify(head, chr, env)
+	if chr.IsActive {
+		return env, false, false
+	}
+	// fmt.Printf("     *** mark del %v, ID: %v\n", chr, chr.Id)
+	chr.IsActive = true
+	env2, ok = Unify(*head, *chr, env)
+	fmt.Printf("     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
+	return env2, ok, true
 }
 
-func mKeepUnify(id int, head, chr Compound, env Bindings) (env2 Bindings, ok bool) {
+func unmarkDelCHR(chr *Compound) {
+	chr.IsActive = false
+	fmt.Printf("     *** unmark del %v, ID: %v\n", chr, chr.Id)
+	return
+}
+
+func markCHRAndUnifyKeepHead(id int, head, chr *Compound, env Bindings) (env2 Bindings, ok bool, m bool) {
 	// mark and unmark chr
-	return Unify(head, chr, env)
+
+	if chr.IsActive {
+		return env, false, false
+	}
+	// fmt.Printf("     *** mark keep %v, ID: %v\n", chr, chr.Id)
+	chr.IsActive = true
+	env2, ok = Unify(*head, *chr, env)
+	fmt.Printf("     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
+	return env2, ok, true
+}
+
+func unmarkKeepCHR(chr *Compound) {
+	chr.IsActive = false
+	fmt.Printf("     *** unmark keep %v, ID: %v\n", chr, chr.Id)
+	return
 }
 
 func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, env Bindings) (ok bool) {
 	var env2 Bindings
+	var mark bool
 	head := headList[it]
-	chrList := attributedTermCHR(head, env)
+	chrList := readProperConstraintsFromCHR_Store(head, env)
+	fmt.Printf("     *** unify keep-Head %s with [", head)
 	len_chr := len(chrList)
 	if len_chr != 0 {
+		// trace
+		for _, c := range chrList {
+			fmt.Printf("%s, ", c)
+		}
+		fmt.Printf("]\n")
+		// trace
+
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
 
-			env2, ok = mKeepUnify(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
+			env2, ok, mark = markCHRAndUnifyKeepHead(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
 			if ok {
 				if it+1 < nt {
 					if his == nil {
@@ -285,34 +370,91 @@ func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, e
 					}
 
 					if ok {
+						unmarkKeepCHR(chr)
 						return ok
 					}
 				} else {
 					// the last keepHead-match was OK
 					// check history
-					if his == nil || pCHRsNotInHistory(append(his, chr.Id), r.his) {
-
-						ok := checkGuards(r, env2)
+					if his == nil {
+						ok = checkGuards(r, env2)
 						if ok {
+							unmarkKeepCHR(chr)
 							return ok
 						}
-
+					} else {
+						// fmt.Printf("     *** id von %s Args: %v ID: %v \n", chr.Functor, chr.Args, chr.Id)
+						his2 := append(his, chr.Id)
+						if !pCHRsInHistory(his2, r.his) {
+							ok = checkGuards(r, env2)
+							if ok {
+								r.his = append(r.his, his2)
+								unmarkKeepCHR(chr)
+								return ok
+							}
+						} else {
+							ok = false
+						}
 					}
-
 				} // if it+1 < nt
-
 			}
 			// mUnify was OK, but rule does not fire OR mUnify was not OK
 			// env is the currend environment
 			// try the next constrain of the constrain store
+			if mark {
+				unmarkKeepCHR(chr)
+			}
 		}
 		// no constrain from the constraint store match head
 	}
 	return false
 }
 
-func pCHRsNotInHistory(chrs []*big.Int, his history) (ok bool) {
-	return true
+func pCHRsInHistory(chrs []*big.Int, his history) (ok bool) {
+	if his == nil || len(his) == 0 {
+		return false
+	}
+	if chrs == nil || len(chrs) == 0 {
+		return false
+	}
+	fmt.Printf("     *** In History: chrs %v and his %vexist\n", chrs, his)
+	lc := len(chrs)
+	found := false
+	// for i, h := range his {
+	for _, h := range his {
+		if len(h) != lc {
+			// fmt.Printf(" In History: len of %d (len: %d) not == %d\n", i, len(h), lc)
+			continue
+		}
+		// for j, c := range chrs {
+		for _, c := range chrs {
+			found = false
+			// for k, h1 := range h {
+			for _, h1 := range h {
+				if h1 == nil {
+					fmt.Printf("    !!! In History h1 == nil \n")
+				}
+				if c == nil {
+					fmt.Printf("    !!! In History c == nil \n")
+				}
+				if h1 != nil && c != nil && h1.Cmp(c) == 0 {
+					// fmt.Printf(" In History %v \n", h1)
+					// fmt.Printf(" In History Nr: %d, idx %d == idx/chr %d \n", i, k, j)
+					found = true
+					break
+				}
+			}
+			if !found {
+				// fmt.Printf(" In History Nr: %d, Chr / idx: %d not found\n", i, j)
+				break
+			}
+		}
+		if found {
+			// fmt.Printf(" History found \n")
+			break
+		}
+	}
+	return found
 }
 
 func checkGuards(r *chrRule, env Bindings) (ok bool) {
@@ -330,18 +472,21 @@ func checkGuards(r *chrRule, env Bindings) (ok bool) {
 	return true
 }
 
-func checkGuard(g Compound, env Bindings) (env2 Bindings, ok bool) {
-	g = Substitute(g, env).(Compound)
-	if g.Functor == ":=" || g.Functor == "is" || g.Functor == "=" {
-		if !pVar(g.Args[0]) {
+func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
+	fmt.Printf("     *** check guard: %s, ", g)
+	g1 := Substitute(*g, env).(Compound)
+	fmt.Printf("subst: %s, ", g1)
+	if g.Functor == ":=" || g1.Functor == "is" || g1.Functor == "=" {
+		if !pVar(g1.Args[0]) {
 			return env, false
 		}
-		a := Eval(g.Args[1])
-		env2 = AddBinding(g.Args[0].(Variable), a, env)
+		a := Eval(g1.Args[1])
+		env2 = AddBinding(g1.Args[0].(Variable), a, env)
 		return env2, true
 	}
 
-	t1 := Eval(g)
+	t1 := Eval(g1)
+	fmt.Printf("eval: %s \n", t1)
 	switch t1.Type() {
 	case BoolType:
 		if t1.(Bool) {
@@ -349,7 +494,8 @@ func checkGuard(g Compound, env Bindings) (env2 Bindings, ok bool) {
 		}
 		return env, false
 	case CompoundType:
-		biChrList := attributedTermBI(t1.(Compound), nil)
+		t2 := t1.(Compound)
+		biChrList := readProperConstraintsFromBI_Store(&t2, nil)
 		len_chr := len(biChrList)
 		if len_chr == 0 {
 			return env, false
@@ -379,10 +525,12 @@ func pVar(t Term) bool {
 
 func fireRule(rule *chrRule, env Bindings) bool {
 	goals := Substitute(rule.body, env)
+	goals = Eval(goals)
+	fmt.Printf("     *** Add Goals: %v \n", goals)
 	if goals.Type() == ListType {
 		for _, g := range goals.(List) {
 			if g.Type() == CompoundType {
-				addGoal(g.(Compound))
+				addConstraintToStore(g.(Compound))
 			} else {
 				if g.Type() == BoolType && !g.(Bool) {
 					return false
@@ -391,4 +539,44 @@ func fireRule(rule *chrRule, env Bindings) bool {
 		}
 	}
 	return true
+}
+
+func printCHRStore() {
+	for _, aChr := range CHRstore {
+		first := true
+		for _, con := range aChr.varArg {
+			if !con.IsActive {
+				if first {
+					fmt.Printf(" *** CHR-Store: [%s", con)
+					first = false
+				} else {
+					fmt.Printf(", %s", con)
+				}
+			}
+		}
+		if first {
+			fmt.Printf(" *** CHR-Store: []\n")
+		} else {
+			fmt.Printf("]\n")
+		}
+	}
+
+	for _, aChr := range BuiltInStore {
+		first := true
+		for _, con := range aChr.varArg {
+			if !con.IsActive {
+				if first {
+					fmt.Printf("\n *** Built-In Store: [%s", con)
+					first = false
+				} else {
+					fmt.Printf(", %s", con)
+				}
+			}
+		}
+		if first {
+			fmt.Printf(" *** Built-In Store: []\n")
+		} else {
+			fmt.Printf("]\n")
+		}
+	}
 }
