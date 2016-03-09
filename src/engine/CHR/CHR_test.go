@@ -63,17 +63,17 @@ func Test_History01(t *testing.T) {
 
 func tAtt(t *testing.T, store string, head string, result string) bool {
 
-	term1, ok := ReadString(store)
+	term1, ok := ParseString(store)
 	if !ok {
 		t.Errorf(fmt.Sprintf("Scan store in add/read store test \"%s\" failed, term1: %s", store, term1.String()))
 		return false
 	}
-	term2, ok := ReadString(head)
+	term2, ok := ParseString(head)
 	if !ok {
 		t.Errorf(fmt.Sprintf("Scan head in add/read store test \"%s\" failed, term2: %s", head, term2.String()))
 		return false
 	}
-	term3, ok := ReadString(result)
+	term3, ok := ParseString(result)
 	if !ok {
 		t.Errorf(fmt.Sprintf("Scan result add/read store test \"%s\" failed, term3: %s", result, term3.String()))
 		return false
@@ -284,9 +284,9 @@ func toClist(l Term) (cList, bool) {
 	return cl, true
 }
 
-func addStringChrRule(t *testing.T, name, del, keep, guard, body string) bool {
+func addStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 
-	delList, ok := ReadString(del)
+	delList, ok := ParseCHRString(del)
 	if !ok || delList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan DEl-Head in rule %s failed: %s\n", name, delList))
 		return false
@@ -297,7 +297,7 @@ func addStringChrRule(t *testing.T, name, del, keep, guard, body string) bool {
 		return false
 	}
 
-	keepList, ok := ReadString(keep)
+	keepList, ok := ParseCHRString(keep)
 	if !ok || keepList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan KEEP-Head in rule %s failed: %s\n", name, delList))
 		return false
@@ -308,9 +308,9 @@ func addStringChrRule(t *testing.T, name, del, keep, guard, body string) bool {
 		return false
 	}
 
-	guardList, ok := ReadString(guard)
+	guardList, ok := ParseBIString(guard)
 	if !ok || guardList.Type() != ListType {
-		t.Errorf(fmt.Sprintf("Scan GUARD in rule %s failed: %s\n", name, delList))
+		t.Errorf(fmt.Sprintf("Scan GUARD in rule %s failed: %s (%v)\n", name, delList, ok))
 		return false
 	}
 	cGuardList, ok := toClist(guardList)
@@ -319,7 +319,7 @@ func addStringChrRule(t *testing.T, name, del, keep, guard, body string) bool {
 		return false
 	}
 
-	bodyList, ok := ReadString(body)
+	bodyList, ok := ParseBIString(body)
 	if !ok || bodyList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan BODY in rule %s failed: %s\n", name, bodyList))
 		return false
@@ -336,7 +336,7 @@ func addStringChrRule(t *testing.T, name, del, keep, guard, body string) bool {
 }
 
 func addGoals(t *testing.T, goals string) bool {
-	goalList, ok := ReadString(goals)
+	goalList, ok := ParseBIString(goals)
 	if !ok || goalList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan GOAL-List failed: %s\n", goalList))
 		return false
@@ -355,12 +355,12 @@ func addGoals(t *testing.T, goals string) bool {
 
 func TestCHRRule01(t *testing.T) {
 	InitStore()
-	ok := addStringChrRule(t, "prime01", "[]", "[prime(N)]", "[N>2]", "[prime(N-1)]")
+	ok := addStringChrRule(t, "prime01", "[prime(N)]", "[]", "[N>2]", "[prime(N-1)]")
 
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Rule 01\n")
 	}
-	ok = addStringChrRule(t, "prime02", "[prime(B)]", "[prime(A)]", "[B > A, B mod A == 0]", "[true]")
+	ok = addStringChrRule(t, "prime02", "[prime(A)]", "[prime(B)]", "[B > A, B mod A == 0]", "[true]")
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Rule 02\n")
 	}
@@ -368,7 +368,25 @@ func TestCHRRule01(t *testing.T) {
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Goals\n")
 	}
+	CHRsolver()
+	printCHRStore()
+}
 
+func TestCHRRule02(t *testing.T) {
+	InitStore()
+	ok := addStringChrRule(t, "gcd01", "[]", "[gcd(0)]", "[]", "[true]")
+
+	if ok != true {
+		t.Errorf("TestCHRRule02 failed, add Rule 01\n")
+	}
+	ok = addStringChrRule(t, "gcd02", "[gcd(N)]", "[gcd(M)]", "N <= M, L := M mod N", "[gcd(L)]")
+	if ok != true {
+		t.Errorf("TestCHRRule02 failed, add Rule 02\n")
+	}
+	ok = addGoals(t, "[gcd(94017), gcd(1155),gcd(2035)]")
+	if ok != true {
+		t.Errorf("TestCHRRule02 failed, add Goals\n")
+	}
 	CHRsolver()
 	printCHRStore()
 }

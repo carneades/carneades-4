@@ -41,7 +41,19 @@ func ReadString(src string) (result Term, ok bool) {
 	return
 }
 
-func ParseString(src string) (result Term, ok bool) {
+func ParseCHRString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseCHRConstraint(&s)
+	return
+}
+
+func ParseBIString(src string) (result Term, ok bool) {
 	// src is the input that we want to tokenize.
 	var s sc.Scanner
 	// var s *sc.Scanner
@@ -70,6 +82,7 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	if tok == sc.EOF || !ok {
 		return
 	}
+
 	if tok == ',' {
 		t1 := List{t}
 		for tok == ',' {
@@ -84,9 +97,7 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 		}
 		t = t1
 	}
-	if tok == '.' {
-		tok = s.Scan()
-	}
+
 	if tok != sc.EOF {
 		// err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
 		return t, tok, false
@@ -94,11 +105,15 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	return
 }
 
-func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
+func parseCHRConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> readBIConstraint : \n")
+		fmt.Printf("--> parseCHRConstraint : \n")
 	}
 	t, tok, ok = expression(s, s.Scan())
+	if t.Type() != ListType && (t.Type() != CompoundType || t.(Compound).Prio != 0) {
+		err(s, fmt.Sprintf(" Not a CHR-predicate, not a predicate or a build-in function: %s ", t))
+	}
+
 	if trace {
 		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 	}
@@ -109,6 +124,9 @@ func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 		t1 := List{t}
 		for tok == ',' {
 			t, tok, ok = expression(s, s.Scan())
+			if t.Type() != CompoundType || t.(Compound).Prio != 0 {
+				err(s, fmt.Sprintf(" Not a CHR-predicate, not a predicate or a build-in function: %s ", t))
+			}
 			if trace {
 				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 			}
@@ -126,6 +144,87 @@ func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
 	}
 	return
+}
+
+func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
+	if trace {
+		fmt.Printf("--> readBIConstraint : \n")
+	}
+	t, tok, ok = assignexpr(s, s.Scan())
+	if trace {
+		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
+	if tok == sc.EOF || !ok {
+		return
+	}
+	if tok == ',' {
+		t1 := List{t}
+		for tok == ',' {
+			t, tok, ok = assignexpr(s, s.Scan())
+			if trace {
+				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			}
+			if !ok {
+				return t1, tok, false
+			}
+			t1 = append(t1, t)
+		}
+		t = t1
+	}
+	if tok == '.' {
+		tok = s.Scan()
+	}
+	if tok != sc.EOF {
+		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
+	}
+	return
+}
+
+func assignexpr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
+	if trace {
+		fmt.Printf("--> assign expression: '%s'\n", f(tok1))
+	}
+	t, tok, ok = expression(s, tok1)
+	if trace {
+		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+	}
+	if !ok {
+		return
+	}
+	for {
+		op := ""
+		// named op "is"
+		if tok <= 0 {
+			if tok == sc.Ident && s.TokenText() == "is" {
+				op = "is"
+			} else {
+				return
+			}
+		}
+		tok2 := s.Peek()
+		if tok == ':' && tok2 == '=' {
+			op = ":="
+			tok = s.Scan()
+		}
+		if op == "" {
+			return
+		}
+		if t.Type() != VariableType {
+			err(s, fmt.Sprintf(" A Variable, not %s, exspected on the left site of %s", t, op))
+		}
+		t1 := t
+		t, tok, ok = expression(s, s.Scan())
+		if trace {
+			fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
+		if !ok {
+			return t1, tok, ok
+		}
+		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 1}
+		if trace {
+			fmt.Printf("-<- assign-expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		}
+	}
 }
 
 func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
