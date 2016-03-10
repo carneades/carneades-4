@@ -99,10 +99,10 @@ var chrCounter *big.Int
 var bigOne = big.NewInt(1)
 
 func addConstraintToStore(g Compound) {
-	// fmt.Printf(" a) Counter %v \n", chrCounter)
+	// pTraceHeadln(3, 3, " a) Counter %v \n", chrCounter)
 	g.Id = chrCounter
 	chrCounter = new(big.Int).Add(chrCounter, bigOne)
-	// fmt.Printf(" b) Counter++ %v , Id: %v \n", chrCounter, g.Id)
+	// pTraceHeadln(3, 3, " b) Counter++ %v , Id: %v \n", chrCounter, g.Id)
 	if g.Prio == 0 {
 		addGoal1(&g, CHRstore)
 	} else {
@@ -210,19 +210,73 @@ type chrRule struct {
 
 var CHRruleStore []*chrRule
 
+var CHRtrace int
+
+func pTraceHeadln(l, n int, s ...interface{}) {
+	if CHRtrace >= l {
+		for i := 0; i < n; i++ {
+			fmt.Printf("      ")
+		}
+		fmt.Printf("*** ")
+		for _, s1 := range s {
+			fmt.Printf("%v", s1)
+		}
+		fmt.Printf("\n")
+	}
+}
+
+func pTraceHead(l, n int, s ...interface{}) {
+	if CHRtrace >= l {
+		for i := 0; i < n; i++ {
+			fmt.Printf("      ")
+		}
+		fmt.Printf("*** ")
+		for _, s1 := range s {
+			fmt.Printf("%v", s1)
+		}
+	}
+}
+
+func pTrace(l int, s ...interface{}) {
+	if CHRtrace >= l {
+		for _, s1 := range s {
+			fmt.Printf("%v", s1)
+		}
+	}
+}
+
+func pTraceln(l int, s ...interface{}) {
+	if CHRtrace >= l {
+		for _, s1 := range s {
+			fmt.Printf("%v", s1)
+		}
+		fmt.Printf("\n")
+	}
+}
+
 func CHRsolver() {
-	printCHRStore()
-	for ruleFound, i := true, 0; ruleFound && i < 1000; i++ {
+	if CHRtrace != 0 {
+		printCHRStore()
+	}
+	//	for ruleFound, i := true, 0; ruleFound && i < 1000; i++ {
+	for ruleFound := true; ruleFound; {
 		ruleFound = false
 		for _, rule := range CHRruleStore {
-			fmt.Printf(" *** trial rule %s (ID: %d) \n", rule.name, rule.id)
+
+			pTraceHeadln(2, 1, "trial rule ", rule.name, "(ID: ", rule.id, ")")
+
 			if pRuleFired(rule) {
-				fmt.Printf(" *** rule %s (ID: %d) fired\n", rule.name, rule.id)
+				pTraceHeadln(1, 1, "rule ", rule.name, " fired (id: ", rule.id, ")")
 				ruleFound = true
 				break
 			}
-			fmt.Printf(" *** rule %s (ID: %d) NOT fired\n", rule.name, rule.id)
+			pTraceHeadln(2, 1, "rule ", rule.name, " NOT fired (id: ", rule.id, ")")
 		}
+		if ruleFound && CHRtrace != 0 {
+			printCHRStore()
+		}
+	}
+	if CHRtrace > 1 {
 		printCHRStore()
 	}
 }
@@ -254,14 +308,14 @@ func unifyDelHead(r *chrRule, headList cList, it int, nt int, env Bindings) (ok 
 	var mark bool
 	head := headList[it]
 	chrList := readProperConstraintsFromCHR_Store(head, env)
-	fmt.Printf("     *** unify Del-Head %s with [", head)
+	pTraceHeadln(3, 3, "     *** unify Del-Head %s with [", head)
 	len_chr := len(chrList)
 	if len_chr != 0 {
 		// trace
 		for _, c := range chrList {
-			fmt.Printf("%s, ", c)
+			pTraceHeadln(3, 3, "%s, ", c)
 		}
-		fmt.Printf("]\n")
+		pTraceHeadln(3, 3, "]\n")
 		// trace
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
@@ -309,16 +363,16 @@ func markCHRAndUnifyDelHead(id int, head, chr *Compound, env Bindings) (env2 Bin
 	if chr.IsActive {
 		return env, false, false
 	}
-	// fmt.Printf("     *** mark del %v, ID: %v\n", chr, chr.Id)
+	// pTraceHeadln(3, 3, "     *** mark del %v, ID: %v\n", chr, chr.Id)
 	chr.IsActive = true
 	env2, ok = Unify(*head, *chr, env)
-	fmt.Printf("     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
+	pTraceHeadln(3, 3, "     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
 	return env2, ok, true
 }
 
 func unmarkDelCHR(chr *Compound) {
 	chr.IsActive = false
-	fmt.Printf("     *** unmark del %v, ID: %v\n", chr, chr.Id)
+	pTraceHeadln(3, 3, "     *** unmark del %v, ID: %v\n", chr, chr.Id)
 	return
 }
 
@@ -328,16 +382,16 @@ func markCHRAndUnifyKeepHead(id int, head, chr *Compound, env Bindings) (env2 Bi
 	if chr.IsActive {
 		return env, false, false
 	}
-	// fmt.Printf("     *** mark keep %v, ID: %v\n", chr, chr.Id)
+	// pTraceHeadln(3, 3, "     *** mark keep %v, ID: %v\n", chr, chr.Id)
 	chr.IsActive = true
 	env2, ok = Unify(*head, *chr, env)
-	fmt.Printf("     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
+	pTraceHeadln(3, 3, "     *** Unify head %s with mark CHR %s (Id: %v) is %v (Binding: %v)\n", head, chr, chr.Id, ok, env2)
 	return env2, ok, true
 }
 
 func unmarkKeepCHR(chr *Compound) {
 	chr.IsActive = false
-	fmt.Printf("     *** unmark keep %v, ID: %v\n", chr, chr.Id)
+	pTraceHeadln(3, 3, "     *** unmark keep %v, ID: %v\n", chr, chr.Id)
 	return
 }
 
@@ -346,14 +400,14 @@ func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, e
 	var mark bool
 	head := headList[it]
 	chrList := readProperConstraintsFromCHR_Store(head, env)
-	fmt.Printf("     *** unify keep-Head %s with [", head)
+	pTraceHeadln(3, 3, "     *** unify keep-Head %s with [", head)
 	len_chr := len(chrList)
 	if len_chr != 0 {
 		// trace
 		for _, c := range chrList {
-			fmt.Printf("%s, ", c)
+			pTraceHeadln(3, 3, "%s, ", c)
 		}
-		fmt.Printf("]\n")
+		pTraceHeadln(3, 3, "]\n")
 		// trace
 
 		for ok, ic := false, 0; !ok && ic < len_chr; ic++ {
@@ -383,7 +437,7 @@ func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, e
 							return ok
 						}
 					} else {
-						// fmt.Printf("     *** id von %s Args: %v ID: %v \n", chr.Functor, chr.Args, chr.Id)
+						// pTraceHeadln(3, 3, "     *** id von %s Args: %v ID: %v \n", chr.Functor, chr.Args, chr.Id)
 						his2 := append(his, chr.Id)
 						if !pCHRsInHistory(his2, r.his) {
 							ok = checkGuards(r, env2)
@@ -417,13 +471,13 @@ func pCHRsInHistory(chrs []*big.Int, his history) (ok bool) {
 	if chrs == nil || len(chrs) == 0 {
 		return false
 	}
-	fmt.Printf("     *** In History: chrs %v and his %vexist\n", chrs, his)
+	pTraceHeadln(3, 3, "     *** In History: chrs %v and his %vexist\n", chrs, his)
 	lc := len(chrs)
 	found := false
 	// for i, h := range his {
 	for _, h := range his {
 		if len(h) != lc {
-			// fmt.Printf(" In History: len of %d (len: %d) not == %d\n", i, len(h), lc)
+			// pTraceHeadln(3, 3, " In History: len of %d (len: %d) not == %d\n", i, len(h), lc)
 			continue
 		}
 		// for j, c := range chrs {
@@ -432,25 +486,25 @@ func pCHRsInHistory(chrs []*big.Int, his history) (ok bool) {
 			// for k, h1 := range h {
 			for _, h1 := range h {
 				if h1 == nil {
-					fmt.Printf("    !!! In History h1 == nil \n")
+					pTraceHeadln(3, 3, "    !!! In History h1 == nil \n")
 				}
 				if c == nil {
-					fmt.Printf("    !!! In History c == nil \n")
+					pTraceHeadln(3, 3, "    !!! In History c == nil \n")
 				}
 				if h1 != nil && c != nil && h1.Cmp(c) == 0 {
-					// fmt.Printf(" In History %v \n", h1)
-					// fmt.Printf(" In History Nr: %d, idx %d == idx/chr %d \n", i, k, j)
+					// pTraceHeadln(3, 3, " In History %v \n", h1)
+					// pTraceHeadln(3, 3, " In History Nr: %d, idx %d == idx/chr %d \n", i, k, j)
 					found = true
 					break
 				}
 			}
 			if !found {
-				// fmt.Printf(" In History Nr: %d, Chr / idx: %d not found\n", i, j)
+				// pTraceHeadln(3, 3, " In History Nr: %d, Chr / idx: %d not found\n", i, j)
 				break
 			}
 		}
 		if found {
-			// fmt.Printf(" History found \n")
+			// pTraceHeadln(3, 3, " History found \n")
 			break
 		}
 	}
@@ -473,9 +527,9 @@ func checkGuards(r *chrRule, env Bindings) (ok bool) {
 }
 
 func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
-	fmt.Printf("     *** check guard: %s, ", g)
+	pTraceHeadln(3, 3, "     *** check guard: %s, ", g)
 	g1 := Substitute(*g, env).(Compound)
-	fmt.Printf("subst: %s, ", g1)
+	pTraceHeadln(3, 3, "subst: %s, ", g1)
 	if g.Functor == ":=" || g1.Functor == "is" || g1.Functor == "=" {
 		if !pVar(g1.Args[0]) {
 			return env, false
@@ -486,7 +540,7 @@ func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 	}
 
 	t1 := Eval(g1)
-	fmt.Printf("eval: %s \n", t1)
+	pTraceHeadln(3, 3, "eval: %s \n", t1)
 	switch t1.Type() {
 	case BoolType:
 		if t1.(Bool) {
@@ -526,7 +580,7 @@ func pVar(t Term) bool {
 func fireRule(rule *chrRule, env Bindings) bool {
 	goals := Substitute(rule.body, env)
 	goals = Eval(goals)
-	fmt.Printf("     *** Add Goals: %v \n", goals)
+	pTraceHeadln(3, 3, "     *** Add Goals: %v \n", goals)
 	if goals.Type() == ListType {
 		for _, g := range goals.(List) {
 			if g.Type() == CompoundType {
@@ -542,41 +596,41 @@ func fireRule(rule *chrRule, env Bindings) bool {
 }
 
 func printCHRStore() {
+	first := true
 	for _, aChr := range CHRstore {
-		first := true
 		for _, con := range aChr.varArg {
 			if !con.IsActive {
 				if first {
-					fmt.Printf(" *** CHR-Store: [%s", con)
+					pTraceHead(1, 0, "CHR-Store: [", con.String())
 					first = false
 				} else {
-					fmt.Printf(", %s", con)
+					pTrace(1, ", ", con.String())
 				}
 			}
-		}
-		if first {
-			fmt.Printf(" *** CHR-Store: []\n")
-		} else {
-			fmt.Printf("]\n")
 		}
 	}
+	if first {
+		pTraceHeadln(1, 0, "CHR-Store: []")
+	} else {
+		pTraceln(1, "]")
+	}
 
+	first = true
 	for _, aChr := range BuiltInStore {
-		first := true
 		for _, con := range aChr.varArg {
 			if !con.IsActive {
 				if first {
-					fmt.Printf("\n *** Built-In Store: [%s", con)
+					pTraceHead(1, 0, "Built-In Store: [", con.String())
 					first = false
 				} else {
-					fmt.Printf(", %s", con)
+					pTrace(1, ", ", con.String())
 				}
 			}
 		}
 		if first {
-			fmt.Printf(" *** Built-In Store: []\n")
+			pTraceHeadln(1, 0, "Built-In Store: []")
 		} else {
-			fmt.Printf("]\n")
+			pTraceln(1, "]")
 		}
 	}
 }

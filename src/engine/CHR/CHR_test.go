@@ -286,6 +286,17 @@ func toClist(l Term) (cList, bool) {
 
 func addStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 
+	keepList, ok := ParseCHRString(keep)
+	if !ok || keepList.Type() != ListType {
+		t.Errorf(fmt.Sprintf("Scan KEEP-Head in rule %s failed(%v): %s\n", name, ok, keepList))
+		return false
+	}
+	cKeepList, ok := toClist(keepList)
+	if !ok {
+		t.Errorf(fmt.Sprintf("Convert Keep-Head in rule %s failed: %s\n", name, keepList))
+		return false
+	}
+
 	delList, ok := ParseCHRString(del)
 	if !ok || delList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan DEl-Head in rule %s failed: %s\n", name, delList))
@@ -297,20 +308,9 @@ func addStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 		return false
 	}
 
-	keepList, ok := ParseCHRString(keep)
-	if !ok || keepList.Type() != ListType {
-		t.Errorf(fmt.Sprintf("Scan KEEP-Head in rule %s failed: %s\n", name, delList))
-		return false
-	}
-	cKeepList, ok := toClist(keepList)
-	if !ok {
-		t.Errorf(fmt.Sprintf("Convert Keep-Head in rule %s failed: %s\n", name, keepList))
-		return false
-	}
-
 	guardList, ok := ParseBIString(guard)
 	if !ok || guardList.Type() != ListType {
-		t.Errorf(fmt.Sprintf("Scan GUARD in rule %s failed: %s (%v)\n", name, delList, ok))
+		t.Errorf(fmt.Sprintf("Scan GUARD in rule %s failed: %s (%v)\n", name, guardList, ok))
 		return false
 	}
 	cGuardList, ok := toClist(guardList)
@@ -319,7 +319,7 @@ func addStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 		return false
 	}
 
-	bodyList, ok := ParseBIString(body)
+	bodyList, ok := ParseRuleGoalString(body)
 	if !ok || bodyList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan BODY in rule %s failed: %s\n", name, bodyList))
 		return false
@@ -336,7 +336,7 @@ func addStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 }
 
 func addGoals(t *testing.T, goals string) bool {
-	goalList, ok := ParseBIString(goals)
+	goalList, ok := ParseGoalString(goals)
 	if !ok || goalList.Type() != ListType {
 		t.Errorf(fmt.Sprintf("Scan GOAL-List failed: %s\n", goalList))
 		return false
@@ -355,40 +355,75 @@ func addGoals(t *testing.T, goals string) bool {
 
 func TestCHRRule01(t *testing.T) {
 	InitStore()
-	ok := addStringChrRule(t, "prime01", "[prime(N)]", "[]", "[N>2]", "[prime(N-1)]")
+	ok := addStringChrRule(t, "prime01", "prime(N)", "", "N>2", "prime(N-1)")
 
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Rule 01\n")
 	}
-	ok = addStringChrRule(t, "prime02", "[prime(A)]", "[prime(B)]", "[B > A, B mod A == 0]", "[true]")
+	ok = addStringChrRule(t, "prime02", "prime(A)", "prime(B)", "B > A, B mod A == 0", "true")
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Rule 02\n")
 	}
-	ok = addGoals(t, "[prime(100)]")
+	ok = addGoals(t, "prime(100)")
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Goals\n")
 	}
+	CHRtrace = 0
 	CHRsolver()
-	printCHRStore()
 }
 
 func TestCHRRule02(t *testing.T) {
 	InitStore()
-	ok := addStringChrRule(t, "gcd01", "[]", "[gcd(0)]", "[]", "[true]")
+	ok := addStringChrRule(t, "gcd01", "", "gcd(0)", "", "true")
 
 	if ok != true {
 		t.Errorf("TestCHRRule02 failed, add Rule 01\n")
 	}
-	ok = addStringChrRule(t, "gcd02", "[gcd(N)]", "[gcd(M)]", "N <= M, L := M mod N", "[gcd(L)]")
+	ok = addStringChrRule(t, "gcd02", "gcd(N)", "gcd(M)", "N <= M, L := M mod N", "gcd(L)")
 	if ok != true {
 		t.Errorf("TestCHRRule02 failed, add Rule 02\n")
 	}
-	ok = addGoals(t, "[gcd(94017), gcd(1155),gcd(2035)]")
+	ok = addGoals(t, "gcd(94017), gcd(1155),gcd(2035)")
 	if ok != true {
 		t.Errorf("TestCHRRule02 failed, add Goals\n")
 	}
 	CHRsolver()
-	printCHRStore()
+}
+
+func TestCHRRule03(t *testing.T) {
+	InitStore()
+	ok := addStringChrRule(t, "gcd01", "", "gcd(0)", "", "true")
+
+	if ok != true {
+		t.Errorf("TestCHRRule03 failed, add Rule 01\n")
+	}
+	ok = addStringChrRule(t, "gcd02", "gcd(N)", "gcd(M)", "N <= M", "gcd(M mod N)")
+	if ok != true {
+		t.Errorf("TestCHRRule03 failed, add Rule 02\n")
+	}
+	ok = addGoals(t, "gcd(94017), gcd(1155),gcd(2035)")
+	if ok != true {
+		t.Errorf("TestCHRRule03 failed, add Goals\n")
+	}
+	CHRsolver()
+}
+
+func TestCHRRule04(t *testing.T) {
+	InitStore()
+	ok := addStringChrRule(t, "fib01", "upto(A)", "", "", "fib(0,1), fib(1,1)")
+
+	if ok != true {
+		t.Errorf("TestCHRRule04 failed, add Rule 01\n")
+	}
+	ok = addStringChrRule(t, "fib02", "upto(Max), fib(N1,M1),fib(N2,M2)", "", "Max > N2, N2 == N1+1", "fib(N2+1,M1+M2)")
+	if ok != true {
+		t.Errorf("TestCHRRule04 failed, add Rule 02\n")
+	}
+	ok = addGoals(t, "upto(100)")
+	if ok != true {
+		t.Errorf("TestCHRRule04 failed, add Goals\n")
+	}
+	CHRsolver()
 }
 
 //var CHRstore store

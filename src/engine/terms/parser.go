@@ -41,30 +41,6 @@ func ReadString(src string) (result Term, ok bool) {
 	return
 }
 
-func ParseCHRString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseCHRConstraint(&s)
-	return
-}
-
-func ParseBIString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseBIConstraint(&s)
-	return
-}
-
 func err(s *sc.Scanner, str string) {
 	if str != "illegal char literal" {
 		fmt.Fprintln(os.Stderr, "*** Parse Error before[", s.Pos(), "]:", str)
@@ -105,43 +81,140 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	return
 }
 
-func parseCHRConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
+type parseType int
+
+const (
+	ParseCHR parseType = iota
+	ParseBI
+	ParseGoal     // CHR and Built-In
+	ParseRuleGoal // Chr, Built-In and Variables
+)
+
+func ParseCHRString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseConstraints(ParseCHR, &s)
+	return
+}
+
+func ParseBIString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseConstraints(ParseBI, &s)
+	return
+}
+
+func ParseGoalString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseConstraints(ParseGoal, &s)
+	return
+}
+
+func ParseRuleGoalString(src string) (result Term, ok bool) {
+	// src is the input that we want to tokenize.
+	var s sc.Scanner
+	// var s *sc.Scanner
+	// Initialize the scanner.
+	s.Init(strings.NewReader(src))
+	s.Error = err
+
+	result, _, ok = parseConstraints(ParseRuleGoal, &s)
+	return
+}
+
+func parseConstraints(ty parseType, s *sc.Scanner) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> parseCHRConstraint : \n")
+		fmt.Printf("--> parseConstraints : \n")
 	}
-	t, tok, ok = expression(s, s.Scan())
-	if t.Type() != ListType && (t.Type() != CompoundType || t.(Compound).Prio != 0) {
-		err(s, fmt.Sprintf(" Not a CHR-predicate, not a predicate or a build-in function: %s ", t))
+
+	tok = s.Scan()
+	if tok == sc.EOF {
+		return List{}, tok, true
+	}
+
+	t, tok, ok = assignexpr(s, tok)
+	if !ok {
+		return
+	}
+	switch ty {
+	case ParseCHR:
+		if t.Type() != CompoundType || t.(Compound).Prio != 0 {
+			err(s, fmt.Sprintf(" Not a CHR-predicate: %s ", t))
+		}
+	case ParseBI:
+		if t.Type() != CompoundType || t.(Compound).Prio == 0 {
+			err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
+		}
+	case ParseGoal:
+		if t.Type() != CompoundType {
+			err(s, fmt.Sprintf(" Not a CHR-predicate, a predicate or a build-in function: %s ", t))
+		}
+	case ParseRuleGoal:
+		if t.Type() != CompoundType && t.Type() != VariableType && t.Type() != BoolType {
+			err(s, fmt.Sprintf(" Not a CHR-predicate, a predicatea, a build-in function or variable: %s ", t))
+		}
 	}
 
 	if trace {
-		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- assing-expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 	}
-	if tok == sc.EOF || !ok {
-		return
-	}
+
 	if tok == ',' {
 		t1 := List{t}
 		for tok == ',' {
-			t, tok, ok = expression(s, s.Scan())
-			if t.Type() != CompoundType || t.(Compound).Prio != 0 {
-				err(s, fmt.Sprintf(" Not a CHR-predicate, not a predicate or a build-in function: %s ", t))
-			}
-			if trace {
-				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
-			}
+			t, tok, ok = assignexpr(s, s.Scan())
 			if !ok {
 				return t1, tok, false
 			}
+			switch ty {
+			case ParseCHR:
+				if t.Type() != CompoundType || t.(Compound).Prio != 0 {
+					err(s, fmt.Sprintf(" Not a CHR-predicate: %s ", t))
+				}
+			case ParseBI:
+				if t.Type() != CompoundType || t.(Compound).Prio == 0 {
+					err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
+				}
+			case ParseGoal:
+				if t.Type() != CompoundType {
+					err(s, fmt.Sprintf(" Not a CHR-predicate, a predicate or a build-in function: %s ", t))
+				}
+			case ParseRuleGoal:
+				if t.Type() != CompoundType && t.Type() != VariableType && t.Type() != BoolType {
+					err(s, fmt.Sprintf(" Not a CHR-predicate, a predicatea, a build-in function or variable: %s ", t))
+				}
+			}
+
+			if trace {
+				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			}
+
 			t1 = append(t1, t)
 		}
 		t = t1
-	}
-	if tok == '.' {
-		tok = s.Scan()
-	}
-	if tok != sc.EOF {
-		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
+	} else {
+		t = List{t}
+		//	if tok == '.' {
+		//		tok = s.Scan()
+		//	}
+		//	if tok != sc.EOF {
+		//		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
 	}
 	return
 }
@@ -150,10 +223,20 @@ func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	if trace {
 		fmt.Printf("--> readBIConstraint : \n")
 	}
-	t, tok, ok = assignexpr(s, s.Scan())
+
+	tok = s.Scan()
+	if tok == sc.EOF {
+		return List{}, tok, true
+	}
+
+	t, tok, ok = assignexpr(s, tok)
 	if trace {
 		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 	}
+	if t.Type() != CompoundType || t.(Compound).Prio == 0 {
+		err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
+	}
+
 	if tok == sc.EOF || !ok {
 		return
 	}
@@ -164,19 +247,24 @@ func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 			if trace {
 				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
 			}
+			if t.Type() != CompoundType || t.(Compound).Prio == 0 {
+				err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
+			}
 			if !ok {
 				return t1, tok, false
 			}
 			t1 = append(t1, t)
 		}
 		t = t1
+	} else {
+		t = List{t}
 	}
-	if tok == '.' {
-		tok = s.Scan()
-	}
-	if tok != sc.EOF {
-		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
-	}
+	//	if tok == '.' {
+	//		tok = s.Scan()
+	//	}
+	//	if tok != sc.EOF {
+	//		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
+	//	}
 	return
 }
 
