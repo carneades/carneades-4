@@ -645,7 +645,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				c.Args = append(c.Args, &arg)
 			}
 
-			// instantiate the excpetions of the scheme
+			// instantiate the exceptions of the scheme
 			exceptions := []*Statement{}
 			for _, e := range scheme.Exceptions {
 				term1, ok := terms.ReadString(e)
