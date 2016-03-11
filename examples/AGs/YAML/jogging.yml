@@ -34,7 +34,7 @@ arguments:
 
 assumptions: [rain, hot]
 
-labels:
+tests:
   in: [rain, hot, jog]
   out: [¬jog]
   undecided: []

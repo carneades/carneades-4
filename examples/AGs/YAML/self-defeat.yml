@@ -17,6 +17,6 @@ arguments:
     conclusion: ¬P
     premises: [P]
 
-labels:
+tests:
   undecided: [P, ¬P]
 

@@ -40,6 +40,6 @@ arguments:
     premises: [misbehaves, professor]
 
 
-labels:
+tests:
   in: [snores, professor, misbehaves, accessNotDenied]
   out: [accessDenied]

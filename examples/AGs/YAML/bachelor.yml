@@ -32,7 +32,7 @@ arguments:
     premises: [wearsRing]
 
 
-labels:
+tests:
   in: [wearsRing, partyAnimal]
   out: [bachelor, married]
 

@@ -77,6 +77,6 @@ arguments:
         undercutter: ¬app(a1)
 
 
-labels:
+tests:
   in: [s11470, s11467, ¬s11469, ¬app(a3), s11464, s11460, s11461, s11465, s11466]
   out: [s11463, s11468, ¬app(a2), s11469, ¬app(a1), s11471, s11462, ¬app(a4)]

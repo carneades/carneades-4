@@ -27,7 +27,7 @@ arguments:
 # inconsistent assumptions!
 assumptions: [P, ¬P]
 
-labels:
+tests:
   in:  [P, ¬P]
   out: [Q, ¬Q]
 

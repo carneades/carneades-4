@@ -41,7 +41,7 @@ assumptions:
   - birdsFly
   - ill
 
-labels:
+tests:
   in: [bird, ill, ¬app(a1), birdsFly]
   out: [penguin, ostrich, ¬flies, flies]
 

@@ -49,14 +49,11 @@ argument_schemes:
         - safety(C,S)
 
   car_buying_scheme:
-  # schema variables. Every variable used in a premise or conclusion
-  # must be declared here.
       variables: [C,P,S,F,T]  
       meta:
           notes: >
             This scheme illustrates the use of weighing functions for
             multi-criteria decision analysis.
-   
       weight:
           criteria:
             hard: []  # role names of premises which must be in
@@ -82,7 +79,7 @@ argument_schemes:
                   values:
                     slow: 0.0    # < 100 km/hr
                     medium: 1.0  # > 100 and < 200 km/hr
-                    fast: 0.5   # >= 200 km/hr
+                    fast: 0.5    # >= 200 km/hr
               safety:
                   factor: 4
                   values:
@@ -90,8 +87,6 @@ argument_schemes:
                       medium: 0.5
                       high: 1.0
       premises:
-          # list or map. Use a map if role names are needed
-          # if a list, the indices (zero-based) are used as “role names”.
           price: price(C,P)
           type: type(C,T)
           speed: speed(C,S)
@@ -172,7 +167,7 @@ assumptions:
     - safety(porsche,medium)
     - speed(porsche,fast)
 
-labels:
+tests:
   in: 
     - advertising(volvo,high)
     - gov_stats(volvo,medium)

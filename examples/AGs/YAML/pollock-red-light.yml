@@ -24,7 +24,7 @@ arguments:
         premises: [s11392]
         conclusion: ¬app(a1)
 
-labels:
+tests:
   in: [s11394, s11393, s11392, ¬app(a1)]
   undecided: [s11395]
 

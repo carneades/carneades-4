@@ -62,7 +62,7 @@ assumptions:
   - medicalTest1
   - medicalTest2
   
-labels:
+tests:
   in: 
     - compensation
     - negligence

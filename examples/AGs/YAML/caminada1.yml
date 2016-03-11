@@ -31,6 +31,6 @@ arguments:
 
 assumptions: [j, m, wf]
 
-labels:
+tests:
   in: [j, m, wf, r]
   out: [¬s, s, ¬r]

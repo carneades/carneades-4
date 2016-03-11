@@ -13,5 +13,5 @@ arguments:
     conclusion: Q
     premises: [P]
 
-labels:
+tests:
   undecided: [P,Q]

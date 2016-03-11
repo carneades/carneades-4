@@ -14,6 +14,6 @@ arguments:
   a1:
     conclusion: R
 
-labels:
+tests:
   in: [Q, R]
   out: [P]

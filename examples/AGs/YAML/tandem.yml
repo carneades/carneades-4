@@ -64,5 +64,5 @@ arguments:
     conclusion: ¬st
     premises: [jmt]
 
-labels:
+tests:
   in: [jw, mw, sw]

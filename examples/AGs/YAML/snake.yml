@@ -11,7 +11,7 @@ statements:
   rope: It is a coil of rope.
   looks like snake:  It looks like a snake.
   looks like rope: It looks like a coil of rope.
-  moved when jumped over: It moved when it was jumped over..
+  moved when jumped over: It moved when it was jumped over.
   did not move when jumped over: It did not move when it was jumped over.
   moved when prodded: It moved when it was prodded with a stick.
   did not move when prodded: It did not move when it was prodded with a stick.
@@ -49,7 +49,8 @@ assumptions:
   - looks like rope
   - did not move when prodded
   - did not move when jumped over
-labels:
+
+tests:
   in: 
     - looks like snake
     - looks like rope

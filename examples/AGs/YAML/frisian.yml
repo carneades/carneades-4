@@ -25,7 +25,7 @@ arguments:
     conclusion: tall
     premises: [dutch]
 
-labels:
+tests:
   in: [dutch, tall, frisian]
   out: [¬app(a1)]
 

@@ -25,7 +25,7 @@ arguments:
 
 assumptions: [saysUnreliable]
 
-labels:
+tests:
   undecided: [unreliable,¬app(a1)]
   out: [reliable]
   in: [saysUnreliable]

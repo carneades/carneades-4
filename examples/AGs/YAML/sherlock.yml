@@ -42,7 +42,7 @@ arguments:
 assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
               warmerClimate, sunNecessary]
 
-labels:
+tests:
   in: [gentleman, fairWrists, darkFace, haggard, stiffArm,
        warmerClimate, sunNecessary, armyDoctor, notNaturalSkinColor,
        hardship, injured, Afghanistan, wasInWarmerClimate]

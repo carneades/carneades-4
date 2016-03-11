@@ -60,7 +60,7 @@ assumptions:
   - ms-reduce-discretion
   - success-return-reduced
 
-labels:
+tests:
   in: 
     - ms-satisfy-public
     - isj-crime-reduction

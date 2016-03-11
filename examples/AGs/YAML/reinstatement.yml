@@ -27,6 +27,6 @@ arguments:
 
 assumptions: [Q,R,S]
 
-labels:
+tests:
   in: [Q,R,S,P]
   out: [¬P]

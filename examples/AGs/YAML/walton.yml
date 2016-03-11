@@ -8,13 +8,78 @@ meta:
     Argumentation Schemes. Cambridge University Press.
 
 language:
-  expert/2: "%s is an expert in the %s domain."
-  in_domain/2: "%s is in the domain of %s."
-  asserts/2: "%s asserts that %s is true."
-  untrustworthy/1: "%s is untrustworthy."
-  biased/1: "%s is biased."
   applicable/1: "Argument %s is applicable."
+  asserts/2: "%s asserts that %s is true."
+  bad/1: "%s is bad."
   based_on_evidence/1: "The assertion %v is based on evidence."
+  believes/2: "%s believes %s to be true."
+  biased/1: "%s is biased."
+  brings_about/2: "The action %s brings about %s."
+  bring_about_more_effectively/2: "There exists an action that would bring about % more effectively than %s."
+  causes/2: "Event %s causes event %s."
+  causes_both/2: "Some other event causes both %s and %s."
+  character_is_relevant/1: "Character is relevant for evaluating the plausibility of the assertion: %s"
+  classified_as/2: "Objects which satisfy definition %s are classified as instances of class %s."
+  correlated/2: "Events %s and %s are correlated."
+  current_circumstances/1: "%s is the case in the current circumstances."
+  defeasibly_implies/2: "If %s is true then presumably %s is also true."
+  dishonest/1: "%s is dishonest."
+  expert/2: "%s is an expert in the %s domain."
+  explanation/2: "Theory %s explains %s."
+  explanatory_theory/2: "There exists a theory explaining how event %s causes event %s."
+  feasible/1: "It is feasible to perform the action %s."
+  good/1: "%s is good."
+  good_moral_character/1: "%s is of good moral character."
+  has_conclusion/2: "Rule %s has conclusion %s."
+  has_occurred/1: "An event %s has occurred."
+  horrible_costs/1: "Event %s would entail horrible costs."
+  implausible/1: "%s is implausible."
+  inadequate_definition/2: "%s is an inadequate definition of %s."
+  inapplicable_rule/1: "Rule %s is inapplicable in this case."
+  inconsistent_with_known_facts/1: "%s is inconsistent with the known facts."
+  inconsistent_with_other_experts/1:  "%s is inconsistent with what other experts assert."
+  inconsistent_with_other_witnesses/1: "%s is inconsistent with what other witnesses assert."
+  in_case/2: "%s is true in case %s."
+  in_domain/2: "%s is in the domain of %s."
+  instance/2: "%s is an instance of class %s."
+  interference/1: "An event has occurred which interferes with event %s."
+  internally_consistent/1: "%s is internally consistent."
+  known/1: "%s is known to be true."
+  legitimate_value/1: "%s is a legitimate value."
+  looks_like/2: "%s looks like a %s."
+  member/2: "%s contains %s as a member."
+  more_coherent_explanation/2: "There exists a more coherent explanation than theory %s of observation %s."
+  more_on_point/2: "%s is false in another case which is more on point than case %s."
+  negative_consequences/1: "Performing action %s would have negative consequences."
+  observed/1:  "%s has been observed."
+  other_credible_sources_disagree/1: "Other credible source disagree with %s."
+  position_to_know/2: "%s is in a position to know about things in a certain subject domain %s."
+  positive_consequences/1: "Performing action %s would have positive consequences."
+  possible/1: "Action %s is possible."
+  promote_more_effectively/2: "There exists an action that would promote the value %s more effectively than %s."
+  realize_more_effectively/2: "There exists an action that would realize the goal %s more effectively than %s."
+  relevant_differences/1: "There are relevant differences between case %s and the current case."
+  rule_of_case/2: "Rule %s is the ratio decidendi of case %s."
+  satisfies_definition/2: "%s satisfies definition %s."
+  should_be_performed/1: "Action %s should be performed."
+  side_effects/3: "Performing %s in %s would have side-effects which demote %s or some other value."
+  similar_case/1: "Case %s is similar to the current case."
+  subclass/2:  "%s is a subclass of %s."
+  sunk_costs/2:  "The costs incurred performing %s thus far are %s."
+  too_high_to_waste/1: "The sunk costs of %s are too high to waste."
+  trustworthy/1: "%s is trustworthy."
+  uninvestigated/1: "The truth of %s has not been investigated."
+  untrustworthy/1: "%s is untrustworthy."
+  valid/1: "Rule %s is valid."
+  will_occur/1: "An event %s will occur."
+  worthy_goal/1: "%s is a worthy goal."
+  would_achieve/2: "Performing action %s would achieve goal %s."
+  would_be_realized/2: "%s would be realized in %s."
+  would_be_known/1: "%s would be known if it were true."
+  would_bring_about/3: "Performing %s in %s would bring about %s."
+  would_demote_value/2: "Achieving the goal %s would demote the value %s."
+  would_promote_value/2:  "Achieving the goal %s would promote the value %s."
+  would_realize/2: "Performing %s would realize event %s."
 
 statements:
    expert(joe,climate): Joe is a climate expert.
@@ -28,25 +93,345 @@ statements:
       Joe's assertion is based on evidence.
 
 argument_schemes:
+  abduction:
+    variables: [S,T,H]
+    conclusions: [H]
+    premises:
+      - observed(S)
+      - explanation(T,S)
+      - member(T,H)
+    exceptions:
+      CQ1: more_coherent_explanation(T,S)
+        
+  analogy:
+    meta:
+      title: Argument from Analogy
+      source: >
+        Douglas Walton, Fundamentals of Critical Argumentation,
+        Cambridge University Press, New York 2006, p. 96-97.
+    variables: [S,C,E,A]
+    conclusions: [S]
+    premises:
+      - similar_case(C)
+      - in_case(S,C)
+      - asserts(E,A)
+    exceptions:
+      CQ1: relevant_differences(C)
+      CQ2: more_on_point(S,C)
+
+  appearance:
+    meta:
+      title: Argument from Appearance
+      source: "Douglas Walton, ‘Argument from Appearance: A New Argumentation Scheme’, 2006."
+    variables: [O,C]
+    conclusions:
+      - instance(O,C)
+    premises:
+      - looks_like(O,C)
+    
+  cause_to_effect:
+    meta:
+      title: Argument from Cause to Effect
+    variables: [E1,E2]
+    conclusions:
+      - will_occur(E2)
+    premises:
+      minor: has_occurred(E2)
+      major: causes(E1,E2)
+    exceptions:
+      CQ1: interference(E1)
+
+  correlation_to_cause:
+    meta:
+      title: Argument from Correlation to Cause
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London, 1995, p. 142.
+    variables: [E1,E2]
+    conclusions:
+      - causes(E1,E2)
+    premises:
+      major: correlated(E1,E2)
+    assumptions:
+      CQ1: explanatory_theory(E1,E2)
+    exceptions:
+      CQ2: causes_both(E1,E2)
+        
+  credible_source:
+    meta:
+      title: "Argument from Credible Source"
+      source: "Wyner, A., Atkinson, K., and Bench-Capon, T. A
+              functional perspective on argumentation schemes. In
+              Proceedings of the 9th International Workshop on
+              Argumentation in Multi-Agent Systems (ArgMAS
+              2012) (2012), P. McBurney, S. Parsons, and I. Rahwan,
+              Eds., pp. 203–222."
+    variables: [W,D,S]
+    conclusions: [S]
+    premises:
+      source: credible_source(W,D)
+      assertion: asserts(W,S)
+      domain: in_domain(S,D)
+    exceptions:
+      CQ1: biased(W)
+      CQ2: dishonest(W)
+      CQ3: other_credible_sources_disagree(S)
+
+  definition_to_verbal_classification:
+    meta:
+      title: Argument from Definition to Verbal Classification
+      source: >
+        Douglas Walton, Fundamentals of Critical Argumentation,
+        Cambridge University Press, New York 2006, p. 129.
+    variables: [O,G,D]
+    conclusions:
+      - instance(O,G)
+    premises:
+      definition: satisfies_definition(O,D)
+      classification: classified_as(D,G)
+    exceptions:
+      CQ1: inadequate_definition(D,G)
+
+  defeasible_modus_ponens:
+    meta:
+      title: Defeasible Modus Ponens
+    variables: [A,B]
+    conclusions: [B]
+    premises:
+      major: defeasible_implies(A,B)
+      minor: A
+
+  established_rule:
+    meta:
+      title: Argument from an Established Rule
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London, 1995, p. 147.
+    variables: [C,R]
+    conclusions: [C]
+    premises:
+      major: has_conclusion(R,C)
+      minor: applicable(R)
+    assumptions:
+      CQ1: valid(R)
+
+  ethotic:
+    meta:
+      title: Argument from Ethos
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London, 1995, p. 152.
+    variables: [P,S]
+    conclusions: [S]
+    premises:
+      - asserts(P,S)
+      - good_moral_character(P)
+    assumptions:
+      - character_is_relevant(S)
+        
   expert_opinion:
+    meta:
+      title: Argument from Expert Opinion
+      source: >
+        Douglas Walton, Appeal to Expert Opinion, The Pennsylvania University Press,
+        University Park, Albany, 1997, p.211-225.
     variables: [W,D,S]
     premises:
-      expert: expert(W,D)
+      major: expert(W,D)
       domain: in_domain(S,D)
-      assertion: asserts(W,S)
-    assumptions:
-      CQ1: based_on_evidence(asserts(W,S))
+      minor: asserts(W,S)
     exceptions:
-      CQ2: untrustworthy(W)
+      CQ1: untrustworthy(W)
+      CQ2: inconsistent_with_other_experts(S)
+    assumptions:
+      CQ3: based_on_evidence(asserts(W,S))
     conclusions:
       - S
 
-  expert_opinion_bias:
+  ignorance:
+    meta:
+      title: Argument from Ignorance
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London, 1995, p. 150
+    variables: [S]
+    conclusions:
+      - ¬S
+    premises:
+      major: would_be_known(S)
+      minor: ¬known(S)
+    exceptions:
+      CQ1: uninvestigated(S)
+
+    
+  negative_consequences:
+    meta:
+      title: Argument from Negative Consequences
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London,
+        1995, pp. 155-156.
+    variables: [A,G]
+    conclusions:
+      - ¬should_be_performed(A)
+    premises:
+      major: brings_about(A,G)
+      minor: bad(G)
+      
+  position_to_know:
+    meta:
+      title: Argument from Position to Know
+      source: >
+        Douglas Walton, Legal Argumentation and Evidence,
+        The Pennsylvania State University Press, University Park, 2002, p.46.
+    variables: [W,D,S]
+    conclusions: [S]
+    premises:
+      major: position_to_know(W,D)
+      minor: asserts(W,S)
+      domain: in_domain(S,D)
+    exceptions:
+      CQ1: dishonest(W)
+
+
+  positive_consequences:
+    meta:
+      title: Argument from Positive Consequences
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London,
+        1995, pp. 155-156.
+    variables: [A,G]
+    conclusions:
+      - should_be_performed(A)
+    premises:
+      major: brings_about(A,G)
+      minor: good(G)
+
+  practical_reasoning:
+    meta:
+      title: Argument from Practical Reasoning
+      source: >
+        Atkinson, K., and Bench-Capon, T. J. M.
+        Practical reasoning as presumptive argumentation using action
+        based alternating transition systems. Artificial Intelligence 171,
+        10-15 (2007), 855–874.
+    variables: [A,S1,S2,G,V]
+    conclusions:
+      - should_be_performed(A)
+    premises:
+      - current_circumstances(S1)
+      - would_bring_about(A,S1,S2)
+      - would_be_realized(G,S2)
+      - would_promote_value(G,V)
+    assumptions:
+      CQ1: legitimate_value(V)
+      CQ2: worthy_goal(G)
+      CQ3: possible(A)
+    exceptions:
+      CQ4: bring_about_more_effectively(S2,A)
+      CQ5: realize_more_effectively(G,A)
+      CQ6: promote_more_effectively(V,A)
+      CQ7: side_effects(A,S1,V)
+    
+  precedent:
+    meta:
+      title: Argument from Precedent
+      source: >
+        Douglas Walton, A Pragmatic Theory of Fallacy,
+        The University of Alabama Press, Tuscaloosa and London,
+        1995, p. 148
+    variables: [S,C,R]
+    conclusions: [S]
+    premises:
+      - similar_case(C)
+      - rule_of_case(R,C)
+      - has_conclusion(R,S)
+    exceptions:
+      CQ1: relevant_differences(R,C)
+      CQ2: inapplicable_rule(R)
+
+  slippery_slope_base_case:
+    meta:
+      title: Slippery Slope Argument
+      source: >
+        Douglas Walton, Slippery Slope Arguments, Vale Press, Newport News, 1999, pp. 93, 95.
+    variables: [A,E]
+    conclusions:
+      - negative_consequences(A)
+    premises:
+      - would_realize(A,E)
+      - horrible_costs(E)
+
+  slippery_slope_inductive_step:
+    meta:
+      title: Slippery Slope Argument
+      source: >
+        Douglas Walton, Slippery Slope Arguments, Vale Press, Newport News, 1999, pp. 93, 95.
+    variables: [E1,E2]
+    conclusions:
+      - horrible_costs(E1)
+    premises:
+      - causes(E1,E2)
+      - horrible_costs(E2)
+            
+  sunk_costs:
+    meta:
+      title: Argument from Sunk Costs
+      source: >
+        Douglas Walton, ‘The Sunk Costs Fallacy or Argument from Waste’,
+        Argumentation, 16, 2002, p. 489
+    variables: [A,C]
+    conclusions:
+      - should_be_performed(A)
+    premises:
+      - sunk_costs(A,C)
+      - too_high_to_waste(C)
+    assumptions:
+      CQ1: feasible(A)
+        
+  untrustworthy_due_to_bias:
     variables: [W]
     premises:
       - biased(W)
     conclusions:
       - untrustworthy(W)
+
+  verbal_classification:
+    meta:
+      title: Argument from Verbal Classification
+    variables: [O,F,G]
+    conclusions:
+      - instance(O,G)
+    premises:
+      - instance(O,F)
+      - subclass(F,G)
+
+  witness_testimony:
+    meta:
+      title: Argument from Witness Testimony
+      source: >
+        Douglas Walton, Henry Prakken, Chris Reed,
+        Argumentation Schemes and Generalisations in Reasoning about
+        Evidence, Proceedings of the 9th International Conference on
+        Artificial Intelligence and Law, Edinburgh, 2003. New York: ACM
+        Press 2003, pp. 35.  Douglas Walton, Witness Testimony Evidence,
+        unpublished book manuscript, to appear.
+    variables: [W,D,S]
+    conclusions: [S]
+    premises:
+      - position_to_know(W,D)
+      - in_domain(D,S)
+      - believes(W,S)
+      - asserts(W,S)
+    assumptions:
+      CQ1: internally_consistent(S)
+    exceptions:
+      CQ2: inconsistent_with_facts(S)
+      CQ3: inconsitent_with_other_witnesses(S)
+      CQ4: biased(W)
+      CQ5: implausible(S)
+
 
 assumptions:
   - expert(joe, climate)

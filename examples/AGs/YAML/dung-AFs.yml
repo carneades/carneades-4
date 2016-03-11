@@ -78,7 +78,7 @@ arguments:
     conclusion: uf
     premises: [sg]
 
-labels:
+tests:
   in: [sa,ub]
   out: [ua]
             

@@ -19,5 +19,5 @@ arguments:
 
 assumptions: [R]
 
-labels:
+tests:
   in: [P,Q,R]
