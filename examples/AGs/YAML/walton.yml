@@ -93,8 +93,8 @@ statements:
       Joe asserts that global warming is not caused by humans.
    ¬caused_by(global_warming,humans): >
       Global warming is not caused by humans.
-   based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): >
-      Joe's assertion is based on evidence.
+   based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): 
+      "Joe's assertion is based on evidence."
 
 argument_schemes:
   abduction:
@@ -327,7 +327,7 @@ argument_schemes:
 
   practical_reasoning1:
     meta:
-      title: Argument from Instrumental Practical Reasoning
+      title: Argument from Value-Based Practical Reasoning
       source: >
         Atkinson, K., and Bench-Capon, T. J. M.
         Practical reasoning as presumptive argumentation using action
@@ -353,9 +353,10 @@ argument_schemes:
 
   practical_reasoning2:
     meta:
-      title: Argument from Value-Based Practical Reasoning
+      title: Argument from Instrumental Practical Reasoning
       source: >
-        Walton, Douglas (2015). Goal-Based Reasoning for Argumentation. Cambridge University Press.
+        Walton, Douglas (2015). Goal-Based Reasoning for Argumentation. 
+        Cambridge University Press.
     variables: [A,S1,S2,G,V]
     conclusions:
       - should_be_performed(A)
