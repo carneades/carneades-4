@@ -42,10 +42,13 @@ type Int int
 type Float float64
 type String string
 
+type EnvMap map[int][]Bindings
+
 type Compound struct {
 	Functor           string
 	Id                *big.Int
 	Prio              int
+	EMap              *EnvMap
 	occurVars         Vars
 	identifyOccurVars bool
 	IsActive          bool

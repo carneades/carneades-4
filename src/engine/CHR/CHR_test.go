@@ -279,6 +279,7 @@ func toClist(l Term) (cList, bool) {
 			return cl, false
 		}
 		t2 := t1.(Compound)
+		t2.EMap = &EnvMap{}
 		cl = append(cl, &t2)
 	}
 	return cl, true
@@ -364,12 +365,14 @@ func TestCHRRule01(t *testing.T) {
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Rule 02\n")
 	}
-	ok = addGoals(t, "prime(100)")
+	ok = addGoals(t, "prime(1000)")
 	if ok != true {
 		t.Errorf("TestCHRRule01 failed, add Goals\n")
 	}
 	CHRtrace = 0
 	CHRsolver()
+	//	CHRtrace = 1
+	//	printCHRStore()
 }
 
 func TestCHRRule02(t *testing.T) {
@@ -387,7 +390,10 @@ func TestCHRRule02(t *testing.T) {
 	if ok != true {
 		t.Errorf("TestCHRRule02 failed, add Goals\n")
 	}
+	CHRtrace = 0
 	CHRsolver()
+	CHRtrace = 1
+	printCHRStore()
 }
 
 func TestCHRRule03(t *testing.T) {
@@ -405,7 +411,10 @@ func TestCHRRule03(t *testing.T) {
 	if ok != true {
 		t.Errorf("TestCHRRule03 failed, add Goals\n")
 	}
+	CHRtrace = 0
 	CHRsolver()
+	CHRtrace = 1
+	printCHRStore()
 }
 
 func TestCHRRule04(t *testing.T) {
@@ -423,7 +432,47 @@ func TestCHRRule04(t *testing.T) {
 	if ok != true {
 		t.Errorf("TestCHRRule04 failed, add Goals\n")
 	}
+	CHRtrace = 0
 	CHRsolver()
+	//	CHRtrace = 1
+	//	printCHRStore()
+}
+
+func TestCHRRule05(t *testing.T) {
+	tstr := "TestCHRRule05"
+	InitStore()
+	ok := addStringChrRule(t, "leq reflexivity", "", "leq(X,X)", "", "true")
+
+	if ok != true {
+		t.Errorf(fmt.Sprintf("%s failed, add Rule 01\n", tstr))
+	}
+
+	ok = addStringChrRule(t, "leq antisymmetry", "", "leq(X,Y),leq(Y,X)", "", "X==Y")
+
+	if ok != true {
+		t.Errorf(fmt.Sprintf("%s failed, add Rule 02\n", tstr))
+	}
+
+	ok = addStringChrRule(t, "leq idempotence", "leq(X,Y)", "leq(X,Y)", "", "true")
+
+	if ok != true {
+		t.Errorf(fmt.Sprintf("%s failed, add Rule 03\n", tstr))
+	}
+
+	ok = addStringChrRule(t, "leq transitivity", "leq(X,Y),leq(Y,Z)", "", "", "leq(X,Z)")
+
+	if ok != true {
+		t.Errorf(fmt.Sprintf("%s failed, add Rule 04\n", tstr))
+	}
+
+	ok = addGoals(t, "leq(a,b), leq(b,c), leq(c,a)")
+	if ok != true {
+		t.Errorf(fmt.Sprintf("%s failed, add Goals\n", tstr))
+	}
+	CHRtrace = 0
+	CHRsolver()
+	CHRtrace = 1
+	printCHRStore()
 }
 
 //var CHRstore store
