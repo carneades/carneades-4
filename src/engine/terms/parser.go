@@ -35,13 +35,13 @@ func ReadString(src string) (result Term, ok bool) {
 	// var s *sc.Scanner
 	// Initialize the scanner.
 	s.Init(strings.NewReader(src))
-	s.Error = err
+	s.Error = Err
 
 	result, _, ok = readBIConstraint(&s)
 	return
 }
 
-func err(s *sc.Scanner, str string) {
+func Err(s *sc.Scanner, str string) {
 	if str != "illegal char literal" {
 		fmt.Fprintln(os.Stderr, "*** Parse Error before[", s.Pos(), "]:", str)
 	}
@@ -53,7 +53,7 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	}
 	t, tok, ok = expression(s, s.Scan())
 	if trace {
-		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	if tok == sc.EOF || !ok {
 		return
@@ -64,7 +64,7 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 		for tok == ',' {
 			t, tok, ok = expression(s, s.Scan())
 			if trace {
-				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 			}
 			if !ok {
 				return t1, tok, false
@@ -81,200 +81,15 @@ func readBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
 	return
 }
 
-type parseType int
-
-const (
-	ParseCHR parseType = iota
-	ParseBI
-	ParseGoal     // CHR and Built-In
-	ParseRuleGoal // Chr, Built-In and Variables
-)
-
-func ParseCHRString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseConstraints(ParseCHR, &s)
-	return
-}
-
-func ParseBIString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseConstraints(ParseBI, &s)
-	return
-}
-
-func ParseGoalString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseConstraints(ParseGoal, &s)
-	return
-}
-
-func ParseRuleGoalString(src string) (result Term, ok bool) {
-	// src is the input that we want to tokenize.
-	var s sc.Scanner
-	// var s *sc.Scanner
-	// Initialize the scanner.
-	s.Init(strings.NewReader(src))
-	s.Error = err
-
-	result, _, ok = parseConstraints(ParseRuleGoal, &s)
-	return
-}
-
-func parseConstraints(ty parseType, s *sc.Scanner) (t Term, tok rune, ok bool) {
-	if trace {
-		fmt.Printf("--> parseConstraints : \n")
-	}
-
-	tok = s.Scan()
-	if tok == sc.EOF {
-		return List{}, tok, true
-	}
-
-	t, tok, ok = assignexpr(s, tok)
-	if !ok {
-		return
-	}
-	switch ty {
-	case ParseCHR:
-		if t.Type() != CompoundType || t.(Compound).Prio != 0 {
-			err(s, fmt.Sprintf(" Not a CHR-predicate: %s ", t))
-		}
-	case ParseBI:
-		if t.Type() != CompoundType || t.(Compound).Prio == 0 {
-			err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
-		}
-	case ParseGoal:
-		if t.Type() != CompoundType {
-			err(s, fmt.Sprintf(" Not a CHR-predicate, a predicate or a build-in function: %s ", t))
-		}
-	case ParseRuleGoal:
-		if t.Type() != CompoundType && t.Type() != VariableType && t.Type() != BoolType {
-			err(s, fmt.Sprintf(" Not a CHR-predicate, a predicatea, a build-in function or variable: %s ", t))
-		}
-	}
+// <expression> | <variable> ':=' <exspression>
+func Assignexpr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 
 	if trace {
-		fmt.Printf("<-- assing-expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
-	}
-
-	if tok == ',' {
-		t1 := List{t}
-		for tok == ',' {
-			t, tok, ok = assignexpr(s, s.Scan())
-			if !ok {
-				return t1, tok, false
-			}
-			switch ty {
-			case ParseCHR:
-				if t.Type() != CompoundType || t.(Compound).Prio != 0 {
-					err(s, fmt.Sprintf(" Not a CHR-predicate: %s ", t))
-				}
-			case ParseBI:
-				if t.Type() != CompoundType || t.(Compound).Prio == 0 {
-					err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
-				}
-			case ParseGoal:
-				if t.Type() != CompoundType {
-					err(s, fmt.Sprintf(" Not a CHR-predicate, a predicate or a build-in function: %s ", t))
-				}
-			case ParseRuleGoal:
-				if t.Type() != CompoundType && t.Type() != VariableType && t.Type() != BoolType {
-					err(s, fmt.Sprintf(" Not a CHR-predicate, a predicatea, a build-in function or variable: %s ", t))
-				}
-			}
-
-			if trace {
-				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
-			}
-
-			t1 = append(t1, t)
-		}
-		t = t1
-	} else {
-		t = List{t}
-		//	if tok == '.' {
-		//		tok = s.Scan()
-		//	}
-		//	if tok != sc.EOF {
-		//		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
-	}
-	return
-}
-
-func parseBIConstraint(s *sc.Scanner) (t Term, tok rune, ok bool) {
-	if trace {
-		fmt.Printf("--> readBIConstraint : \n")
-	}
-
-	tok = s.Scan()
-	if tok == sc.EOF {
-		return List{}, tok, true
-	}
-
-	t, tok, ok = assignexpr(s, tok)
-	if trace {
-		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
-	}
-	if t.Type() != CompoundType || t.(Compound).Prio == 0 {
-		err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
-	}
-
-	if tok == sc.EOF || !ok {
-		return
-	}
-	if tok == ',' {
-		t1 := List{t}
-		for tok == ',' {
-			t, tok, ok = assignexpr(s, s.Scan())
-			if trace {
-				fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
-			}
-			if t.Type() != CompoundType || t.(Compound).Prio == 0 {
-				err(s, fmt.Sprintf(" Not a Built-in constraint: %s ", t))
-			}
-			if !ok {
-				return t1, tok, false
-			}
-			t1 = append(t1, t)
-		}
-		t = t1
-	} else {
-		t = List{t}
-	}
-	//	if tok == '.' {
-	//		tok = s.Scan()
-	//	}
-	//	if tok != sc.EOF {
-	//		err(s, fmt.Sprintf("',' or EOF exspected, not '%c' = Code %d, %X, %u", tok, tok, tok, tok))
-	//	}
-	return
-}
-
-func assignexpr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	if trace {
-		fmt.Printf("--> assign expression: '%s'\n", f(tok1))
+		fmt.Printf("--> assign expression: '%s'\n", Tok2str(tok1))
 	}
 	t, tok, ok = expression(s, tok1)
 	if trace {
-		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	if !ok {
 		return
@@ -298,30 +113,32 @@ func assignexpr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			return
 		}
 		if t.Type() != VariableType {
-			err(s, fmt.Sprintf(" A Variable, not %s, exspected on the left site of %s", t, op))
+			Err(s, fmt.Sprintf(" A Variable, not %s, exspected on the left site of %s", t, op))
+			return t, tok, false
 		}
 		t1 := t
 		t, tok, ok = expression(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return t1, tok, ok
 		}
 		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 1}
 		if trace {
-			fmt.Printf("-<- assign-expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("-<- assign-expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	}
 }
 
+// <and_expr> | <and_expr> '||' <and_expr>
 func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> expression: '%s'\n", f(tok1))
+		fmt.Printf("--> expression: '%s'\n", Tok2str(tok1))
 	}
 	t, tok, ok = and_expr(s, tok1)
 	if trace {
-		fmt.Printf("<-- and_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- and_expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	if !ok {
 		return
@@ -347,25 +164,26 @@ func expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		t1 := t
 		t, tok, ok = and_expr(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- and_expr: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- and_expr: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return t1, tok, ok
 		}
 		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 1}
 		if trace {
-			fmt.Printf("-<- expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("-<- expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	}
 }
 
+// <comp_expr> | <comp_expr> '&&' <comp_expr>
 func and_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> and_exp: '%s'\n", f(tok1))
+		fmt.Printf("--> and_exp: '%s'\n", Tok2str(tok1))
 	}
 	t, tok, ok = comp_expr(s, tok1)
 	if trace {
-		fmt.Printf("<-- comp_expr: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- comp_expr: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	if !ok {
 		return
@@ -392,25 +210,26 @@ func and_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		t1 := t
 		t, tok, ok = comp_expr(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- comp_expr: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- comp_expr: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return t1, tok, ok
 		}
 		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 2}
 		if trace {
-			fmt.Printf("-<- and_exp: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
+			fmt.Printf("-<- and_exp: term: %s tok: '%s' ok: %v\n", t.String(), Tok2str(tok), ok)
 		}
 	}
 }
 
+// <simple_expression> | <simple_expression> ['in','==','<=','>=','!=','=<','<','>'] <simple_expression>
 func comp_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> comp_expr: '%s'\n", f(tok1))
+		fmt.Printf("--> comp_expr: '%s'\n", Tok2str(tok1))
 	}
 	t, tok, ok = simple_expression(s, tok1)
 	if trace {
-		fmt.Printf("<-- simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	op := ""
 	// named operator
@@ -463,7 +282,7 @@ func comp_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	t1 := t
 	t, tok, ok = simple_expression(s, s.Scan())
 	if trace {
-		fmt.Printf("<-- simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- simple_expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	if !ok {
 		return t1, tok, ok
@@ -472,14 +291,15 @@ func comp_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	return Compound{Functor: op, Args: []Term{t1, t}, Prio: 3}, tok, ok
 }
 
+// <sterm> | <sterm> ['or','-','+','^'] <sterm>
 func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> simple_expression : '%s'\n", f(tok1))
+		fmt.Printf("--> simple_expression : '%s'\n", Tok2str(tok1))
 	}
 
 	t, tok, ok = sterm(s, tok1)
 	if trace {
-		fmt.Printf("<-- sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- sterm: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	for {
 		op := ""
@@ -513,25 +333,26 @@ func simple_expression(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		t1 := t
 		t, tok, ok = sterm(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- rec. sterm: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- rec. sterm: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return
 		}
 		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 4}
 		if trace {
-			fmt.Printf("-<- simple_expression: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
+			fmt.Printf("-<- simple_expression: term: %s tok: '%s' ok: %v\n", t.String(), Tok2str(tok), ok)
 		}
 	}
 }
 
+// <unary_factor> | <unary_factor> ['div','mod','*','/','%','&','&^','<<','>>'] <unary_factor>
 func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> sterm : '%s'\n", f(tok1))
+		fmt.Printf("--> sterm : '%s'\n", Tok2str(tok1))
 	}
 	t, tok, ok = unary_factor(s, tok1)
 	if trace {
-		fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+		fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 	}
 	for {
 		op := ""
@@ -588,21 +409,22 @@ func sterm(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		t1 := t
 		t, tok, ok = unary_factor(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- unary_factor: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return t1, tok, ok
 		}
 		t = Compound{Functor: op, Args: []Term{t1, t}, Prio: 5}
 		if trace {
-			fmt.Printf("<- sterm: term: %s tok: '%s' ok: %v\n", t.String(), f(tok), ok)
+			fmt.Printf("<- sterm: term: %s tok: '%s' ok: %v\n", t.String(), Tok2str(tok), ok)
 		}
 	}
 }
 
+// ['+','-','!','^','¬'] <unary_factor> | <factor>
 func unary_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> unary_factor : '%s'\n", f(tok1))
+		fmt.Printf("--> unary_factor : '%s'\n", Tok2str(tok1))
 	}
 	// op +, -, !, ^ and in GO: *, &, <-
 
@@ -636,7 +458,7 @@ func unary_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 
 	t, tok, ok = unary_factor(s, s.Scan())
 	if trace {
-		fmt.Printf("--> unary_factor : '%s'\n", f(tok1))
+		fmt.Printf("--> unary_factor : '%s'\n", Tok2str(tok1))
 	}
 	if !ok {
 		return
@@ -644,9 +466,11 @@ func unary_factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	return Compound{Functor: unaryop, Args: []Term{t}, Prio: 6}, tok, ok
 }
 
+// '[' ']' | '[' <expression> [',' <expression>]0..n ['|' <variable>]0..1 ']' |
+// '(' <expression> ')' | <factor-name> | <int> | <float> | <char> | <string> | <raw-string>
 func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> factor : '%s'\n", f(tok1))
+		fmt.Printf("--> factor : '%s'\n", Tok2str(tok1))
 	}
 	tok = tok1
 	ok = true
@@ -662,7 +486,7 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		for tok == ',' {
 			t, tok, ok = expression(s, s.Scan())
 			if trace {
-				fmt.Printf("<-- expression in [ factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+				fmt.Printf("<-- expression in [ factor: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 			}
 			if !ok {
 				t = list
@@ -679,7 +503,7 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 				c := n[0]
 				ok = true
 				if c < 'A' || c > 'Z' {
-					err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", n))
+					Err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", n))
 					ok = false
 				}
 				v := Variable{Name: n, index: big.NewInt(0)}
@@ -688,17 +512,17 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 				if tok == ']' {
 					return t, s.Scan(), ok
 				} else {
-					err(s, fmt.Sprintf("missing closed ']' after '[ ... | %s", n))
+					Err(s, fmt.Sprintf("missing closed ']' after '[ ... | %s", n))
 					return t, tok, false
 				}
 			} else {
-				err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", f(tok)))
+				Err(s, fmt.Sprintf("expected variable in [-list after '|' not '%s'", Tok2str(tok)))
 				return t, tok, false
 
 			}
 		}
 		if tok != ']' {
-			err(s, fmt.Sprintf("missing closed ']' for the open '[' at position %s", pos))
+			Err(s, fmt.Sprintf("missing closed ']' for the open '[' at position %s", pos))
 			return t, tok, false
 		}
 		return t, s.Scan(), true
@@ -706,62 +530,63 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 		pos := s.Pos()
 		t, tok, ok = expression(s, s.Scan())
 		if trace {
-			fmt.Printf("<-- expression in ( factor: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- expression in ( factor: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 		if !ok {
 			return
 		}
 		if tok != ')' {
-			err(s, fmt.Sprintf("missing closed ')' for the open '(' at position %s", pos))
+			Err(s, fmt.Sprintf("missing closed ')' for the open '(' at position %s", pos))
 			return t, tok, false
 		}
 		tok = s.Scan()
 	case sc.Ident:
-		t, tok, ok = factor_name(s.TokenText(), s, s.Scan())
+		t, tok, ok = Factor_name(s.TokenText(), s, s.Scan())
 		if trace {
-			fmt.Printf("<-- factor_name: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- factor_name: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	case sc.Int:
 		t, tok, ok = sInt(s)
 		if trace {
-			fmt.Printf("<-- sInt: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- sInt: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	case sc.Float:
 		t, tok, ok = sFloat(s)
 		if trace {
-			fmt.Printf("<-- sFloat: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- sFloat: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	case sc.Char:
 		// t, tok, ok = sChar(s)
-		t, tok, ok = factor_name(s.TokenText(), s, s.Scan())
+		t, tok, ok = Factor_name(s.TokenText(), s, s.Scan())
 		if trace {
-			fmt.Printf("<-- sChar: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- sChar: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	case sc.String:
 		t, tok, ok = sString(s)
 		if trace {
-			fmt.Printf("<-- sString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- sString: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	case sc.RawString:
 		t, tok, ok = sString(s)
 		if trace {
-			fmt.Printf("<-- sRawString: term: %s tok: '%s' ok: %v \n", t.String(), f(tok), ok)
+			fmt.Printf("<-- sRawString: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
 		}
 	// case sc.Comment:
 	case sc.EOF:
-		err(s, "EOF missing term")
+		Err(s, "EOF missing term")
 		return Atom("nil"), tok, false
 	default:
-		err(s, fmt.Sprintf("unexpected character '%c', expect <variable>, <name>, <constant>, '(' or '['", tok))
+		Err(s, fmt.Sprintf("unexpected character '%c', expect <variable>, <name>, <constant>, '(' or '['", tok))
 		t = Atom("nil")
 		return t, tok, false
 	}
 	return t, tok, true
 }
 
-func factor_name(name string, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
+// <bi_0 name> | <name>'('')' | <name> '(' <expression> [',' <expression>]0..n ')'
+func Factor_name(name string, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 	if trace {
-		fmt.Printf("--> factor_name : %s '%s'\n", name, f(tok1))
+		fmt.Printf("--> factor_name : %s, '%s'\n", name, Tok2str(tok1))
 	}
 	t = Atom("nil")
 	ok = true
@@ -789,7 +614,7 @@ func factor_name(name string, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bo
 	t = Compound{Functor: name, Args: args}
 
 	if tok != ')' {
-		err(s, fmt.Sprintf("missing closed ')' for the open '(' at position %s", pos))
+		Err(s, fmt.Sprintf("missing closed ')' for the open '(' at position %s", pos))
 		return t, tok, false
 	}
 	return t, s.Scan(), true
@@ -848,7 +673,7 @@ func sChar(s *sc.Scanner) (Term, rune, bool) {
 	return Atom(fmt.Sprintf("%s", s.TokenText())), s.Scan(), true
 }
 
-func f(tok rune) string {
+func Tok2str(tok rune) string {
 	if tok > 0 {
 		return string(tok)
 	}

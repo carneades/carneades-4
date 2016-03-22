@@ -9,20 +9,14 @@
 package chr
 
 import (
-	"fmt"
+	//"fmt"
 	. "github.com/carneades/carneades-4/src/engine/terms"
 	"math/big"
 	// "strconv"
 	"strings"
 )
 
-var QueryVars Vars
-
-var QueryStore List
-
-var CHRstore store
-
-var BuiltInStore store
+// types
 
 type argCHR struct {
 	atomArg  map[string]cList
@@ -38,8 +32,34 @@ type argCHR struct {
 
 type store map[string]*argCHR
 
+type chrRule struct {
+	name     string
+	id       int
+	his      history
+	delHead  cList // removed constraints
+	keepHead cList // kept constraint
+	guard    cList // built-in constraint
+	body     List  // add CHR and built-in constraint
+}
+
+var CHRruleStore []*chrRule
+
+var QueryVars Vars
+
+var QueryStore List
+
+var CHRstore store
+
+var BuiltInStore store
+
 var nextRuleId int = 0
 var emptyBinding Bindings
+
+var chrCounter *big.Int
+var bigOne = big.NewInt(1)
+
+// init, add and read CHR- and Build-In-store
+// -----------------------------------------
 
 func InitStore() {
 	v := NewVariable("")
@@ -98,18 +118,18 @@ func addGoal1(g *Compound, s store) {
 	aArg.varArg = append(aArg.varArg, g) // a veriable match to all types
 }
 
-var chrCounter *big.Int
-var bigOne = big.NewInt(1)
-
 func addConstraintToStore(g Compound) {
+	addRefConstraintToStore(&g)
+}
+func addRefConstraintToStore(g *Compound) {
 	// pTraceHeadln(3, 3, " a) Counter %v \n", chrCounter)
 	g.Id = chrCounter
 	chrCounter = new(big.Int).Add(chrCounter, bigOne)
 	// pTraceHeadln(3, 3, " b) Counter++ %v , Id: %v \n", chrCounter, g.Id)
 	if g.Prio == 0 {
-		addGoal1(&g, CHRstore)
+		addGoal1(g, CHRstore)
 	} else {
-		addGoal1(&g, BuiltInStore)
+		addGoal1(g, BuiltInStore)
 	}
 }
 
@@ -173,13 +193,16 @@ func readProperConstraintsFromStore(t *Compound, aAtt *argCHR, env Bindings) cLi
 	return cList{}
 }
 
+// old History
+
 type history [][]*big.Int
 
 // var History []idSequence
 
-var CurVarCounter *big.Int
+// OccurVars
+// ---------
 
-type cList []*Compound
+var CurVarCounter *big.Int
 
 func (t cList) OccurVars() Vars {
 	occur := Vars{}
@@ -201,97 +224,12 @@ func (t cList) Type() Type {
 	return ListType
 }
 
-type chrRule struct {
-	name     string
-	id       int
-	his      history
-	delHead  cList // removed constraints
-	keepHead cList // kept constraint
-	guard    cList // built-in constraint
-	body     List  // add CHR and built-in constraint
-}
+// CHR solver
+// ----------
 
-var CHRruleStore []*chrRule
-
-var CHRtrace int
-
-func pTraceHeadln(l, n int, s ...interface{}) {
-	if CHRtrace >= l {
-		for i := 0; i < n; i++ {
-			fmt.Printf("      ")
-		}
-		fmt.Printf("*** ")
-		for _, s1 := range s {
-			fmt.Printf("%v", s1)
-		}
-		fmt.Printf("\n")
-	}
-}
-
-func pTraceHead(l, n int, s ...interface{}) {
-	if CHRtrace >= l {
-		for i := 0; i < n; i++ {
-			fmt.Printf("      ")
-		}
-		fmt.Printf("*** ")
-		for _, s1 := range s {
-			fmt.Printf("%v", s1)
-		}
-	}
-}
-
-func pTrace(l int, s ...interface{}) {
-	if CHRtrace >= l {
-		for _, s1 := range s {
-			fmt.Printf("%v", s1)
-		}
-	}
-}
-
-func pTraceln(l int, s ...interface{}) {
-	if CHRtrace >= l {
-		for _, s1 := range s {
-			fmt.Printf("%v", s1)
-		}
-		fmt.Printf("\n")
-	}
-}
-
-func pTraceEnv(l int, e Bindings) {
-	if e == nil {
-		pTrace(l, "nil")
-	} else {
-		if e.Var.Name == "" {
-			pTrace(l, "[\"\"=nil]")
-		} else {
-			if e.Next == nil || e.Next.Var.Name == "" {
-				pTrace(l, "[", e.Var.Name, "=", e.T.String(), ", nil]")
-			} else {
-				pTrace(l, "[", e.Var.Name, "=", e.T.String(), ",...]")
-			}
-		}
-
-	}
-}
-
-func pTraceEMap(l int, n int, h *Compound) {
-	if CHRtrace >= l {
-		for i := 0; i < n; i++ {
-			fmt.Printf("      ")
-		}
-		fmt.Printf("*** head: %s [ ", h.String())
-		env := h.EMap
-		for i, e := range *env {
-			fmt.Printf("[ %d ] =", i)
-			for _, e1 := range e {
-				pTraceEnv(l, e1)
-			}
-			fmt.Printf(" || ")
-		}
-		fmt.Printf("\n")
-	}
-}
-
+// Try all rules in 'CHRruleStore' with CHR-goals in CHR-store
+// until no rule fired.
+// CHRsolver used the trace- or no-trace function
 func CHRsolver() {
 	if CHRtrace != 0 {
 		printCHRStore()
@@ -327,6 +265,7 @@ func CHRsolver() {
 	}
 }
 
+// prove whether rule fired
 func pRuleFired(rule *chrRule) (ok bool) {
 	headList := rule.delHead
 	len_head := len(headList)
@@ -345,6 +284,7 @@ func pRuleFired(rule *chrRule) (ok bool) {
 	return ok
 }
 
+// prove and trace whether rule fired
 func pTraceRuleFired(rule *chrRule) (ok bool) {
 	headList := rule.delHead
 	len_head := len(headList)
@@ -363,10 +303,9 @@ func pTraceRuleFired(rule *chrRule) (ok bool) {
 	return ok
 }
 
-//func attributedTerm(t Compound, env Bindings) cList {
-//	return cList{}
-//}
-
+// Try to unify the del-head 'it' from the 'headlist' ('nt'==len of 'headlist')
+// with the 'ienv'-te environmen 'env'
+// If unifying ok, call 'unifyKeepHead' or 'checkGuards'
 func unifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env Bindings) (ok bool) {
 	var env2 Bindings
 	var mark bool
@@ -505,6 +444,9 @@ func unifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env Bind
 	return false
 }
 
+// Try to unify and trace the del-head 'it' from the 'headlist' ('nt'==len of 'headlist')
+// with the 'ienv'-te environmen 'env'
+// If unifying ok, call 'unifyKeepHead' or 'checkGuards'
 func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env Bindings) (ok bool) {
 	var env2 Bindings
 	var mark bool
@@ -698,6 +640,7 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 	return false
 }
 
+// mark chr - no other head-predicate can match that constraint
 func markCHR(chr *Compound) bool {
 	if chr.IsActive {
 		return false
@@ -778,6 +721,9 @@ func unmarkKeepCHR(chr *Compound) {
 	return
 }
 
+// Try to unify the keep-head 'it' from the 'headlist' ('nt'==len of 'headlist')
+// with the 'ienv'-te environmen 'env'
+// If unifying for all keep-heads ok, call 'checkGuards'
 func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, ienv int, env Bindings) (ok bool) {
 	var env2 Bindings
 	var mark bool
@@ -871,6 +817,9 @@ func unifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, i
 	return false
 }
 
+// Try to unify and trace the keep-head 'it' from the 'headlist' ('nt'==len of 'headlist')
+// with the 'ienv'-te environmen 'env'
+// If unifying for all keep-heads ok, call 'checkGuards'
 func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt int, ienv int, env Bindings) (ok bool) {
 	var env2 Bindings
 	var mark bool
@@ -1018,6 +967,8 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 	return false
 }
 
+// History ist not used with the EMap-implementation
+/*
 func pCHRsInHistory(chrs []*big.Int, his history) (ok bool) {
 	if his == nil || len(his) == 0 {
 		return false
@@ -1064,7 +1015,10 @@ func pCHRsInHistory(chrs []*big.Int, his history) (ok bool) {
 	pTraceHeadln(3, 3, "CHR in history: ", found)
 	return found
 }
+*/
 
+// check and trace guards of the rule r with the binding env
+// if all guards are true, fire rule
 func traceCheckGuards(r *chrRule, env Bindings) (ok bool) {
 	for _, g := range r.guard {
 		env2, ok := traceCheckGuard(g, env)
@@ -1080,12 +1034,14 @@ func traceCheckGuards(r *chrRule, env Bindings) (ok bool) {
 	return true
 }
 
+// check and trace a guard g with the binding env
+// if guards are true, return the new binding (if ':=', '=' or 'is' guard)
 func traceCheckGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 	pTraceHead(3, 3, "check guard: ", g.String())
 	g1 := Substitute(*g, env).(Compound)
 	pTrace(3, ", subst: ", g1)
 	if g.Functor == ":=" || g1.Functor == "is" || g1.Functor == "=" {
-		if !pVar(g1.Args[0]) {
+		if !(g1.Args[0].Type() == VariableType) {
 			return env, false
 		}
 		a := Eval(g1.Args[1])
@@ -1124,6 +1080,8 @@ func traceCheckGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 	return env, false
 }
 
+// check guards of the rule r with the binding env
+// if all guards are true, fire rule
 func checkGuards(r *chrRule, env Bindings) (ok bool) {
 	for _, g := range r.guard {
 		env2, ok := checkGuard(g, env)
@@ -1139,12 +1097,14 @@ func checkGuards(r *chrRule, env Bindings) (ok bool) {
 	return true
 }
 
+// check a guard g with the binding env
+// if guards are true, return the new binding (if ':=', '=' or 'is' guard)
 func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 
 	g1 := Substitute(*g, env).(Compound)
 
 	if g.Functor == ":=" || g1.Functor == "is" || g1.Functor == "=" {
-		if !pVar(g1.Args[0]) {
+		if !(g1.Args[0].Type() == VariableType) {
 			return env, false
 		}
 		a := Eval(g1.Args[1])
@@ -1181,13 +1141,7 @@ func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 	return env, false
 }
 
-func pVar(t Term) bool {
-	if t.Type() == VariableType {
-		return true
-	}
-	return false
-}
-
+// rule fired and trace with the environment env
 func traceFireRule(rule *chrRule, env Bindings) bool {
 	goals := Substitute(rule.body, env)
 	goals = Eval(goals)
@@ -1206,6 +1160,7 @@ func traceFireRule(rule *chrRule, env Bindings) bool {
 	return true
 }
 
+// rule fired with the environment env
 func fireRule(rule *chrRule, env Bindings) bool {
 	goals := Substitute(rule.body, env)
 	goals = Eval(goals)
@@ -1223,42 +1178,9 @@ func fireRule(rule *chrRule, env Bindings) bool {
 	return true
 }
 
-func printCHRStore() {
-	first := true
-	for _, aChr := range CHRstore {
-		for _, con := range aChr.varArg {
-			if !con.IsActive {
-				if first {
-					pTraceHead(1, 0, "CHR-Store: [", con.String())
-					first = false
-				} else {
-					pTrace(1, ", ", con.String())
-				}
-			}
-		}
-	}
-	if first {
-		pTraceHeadln(1, 0, "CHR-Store: []")
-	} else {
-		pTraceln(1, "]")
-	}
-
-	first = true
-	for _, aChr := range BuiltInStore {
-		for _, con := range aChr.varArg {
-			if !con.IsActive {
-				if first {
-					pTraceHead(1, 0, "Built-In Store: [", con.String())
-					first = false
-				} else {
-					pTrace(1, ", ", con.String())
-				}
-			}
-		}
-		if first {
-			pTraceHeadln(1, 0, "Built-In Store: []")
-		} else {
-			pTraceln(1, "]")
-		}
-	}
-}
+//func pVar(t Term) bool {
+//	if t.Type() == VariableType {
+//		return true
+//	}
+//	return false
+//}
