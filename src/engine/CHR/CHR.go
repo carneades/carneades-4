@@ -55,6 +55,8 @@ var BuiltInStore store
 var nextRuleId int = 0
 var emptyBinding Bindings
 
+var RenameRuleVars *big.Int
+
 var chrCounter *big.Int
 var bigOne = big.NewInt(1)
 
@@ -231,16 +233,20 @@ func (t cList) Type() Type {
 // until no rule fired.
 // CHRsolver used the trace- or no-trace function
 func CHRsolver() {
+
 	if CHRtrace != 0 {
 		printCHRStore()
 	}
-	//	for ruleFound, i := true, 0; ruleFound && i < 1000; i++ {
-	for ruleFound := true; ruleFound; {
+	i := 0
+	ruleFound := true
+	for ruleFound, i = true, 0; ruleFound && i < 10000; i++ {
+		// for ruleFound := true; ruleFound; {
 		ruleFound = false
 		for _, rule := range CHRruleStore {
-
+			RenameRuleVars = <-Counter
 			if CHRtrace != 0 {
-				pTraceHeadln(2, 1, "trial rule ", rule.name, "(ID: ", rule.id, ")")
+				pTraceHeadln(2, 1, "trial rule ", rule.name, "(ID: ", rule.id, ") @ ", rule.keepHead.String(),
+					" \\ ", rule.delHead.String(), " <=> ", rule.guard.String(), " | ", rule.body.String(), ".")
 
 				if pTraceRuleFired(rule) {
 					pTraceHeadln(1, 1, "rule ", rule.name, " fired (id: ", rule.id, ")")
@@ -259,6 +265,9 @@ func CHRsolver() {
 		if ruleFound && CHRtrace != 0 {
 			printCHRStore()
 		}
+	}
+	if i == 10000 {
+		pTraceHeadln(0, 1, "!!! Time-out !!!")
 	}
 	if CHRtrace > 1 {
 		printCHRStore()
@@ -455,16 +464,19 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 	pTraceHead(3, 3, "unify Del-Head (", ienv, ") ", head, " with [")
 	len_chr := len(chrList)
 	if len_chr == 0 {
+		pTraceln(3, "]")
 		return false
 	}
 	// begin trace
 	first := true
 	for _, c := range chrList {
-		if first {
-			pTrace(3, c)
-			first = false
-		} else {
-			pTrace(3, ", ", c)
+		if !c.IsActive {
+			if first {
+				pTrace(3, c)
+				first = false
+			} else {
+				pTrace(3, ", ", c)
+			}
 		}
 	}
 	pTraceln(3, "]")
@@ -486,20 +498,20 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 	len_ie := 0
 	senv, ok := (*head.EMap)[ienv]
 	if ok {
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		len_ie = len(senv)
 		// trace
-		pTraceHead(3, 3, "unify Del-Head (", ienv, ") ", head, " Env: [")
+		pTraceHead(4, 3, "unify Del-Head (", ienv, ") ", head, " Env: [")
 		first = true
 		for _, e := range senv {
 			if first {
 				first = false
 			} else {
-				pTrace(3, ", ")
+				pTrace(4, ", ")
 			}
-			pTraceEnv(3, e)
+			pTraceEnv(4, e)
 		}
-		pTraceln(3, "]")
+		pTraceln(4, "]")
 
 		// End trace
 
@@ -513,7 +525,7 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 						chr := chrList[ie]
 						mark = markCHR(chr)
 						if mark {
-							ok = unifyKeepHead(r, nil, headList, 0, nt, ie, env2)
+							ok = traceUnifyKeepHead(r, nil, headList, 0, nt, ie, env2)
 							if ok {
 								return ok
 							}
@@ -528,7 +540,7 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 						chr := chrList[ie]
 						mark = markCHR(chr)
 						if mark {
-							ok = unifyDelHead(r, headList, it+1, nt, ie, env2)
+							ok = traceUnifyDelHead(r, headList, it+1, nt, ie, env2)
 							if ok {
 								// not unmarkDelCHR(chr), markt == deleted
 								return ok
@@ -542,7 +554,7 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 		} // ! lastHead
 	} else {
 		// head.EMap = &EnvMap{}
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		senv = []Bindings{}
 		(*head.EMap)[ienv] = senv
 	}
@@ -552,19 +564,20 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 	if lastHead {
 		for ok, ic := false, ie; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
+			// env = lateRenameVars(env)
 			env2, ok, mark = traceMarkCHRAndUnifyDelHead(r.id, head, chr, env)
 			if ok {
 				senv = append(senv, env2)
 				// trace senv changes
 
-				pTraceHead(3, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
-				pTraceEnv(3, env2)
-				pTraceln(3, "")
+				pTraceHead(4, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
+				pTraceEnv(4, env2)
+				pTraceln(4, "")
 
 				ok = traceCheckGuards(r, env2)
 				if ok {
 					(*head.EMap)[ienv] = senv
-					pTraceEMap(3, 4, head)
+					pTraceEMap(4, 4, head)
 					return ok
 				}
 			} else {
@@ -575,25 +588,26 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 			}
 		}
 		(*head.EMap)[ienv] = senv
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		return false
 	}
 	if lastDelHead {
 		for ok, ic := false, ie; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
+			// env = lateRenameVars(env)
 			env2, ok, mark = traceMarkCHRAndUnifyDelHead(r.id, head, chr, env)
 			if ok {
 				senv = append(senv, env2)
 				// trace senv changes
 
-				pTraceHead(3, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
-				pTraceEnv(3, env2)
-				pTraceln(3, "")
+				pTraceHead(4, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
+				pTraceEnv(4, env2)
+				pTraceln(4, "")
 
-				ok = unifyKeepHead(r, nil, headList, 0, nt, ic, env2)
+				ok = traceUnifyKeepHead(r, nil, headList, 0, nt, ic, env2)
 				if ok {
 					(*head.EMap)[ienv] = senv
-					pTraceEMap(3, 4, head)
+					pTraceEMap(4, 4, head)
 					return ok
 				}
 			} else {
@@ -604,28 +618,27 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 			}
 		}
 		(*head.EMap)[ienv] = senv
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		return false
 	}
 
 	for ok, ic := false, ie; !ok && ic < len_chr; ic++ {
 
 		chr := chrList[ic]
-
+		// env = lateRenameVars(env)  // ???
 		env2, ok, mark = traceMarkCHRAndUnifyDelHead(r.id, head, chr, env) // mark chr and Unify, if fail unmark chr
 		if ok {
 			senv = append(senv, env2)
 			// trace senv changes
 
-			pTraceHead(3, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
-			pTraceEnv(3, env2)
-			pTraceln(3, "")
-
-			ok = unifyDelHead(r, headList, it+1, nt, ic, env2)
+			pTraceHead(4, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
+			pTraceEnv(4, env2)
+			pTraceln(4, "")
+			ok = traceUnifyDelHead(r, headList, it+1, nt, ic, env2)
 			if ok {
 				// not unmarkDelCHR(chr), markt == deleted
 				(*head.EMap)[ienv] = senv
-				pTraceEMap(3, 4, head)
+				pTraceEMap(4, 4, head)
 				return ok
 			}
 		} else {
@@ -636,7 +649,7 @@ func traceUnifyDelHead(r *chrRule, headList cList, it int, nt int, ienv int, env
 		}
 	}
 	(*head.EMap)[ienv] = senv
-	pTraceEMap(3, 4, head)
+	pTraceEMap(4, 4, head)
 	return false
 }
 
@@ -657,9 +670,15 @@ func traceMarkCHRAndUnifyDelHead(id int, head, chr *Compound, env Bindings) (env
 	// pTraceHeadln(3, 3, "     *** mark del %v, ID: %v\n", chr, chr.Id)
 	chr.IsActive = true
 	env2, ok = Unify(*head, *chr, env)
-	pTraceHead(3, 3, "Unify head ", head, " with mark CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
-	pTraceEnv(3, env2)
-	pTraceln(3, ")")
+	if ok {
+		pTraceHead(3, 3, "Unify head ", head, " with CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
+		pTraceEnv(3, env2)
+		pTraceln(3, ")")
+	} else {
+		pTraceHead(4, 3, "Unify head ", head, " with mark CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
+		pTraceEnv(4, env2)
+		pTraceln(4, ")")
+	}
 	return env2, ok, true
 }
 
@@ -680,7 +699,7 @@ func unmarkDelCHR(chr *Compound) {
 
 func traceUnmarkDelCHR(chr *Compound) {
 	chr.IsActive = false
-	pTraceHeadln(3, 3, "unmark del ", chr, ", ID: ", chr.Id)
+	pTraceHeadln(4, 3, "unmark del ", chr, ", ID: ", chr.Id)
 	return
 }
 
@@ -693,9 +712,15 @@ func traceMarkCHRAndUnifyKeepHead(id int, head, chr *Compound, env Bindings) (en
 	// pTraceHeadln(3, 3, "mark keep ",chr,", ID: ",chr.Id )
 	chr.IsActive = true
 	env2, ok = Unify(*head, *chr, env)
-	pTraceHead(3, 3, "Unify head ", head, " with mark CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
-	pTraceEnv(3, env2)
-	pTraceln(3, ")")
+	if ok {
+		pTraceHead(3, 3, "Unify head ", head, " with CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
+		pTraceEnv(3, env2)
+		pTraceln(3, ")")
+	} else {
+		pTraceHead(4, 3, "Unify head ", head, " with mark CHR ", chr, " (Id: ", chr.Id, ") is ", ok, " (Binding: ")
+		pTraceEnv(4, env2)
+		pTraceln(4, ")")
+	}
 	return env2, ok, true
 }
 
@@ -712,7 +737,7 @@ func markCHRAndUnifyKeepHead(id int, head, chr *Compound, env Bindings) (env2 Bi
 
 func traceUnmarkKeepCHR(chr *Compound) {
 	chr.IsActive = false
-	pTraceHeadln(3, 3, "unmark keep ", chr, ", ID: ", chr.Id)
+	pTraceHeadln(4, 3, "unmark keep ", chr, ", ID: ", chr.Id)
 	return
 }
 
@@ -825,28 +850,28 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 	var mark bool
 	head := headList[it]
 	chrList := readProperConstraintsFromCHR_Store(head, env)
-	pTraceHead(3, 3, "unify keep-Head (", ienv, ") ", head, " with [")
+	pTraceHead(4, 3, "unify keep-Head (", ienv, ") ", head, " with [")
 	len_chr := len(chrList)
 	if len_chr == 0 {
-		pTraceln(3, "] - empty chr")
+		pTraceln(4, "] - empty chr")
 		return false
 	}
 	// begin trace
 	first := true
 	for _, c := range chrList {
 		if first {
-			pTrace(3, c)
+			pTrace(4, c)
 			first = false
 		} else {
-			pTrace(3, ", ", c)
+			pTrace(4, ", ", c)
 		}
 	}
-	pTraceln(3, "]")
+	pTraceln(4, "]")
 	// end trace
 	// begin check the next head
 
 	lastKeepHead := it+1 == nt
-	pTraceHeadln(3, 4, " last keep head = ", lastKeepHead)
+	pTraceHeadln(4, 4, " last keep head = ", lastKeepHead)
 
 	// End next check next head
 	// check in head stored environment map
@@ -854,28 +879,28 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 	len_ie := 0
 	senv, ok := (*head.EMap)[ienv]
 	if !ok {
-		pTraceHeadln(3, 4, " !!! head: ", head, " with no Emap[ ", ienv, " ]")
+		pTraceHeadln(4, 4, " !!! head: ", head, " with no Emap[ ", ienv, " ]")
 	}
 	if ok {
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		len_ie = len(senv)
-		pTraceHeadln(3, 4, " len env (", ienv, ") = ", len_ie)
+		pTraceHeadln(4, 4, " len env (", ienv, ") = ", len_ie)
 		if lastKeepHead {
 			ie = len_ie
-			pTraceHeadln(3, 4, " ie == len_ie == ", ie, " = ", len_ie)
+			pTraceHeadln(4, 4, " ie == len_ie == ", ie, " = ", len_ie)
 		} else {
 			// trace
-			pTraceHead(3, 3, "unify Keep-Head (", ienv, ") ", head, " Env: [")
+			pTraceHead(4, 3, "unify Keep-Head (", ienv, ") ", head, " Env: [")
 			first = true
 			for _, e := range senv {
 				if first {
 					first = false
 				} else {
-					pTrace(3, ", ")
+					pTrace(4, ", ")
 				}
-				pTraceEnv(3, e)
+				pTraceEnv(4, e)
 			}
-			pTraceln(3, "]")
+			pTraceln(4, "]")
 
 			// End trace
 			for ; ie < len_ie; ie++ {
@@ -883,9 +908,9 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 				if env2 != nil {
 					chr := chrList[ie]
 					mark = markCHR(chr)
-					pTraceHeadln(3, 4, " mark keep chr:", chr.String(), " = ", mark)
+					pTraceHeadln(4, 4, " mark keep chr:", chr.String(), " = ", mark)
 					if mark {
-						ok = unifyKeepHead(r, nil, headList, it+1, nt, ie, env2)
+						ok = traceUnifyKeepHead(r, nil, headList, it+1, nt, ie, env2)
 						if ok {
 							traceUnmarkKeepCHR(chr)
 							return ok
@@ -903,7 +928,7 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 	}
 	// End check in head stored environment map
 	// normal head-check, start at ie (not at 0 !!)
-	pTraceHeadln(3, 3, "unify keep-Head ", head, " from: ", ie, " < ", len_chr)
+	pTraceHeadln(4, 3, "unify keep-Head ", head, " from: ", ie, " < ", len_chr)
 	if lastKeepHead {
 		for ok, ic := false, ie; !ok && ic < len_chr; ic++ {
 			chr := chrList[ic]
@@ -912,15 +937,15 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 				senv = append(senv, env2)
 				// trace senv changes
 
-				pTraceHead(3, 3, "New environment ", "Head: ", head.String(), ", Env (", ienv, ") [", ic, "], =")
-				pTraceEnv(3, env2)
-				pTraceln(3, "")
+				pTraceHead(4, 3, "New environment ", "Head: ", head.String(), ", Env (", ienv, ") [", ic, "], =")
+				pTraceEnv(4, env2)
+				pTraceln(4, "")
 
 				ok = traceCheckGuards(r, env2)
 				if ok {
 					traceUnmarkKeepCHR(chr)
 					(*head.EMap)[ienv] = senv
-					pTraceEMap(3, 4, head)
+					pTraceEMap(4, 4, head)
 					return ok
 				}
 			} else {
@@ -931,7 +956,7 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 			}
 		}
 		(*head.EMap)[ienv] = senv
-		pTraceEMap(3, 4, head)
+		pTraceEMap(4, 4, head)
 		return false
 	}
 
@@ -944,15 +969,15 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 			senv = append(senv, env2)
 			// trace senv changes
 
-			pTraceHead(3, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
-			pTraceEnv(3, env2)
-			pTraceln(3, "")
+			pTraceHead(4, 3, "New environment ", "Head: ", head.String(), ", Env: (", ienv, ") [", ic, "], =")
+			pTraceEnv(4, env2)
+			pTraceln(4, "")
 
-			ok = unifyKeepHead(r, nil, headList, it+1, nt, ic, env2)
+			ok = traceUnifyKeepHead(r, nil, headList, it+1, nt, ic, env2)
 			if ok {
 				traceUnmarkKeepCHR(chr)
 				(*head.EMap)[ienv] = senv
-				pTraceEMap(3, 4, head)
+				pTraceEMap(4, 4, head)
 				return ok
 			}
 		} else {
@@ -963,7 +988,7 @@ func traceUnifyKeepHead(r *chrRule, his []*big.Int, headList cList, it int, nt i
 		}
 	}
 	(*head.EMap)[ienv] = senv
-	pTraceEMap(3, 4, head)
+	pTraceEMap(4, 4, head)
 	return false
 }
 
@@ -1143,12 +1168,59 @@ func checkGuard(g *Compound, env Bindings) (env2 Bindings, ok bool) {
 
 // rule fired and trace with the environment env
 func traceFireRule(rule *chrRule, env Bindings) bool {
-	goals := Substitute(rule.body, env)
-	goals = Eval(goals)
-	pTraceHeadln(3, 3, "Add Goals: ", goals)
+	var biVarEqTerm Bindings
+	biVarEqTerm = nil
+	goals := rule.body
+
 	if goals.Type() == ListType {
-		for _, g := range goals.(List) {
+		for _, g := range goals {
+			g = RenameAndSubstitute(g, RenameRuleVars, env)
+			g = Eval(g)
+
 			if g.Type() == CompoundType {
+				g1 := g.(Compound)
+				if len(g1.Args) == 2 {
+					arg0 := g1.Args[0]
+					arg0ty := arg0.Type()
+					arg1 := g1.Args[1]
+					switch g1.Functor {
+					case ":=", "is", "=":
+						if !(arg0ty == VariableType) {
+							pTraceHeadln(1, 3, "Missing Variable in assignment in body: ", g.String(), ", in rule:", rule.name)
+							return false
+						}
+
+						env = AddBinding(arg0.(Variable), arg1, env)
+						// add assignment or not add assignment - thats the question
+						// up to now the assignment will be added
+					case "==":
+						arg1ty := arg1.Type()
+						if arg0ty == VariableType && arg1ty == VariableType {
+							arg0var := arg0.(Variable)
+							arg1var := arg1.(Variable)
+							if arg0var.Name > arg1var.Name {
+								g1 = CopyCompound(g1)
+								g1.Args[0] = arg1var
+								g1.Args[1] = arg0var
+								g = g1
+								biVarEqTerm = AddBinding(arg1var, arg0var, biVarEqTerm)
+							} else {
+								biVarEqTerm = AddBinding(arg0var, arg1var, biVarEqTerm)
+							}
+						} else if arg0ty == VariableType {
+
+							biVarEqTerm = AddBinding(arg0.(Variable), arg1, biVarEqTerm)
+
+						} else if arg1ty == VariableType {
+							g1 = CopyCompound(g1)
+							g1.Args[0] = arg1
+							g1.Args[1] = arg0
+							g = g1
+							biVarEqTerm = AddBinding(arg1.(Variable), arg0, biVarEqTerm)
+						}
+					} // end switch g1.Functor
+				} // end if len(g1.Args) == 2
+				pTraceHeadln(3, 3, "Add Goal: ", g)
 				addConstraintToStore(g.(Compound))
 			} else {
 				if g.Type() == BoolType && !g.(Bool) {
@@ -1156,13 +1228,51 @@ func traceFireRule(rule *chrRule, env Bindings) bool {
 				}
 			}
 		}
+		if biVarEqTerm != nil {
+			substituteStores(biVarEqTerm)
+		}
 	}
 	return true
+}
+
+func substituteStores(biEnv Bindings) {
+	newCHR := []Compound{}
+	for _, aChr := range CHRstore {
+		for _, con := range aChr.varArg {
+			if !con.IsActive {
+				con1, ok := SubstituteBiEnv(*con, biEnv)
+				if ok && con1.Type() == CompoundType {
+					newCHR = append(newCHR, con1.(Compound))
+					con.IsActive = true
+				}
+			}
+		}
+	}
+	for _, con := range newCHR {
+		addConstraintToStore(con)
+	}
+	/*
+		newBI := []Compound{}
+		for _, aChr := range BuiltInStore {
+			for _, con := range aChr.varArg {
+				if !con.IsActive {
+					con1, ok := SubstituteBiEnv(*con, biEnv)
+					if ok && con1.Type() == CompoundType {
+						newBI = append(newBI, con1.(Compound))
+						con.IsActive = true
+					}
+				}
+			}
+		}
+		for _, con := range newBI {
+			addConstraintToStore(con)
+		}
+	*/
 }
 
 // rule fired with the environment env
 func fireRule(rule *chrRule, env Bindings) bool {
-	goals := Substitute(rule.body, env)
+	goals := RenameAndSubstitute(rule.body, RenameRuleVars, env)
 	goals = Eval(goals)
 	if goals.Type() == ListType {
 		for _, g := range goals.(List) {
@@ -1177,10 +1287,3 @@ func fireRule(rule *chrRule, env Bindings) bool {
 	}
 	return true
 }
-
-//func pVar(t Term) bool {
-//	if t.Type() == VariableType {
-//		return true
-//	}
-//	return false
-//}

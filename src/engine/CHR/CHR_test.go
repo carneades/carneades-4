@@ -255,20 +255,6 @@ func TestCHRxx(t *testing.T) {
 	}
 }
 */
-//type chrRule struct {
-//	name     string
-//	id       int
-//	delHead  cList // removed constraints
-//	keepHead cList // kept constraint
-//	guard    cList // built-in constraint
-//	body     List  // add CHR and built-in constraint
-//}
-
-//var CHRruleStore []*chrRule
-
-//func CHRsolver() {..}
-
-//func addConstraintToStore(g Compound)
 
 func tAddStringChrRule(t *testing.T, name, keep, del, guard, body string) bool {
 
@@ -362,17 +348,17 @@ func TestCHRRule01(t *testing.T) {
 
 func checkResult(t *testing.T, chr, bi string) {
 	if chr != chr2string() {
-		t.Error(fmt.Sprintf(" exspected chr result: %s \n!=computed chr result: %s", chr, chr2string))
+		t.Error(fmt.Sprintf(" exspected chr result: %s \n!=computed chr result: %s", chr, chr2string()))
 	}
 	if bi != bi2string() {
-		t.Error(fmt.Sprintf(" exspected BI result: %s \n!=computed BI result: %s", chr, bi2string))
+		t.Error(fmt.Sprintf(" exspected BI result: %s \n!=computed BI result: %s", bi, bi2string()))
 	}
 }
 
 func TestCHRRule01a(t *testing.T) {
 	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
-	prime01 @ prime(N) ==> N>2 | prime(N-1). 
+	prime01 @ prime(N) ==> N>2 | prime(N-1).
 	prime02 @ prime(A) | prime(B) <=> B > A, B mod A == 0 | true.
 	prime(20).`)
 	if !ok {
@@ -381,8 +367,6 @@ func TestCHRRule01a(t *testing.T) {
 
 	CHRsolver()
 
-	//	fmt.Printf(" CHR 2 string: %s \n", chr2string())
-	//	fmt.Printf(" BI to string: %s \n", bi2string())
 	checkResult(t, "[prime(19), prime(17), prime(13), prime(11), prime(7), prime(5), prime(3), prime(2)]", "[]")
 	CHRtrace = 1
 	printCHRStore()
@@ -410,9 +394,8 @@ func TestCHRRule02(t *testing.T) {
 	printCHRStore()
 }
 
-/*
 func TestCHRRule02a(t *testing.T) {
-	CHRtrace = 1
+	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
 	gcd01@ gcd(0) <=> true .
 	gcd02@ gcd(N) \ gcd(M) <=> N <= M, L := M mod N | gcd(L).
@@ -428,7 +411,6 @@ func TestCHRRule02a(t *testing.T) {
 	printCHRStore()
 }
 
-*/
 func TestCHRRule03(t *testing.T) {
 	InitStore()
 	ok := tAddStringChrRule(t, "gcd01", "", "gcd(0)", "", "true")
@@ -450,24 +432,23 @@ func TestCHRRule03(t *testing.T) {
 	printCHRStore()
 }
 
-/*
 func TestCHRRule03a(t *testing.T) {
-	CHRtrace = 1
+	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
-	prime01 @ prime(N) ==> N>2 | prime(N-1).
-	prime02 @ prime(A) | prime(B) <=> B > A, B mod A == 0 | true.
-	prime(20).`)
+	gcd01@ gcd(0) <=> true .
+	gcd02@ gcd(N) \ gcd(M) <=> N <= M | gcd(M mod N).
+	gcd(94017), gcd(1155),gcd(2035).`)
 	if !ok {
 		t.Error("TestCHRRule03a fails, Error in parse string")
 	}
 
 	CHRsolver()
 
-	checkResult(t, "[prime(19), prime(17), prime(13), prime(11), prime(7), prime(5), prime(3), prime(2)]", "[]")
+	checkResult(t, "[gcd(11)]", "[]")
 	CHRtrace = 1
 	printCHRStore()
 }
-*/
+
 func TestCHRRule04(t *testing.T) {
 	InitStore()
 	ok := tAddStringChrRule(t, "fib01", "upto(A)", "", "", "fib(0,1), fib(1,1)")
@@ -489,24 +470,24 @@ func TestCHRRule04(t *testing.T) {
 	//	printCHRStore()
 }
 
-/*
 func TestCHRRule04a(t *testing.T) {
-	CHRtrace = 1
+	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
-	prime01 @ prime(N) ==> N>2 | prime(N-1).
-	prime02 @ prime(A) | prime(B) <=> B > A, B mod A == 0 | true.
-	prime(20).`)
+	fib01@ upto(A) ==> fib(0,1), fib(1,1).
+	fib02@ upto(Max), fib(N1,M1), fib(N2,M2) ==> Max > N2, N2 == N1+1 | fib(N2+1,M1+M2).
+	upto(10).`)
 	if !ok {
 		t.Error("TestCHRRule04a fails, Error in parse string")
 	}
 
 	CHRsolver()
 
-	checkResult(t, "[prime(19), prime(17), prime(13), prime(11), prime(7), prime(5), prime(3), prime(2)]", "[]")
+	checkResult(t, "[upto(10), fib(0,1), fib(1,1), fib(2,2), fib(3,3), fib(4,5), fib(5,8), fib(6,13), fib(7,21), fib(8,34), fib(9,55), fib(10,89)]", "[]")
+
 	CHRtrace = 1
 	printCHRStore()
 }
-*/
+
 func TestCHRRule05(t *testing.T) {
 	tstr := "TestCHRRule05"
 	InitStore()
@@ -544,39 +525,21 @@ func TestCHRRule05(t *testing.T) {
 	printCHRStore()
 }
 
-/*
 func TestCHRRule05a(t *testing.T) {
 	CHRtrace = 1
 	ok := ParseStringCHRRulesGoals(`
-	prime01 @ prime(N) ==> N>2 | prime(N-1).
-	prime02 @ prime(A) | prime(B) <=> B > A, B mod A == 0 | true.
-	prime(20).`)
+	leq_reflexivity  @ leq(X,X) <=> true.
+	leq_antisymmetry @ leq(X,Y), leq(Y,X) <=> X==Y.
+	leq_idempotence  @ leq(X,Y)\ leq(X,Y) <=> true.
+	leq_transitivity @ leq(X,Y), leq(Y,Z) ==> leq(X,Z).
+	leq(A,B), leq(B,C), leq(C,A).`)
 	if !ok {
 		t.Error("TestCHRRule05a fails, Error in parse string")
 	}
 
 	CHRsolver()
 
-	checkResult(t, "[prime(19), prime(17), prime(13), prime(11), prime(7), prime(5), prime(3), prime(2)]", "[]")
+	checkResult(t, "[]", "[A==C, B==C]")
 	CHRtrace = 1
 	printCHRStore()
 }
-
-//var CHRstore store
-
-//var BuiltInStore store
-
-//type argCHR struct {
-//	atomArg  map[string]cList
-//	boolArg  cList
-//	intArg   cList
-//	floatArg cList
-//	strArg   cList
-//	compArg  map[string]cList
-//	listArg  cList
-//	varArg   cList
-//	noArg    cList
-//}
-
-//type store map[string]*argCHR
-*/

@@ -66,6 +66,24 @@ func NewVariable(name string) Variable {
 	return Variable{Name: name, index: big.NewInt(0)}
 }
 
+func CopyCompound(c Compound) (c1 Compound) {
+	c1 = Compound{
+		Functor:           c.Functor,
+		Id:                c.Id,
+		Prio:              c.Prio,
+		EMap:              c.EMap,
+		occurVars:         c.occurVars,
+		identifyOccurVars: c.identifyOccurVars,
+		IsActive:          c.IsActive,
+		Args:              []Term{}}
+	args := []Term{}
+	for _, a := range c.Args {
+		args = append(args, a)
+	}
+	c1.Args = args
+	return c1
+}
+
 type Bindings *BindEle
 type BindEle struct {
 	Var  Variable
@@ -296,7 +314,7 @@ func (t Compound) Arity() int {
 }
 
 // stream of pointers to big integers for renaming variables
-var counter <-chan *big.Int
+var Counter <-chan *big.Int
 
 func init() {
 	c := make(chan *big.Int)
@@ -308,11 +326,11 @@ func init() {
 			i = new(big.Int).Add(i, one)
 		}
 	}()
-	counter = c
+	Counter = c
 }
 
 func (v Variable) Rename() Variable {
-	return Variable{Name: v.Name, index: <-counter}
+	return Variable{Name: v.Name, index: <-Counter}
 }
 
 func Equal(t1, t2 Term) bool {
@@ -434,21 +452,21 @@ func Match(t1, t2 Term, env Bindings) (env2 Bindings, ok bool) {
 	}
 }
 
-// rename Variables in head and Unify head with goal
+// Unify head-term with goal-term
 func Unify(head, goal Term, env Bindings) (env2 Bindings, ok bool) {
-	return Unify1(head, goal, true /* renaming head vars */, Vars{}, env)
+	return Unify1(head, goal, true /* head vars of a rule */, Vars{}, env)
 }
 
 func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindings, ok bool) {
-
+	isHead := renaming // if t1 is a head-term
 	t1Type := t1.Type()
 	if t1Type == VariableType {
-		// to do: late renaming of head-variables
 		renaming = false
 		for t1Type == VariableType {
 			visited = append(visited, t1.(Variable))
 			t3, ok := GetBinding(t1.(Variable), env)
 			if ok {
+				isHead = false
 				t1 = t3
 				t1Type = t1.Type()
 			} else {
@@ -477,9 +495,13 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindin
 				// Var == Var
 				return env, true
 			} else {
-				// Var1 != Var2 , no occur-check
-				env2 = AddBinding(t1.(Variable), t2, env)
-				return env2, true
+				if isHead {
+					// Var1 != Var2 , no occur-check
+					env2 = AddBinding(t1.(Variable), t2, env)
+					return env2, true
+				} else {
+					return env2, false
+				}
 			}
 		}
 		if checkOccur(visited, t2, env) {
@@ -489,12 +511,14 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindin
 		return env2, true
 	}
 	if t2Type == VariableType {
-		if checkOccur(visited, t1, env) {
-			return nil, false
-		}
-		// to do: if renaming { rename vars in t1 }
-		env2 = AddBinding(t2.(Variable), t1, env)
-		return env2, true
+		return env2, false
+		//		if checkOccur(visited, t1, env) {
+		//			return nil, false
+		//		}
+		//		// to do: if renaming { rename vars in t1 }
+		//		if renaming { renameVars(t1)}
+		//		env2 = AddBinding(t2.(Variable), t1, env)
+		//		return env2, true
 	}
 	if t1Type != t2Type {
 		return env, false
@@ -644,6 +668,105 @@ func Substitute(t Term, env Bindings) Term {
 			}
 		}
 		return result
+	default:
+		return t
+	}
+}
+
+// Substitute: replace variables in the term t with
+// their bindings in the Build-In environment (BIVarEqTerm),
+// if they are bound.
+// Follows variable chains, so that if a variable
+// is bound to a variable, the second variable is also
+// substituted if it is bound in env, recursively.
+func SubstituteBiEnv(t Term, biEnv Bindings) (Term, bool) {
+	ok := false
+	visited := map[Variable]bool{}
+
+	switch t.Type() {
+	case AtomType, BoolType, IntType, FloatType, StringType:
+		return t, ok
+	case CompoundType:
+		args := []Term{}
+		for _, t2 := range t.(Compound).Args {
+			a, ok2 := SubstituteBiEnv(t2, biEnv)
+			ok = ok || ok2
+			args = append(args, a)
+		}
+		return Compound{Functor: t.(Compound).Functor, Id: t.(Compound).Id,
+			Prio: t.(Compound).Prio, Args: args}, ok
+	case ListType:
+		l := []Term{}
+		for _, t2 := range t.(List) {
+			l1, ok2 := SubstituteBiEnv(t2, biEnv)
+			ok = ok || ok2
+			l = append(l, l1)
+		}
+		return List(l), ok
+	case VariableType:
+
+		t2, ok2 := GetBinding(t.(Variable), biEnv)
+		ok = ok || ok2
+
+		for ok2 == true {
+			t = t2
+			if t2.Type() == VariableType && !visited[t2.(Variable)] {
+				t2, ok2 = GetBinding(t2.(Variable), biEnv)
+				continue
+			} else {
+				break
+			}
+		}
+		return t, ok
+	default:
+		return t, ok
+	}
+}
+
+// Substitute: replace variables in the term t with
+// their bindings in the env or in the Build-In environment (BIVarEqTerm),
+// if they are bound. If their are not bound rename
+// the body-varaible of the rule (very late renaming).
+// Follows variable chains, so that if a variable
+// is bound to a variable, the second variable is also
+// substituted if it is bound in env, recursively.
+func RenameAndSubstitute(t Term, idx *big.Int, env Bindings) Term {
+	visited := map[Variable]bool{}
+
+	switch t.Type() {
+	case AtomType, BoolType, IntType, FloatType, StringType:
+		return t
+	case CompoundType:
+		args := []Term{}
+		for _, t2 := range t.(Compound).Args {
+			args = append(args, RenameAndSubstitute(t2, idx, env))
+		}
+		return Compound{Functor: t.(Compound).Functor, Id: t.(Compound).Id,
+			Prio: t.(Compound).Prio, Args: args}
+	case ListType:
+		l := []Term{}
+		for _, t2 := range t.(List) {
+			l = append(l, RenameAndSubstitute(t2, idx, env))
+		}
+		return List(l)
+	case VariableType:
+
+		t2, ok := GetBinding(t.(Variable), env)
+		if !ok {
+			// very late variable renaming
+			t = Variable{Name: t.(Variable).Name, index: idx}
+			visited[t.(Variable)] = true
+			return t
+		}
+		for ok == true {
+			t = t2
+			if t2.Type() == VariableType && !visited[t2.(Variable)] {
+				t2, ok = GetBinding(t.(Variable), env)
+			} else {
+				break
+			}
+		}
+		return t
 	default:
 		return t
 	}

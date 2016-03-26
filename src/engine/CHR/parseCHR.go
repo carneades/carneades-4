@@ -87,7 +87,7 @@ func parseRules(s *sc.Scanner) (ok bool) {
 
 	for tok != sc.EOF {
 		tok1 := s.Peek()
-		pTraceHeadln(1, 4, " in loop parse rule tok: ", Tok2str(tok), ", tok1: [", Tok2str(tok1), "]")
+		pTraceHeadln(4, 4, " in loop parse rule tok: ", Tok2str(tok), ", tok1: [", Tok2str(tok1), "]")
 		switch tok {
 		case sc.Ident:
 			t, tok, ok = Factor_name(s.TokenText(), s, s.Scan())
@@ -223,7 +223,7 @@ func parseKeepHead1(s *sc.Scanner, tok rune, name string, t Term) (tok1 rune, ok
 
 func parseDelHead(s *sc.Scanner, tok rune) (delList List, tok1 rune, ok bool) {
 	var t Term
-	pTraceHeadln(1, 4, "parse Del-Head tok[", Tok2str(tok))
+	pTraceHeadln(4, 4, "parse Del-Head tok[", Tok2str(tok))
 	delList = List{}
 	if tok != sc.Ident {
 		Err(s, fmt.Sprintf("Missing predicate-name (not \"%v\")", Tok2str(tok)))
@@ -252,15 +252,19 @@ func parseDelHead(s *sc.Scanner, tok rune) (delList List, tok1 rune, ok bool) {
 func parseGuardHead(s *sc.Scanner, tok rune, name string, cKeepList, cDelList cList) (tok1 rune, ok bool) {
 	// ParseRuleGoal - it is no clear, if it a guard or body
 	bodyList, tok, ok := parseConstraints1(ParseRuleGoal, s, tok)
+	pTraceHead(4, 4, " parseGuardHead(1): ", bodyList, ", tok: '", Tok2str(tok), "'")
 	cGuardList := cList{}
 	if tok == '.' {
-		tok1 = s.Scan()
-
+		tok = s.Scan()
 	}
 	if tok == '|' {
 		cGuardList, ok = prove2Clist(ParseBI, name, bodyList)
 		tok = s.Scan()
 		bodyList, tok, ok = parseConstraints1(ParseRuleGoal, s, tok)
+		pTraceHead(4, 4, " parseBodyHead(2): ", bodyList, ", tok: '", Tok2str(tok), "'")
+		if !ok {
+			return tok, false
+		}
 		if tok != '.' {
 			Err(s, fmt.Sprintf(" After rule %s a '.' exspected, not a %s", name, Tok2str(tok)))
 		}
@@ -569,12 +573,12 @@ func prove2Clist(ty parseType, name string, t Term) (cl cList, ok bool) {
 }
 
 func parseConstraints(ty parseType, s *sc.Scanner) (t Term, tok rune, ok bool) {
-	pTraceHeadln(3, 4, " parse constraints ")
+	pTraceHeadln(4, 4, " parse constraints ")
 	return parseConstraints1(ty, s, s.Scan())
 }
 
 func parseConstraints1(ty parseType, s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
-	pTraceHeadln(3, 4, " parse constraints ", Tok2str(tok1))
+	pTraceHeadln(4, 4, " parse constraints ", Tok2str(tok1))
 	tok = tok1
 	if tok == sc.EOF {
 		return List{}, tok, true
@@ -603,7 +607,7 @@ func parseConstraints1(ty parseType, s *sc.Scanner, tok1 rune) (t Term, tok rune
 		}
 	}
 
-	pTraceHeadln(4, 4, "<-- assing-expression: term: %s tok: '%s' ok: %v \n", t.String(), Tok2str(tok), ok)
+	pTraceHeadln(4, 4, "<-- assing-expression: term: ", t.String(), ", tok: '", Tok2str(tok), "' ok: ", ok)
 
 	if tok == ',' {
 		t1 := List{t}
