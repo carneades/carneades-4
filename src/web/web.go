@@ -52,6 +52,8 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func CarneadesServer(port string, templatesDir string) {
 
+	root := "/carneades"
+
 	var errorTemplate = template.Must(template.ParseFiles(filepath.Join(templatesDir, "error.html")))
 
 	evalHandler := func(w http.ResponseWriter, req *http.Request) {
@@ -284,14 +286,15 @@ func CarneadesServer(port string, templatesDir string) {
 	}
 
 	http.Handle("/", newTemplateHandler(templatesDir, "carneades.html"))
-	http.Handle("/help", newTemplateHandler(templatesDir, "help.html"))
-	http.Handle("/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
-	http.Handle("/eval-help", newTemplateHandler(templatesDir, "eval-help.html"))
-	http.HandleFunc("/eval", evalHandler)
-	http.Handle("/dung-form", newTemplateHandler(templatesDir, "dung-form.html"))
-	http.Handle("/dung-help", newTemplateHandler(templatesDir, "dung-help.html"))
-	http.HandleFunc("/dung", dungHandler)
-	http.Handle("/imprint", newTemplateHandler(templatesDir, "imprint.html"))
+	http.Handle(root+"/", newTemplateHandler(templatesDir, "carneades.html"))
+	http.Handle(root+"/help", newTemplateHandler(templatesDir, "help.html"))
+	http.Handle(root+"/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
+	http.Handle(root+"/eval-help", newTemplateHandler(templatesDir, "eval-help.html"))
+	http.HandleFunc(root+"/eval", evalHandler)
+	http.Handle(root+"/dung-form", newTemplateHandler(templatesDir, "dung-form.html"))
+	http.Handle(root+"/dung-help", newTemplateHandler(templatesDir, "dung-help.html"))
+	http.HandleFunc(root+"/dung", dungHandler)
+	http.Handle(root+"/imprint", newTemplateHandler(templatesDir, "imprint.html"))
 
 	// start the web server
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
