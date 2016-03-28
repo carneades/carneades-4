@@ -348,10 +348,10 @@ func TestCHRRule01(t *testing.T) {
 
 func checkResult(t *testing.T, chr, bi string) {
 	if chr != chr2string() {
-		t.Error(fmt.Sprintf(" exspected chr result: %s \n!=computed chr result: %s", chr, chr2string()))
+		t.Error(fmt.Sprintf(" exspected chr result: '%s' \n !=computed chr result: '%s'", chr, chr2string()))
 	}
 	if bi != bi2string() {
-		t.Error(fmt.Sprintf(" exspected BI result: %s \n!=computed BI result: %s", bi, bi2string()))
+		t.Error(fmt.Sprintf(" exspected BI result: '%s' \n !=computed BI result: '%s'", bi, bi2string()))
 	}
 }
 
@@ -466,8 +466,8 @@ func TestCHRRule04(t *testing.T) {
 	}
 	CHRtrace = 0
 	CHRsolver()
-	//	CHRtrace = 1
-	//	printCHRStore()
+	CHRtrace = 1
+	printCHRStore()
 }
 
 func TestCHRRule04a(t *testing.T) {
@@ -526,7 +526,7 @@ func TestCHRRule05(t *testing.T) {
 }
 
 func TestCHRRule05a(t *testing.T) {
-	CHRtrace = 1
+	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
 	leq_reflexivity  @ leq(X,X) <=> true.
 	leq_antisymmetry @ leq(X,Y), leq(Y,X) <=> X==Y.
@@ -543,3 +543,75 @@ func TestCHRRule05a(t *testing.T) {
 	CHRtrace = 1
 	printCHRStore()
 }
+
+func TestCHRRule06(t *testing.T) {
+	CHRtrace = 0
+	ok := ParseStringCHRRulesGoals(`
+	data1 @ data() ==> edge(berlin, 230, wolfsburg), edge(hannover, 89, wolfsburg), edge(hannover, 108, bielefeld), edge(bielefeld, 194, köln).
+	data2 @ data() ==> edge(berlin,259, jena), edge(jena,55, erfurt), edge(erfurt,205,giessen), edge(giessen,158,köln), edge(köln, 85, aachen).
+	source @ source(V) ==> dist(V, 0).
+	del @ dist(V,D1) \ dist(V, D2) <=> D1 <= D2 | true.
+	dist_plus1 @ dist(V,D1), edge(V, D2, V2) ==> dist(V2, D1+D2).
+	dist_plus2 @ dist(V,D1), edge(V2, D2, V) ==> dist(V2, D1+D2).
+	del_data @ edge(X,Y,Z) <=> true.
+	data(), source(berlin).`)
+	if !ok {
+		t.Error("TestCHRRule05a fails, Error in parse string")
+	}
+
+	CHRsolver()
+
+	checkResult(t, "[source(berlin), dist(berlin,0), dist(wolfsburg,230), dist(jena,259), dist(erfurt,314), dist(giessen,519), dist(hannover,319), dist(bielefeld,427), dist(köln,621), dist(aachen,706)]", "[]")
+	CHRtrace = 1
+	printCHRStore()
+}
+
+func TestCHRRule07(t *testing.T) {
+	CHRtrace = 0
+	ok := ParseStringCHRRulesGoals(`
+	
+	data1 @ data() ==> edge(berlin, 230, wolfsburg), edge(hannover, 89, wolfsburg), edge(hannover, 108, bielefeld), edge(bielefeld, 194, köln).
+	data2 @ data() ==> edge(berlin,259, jena), edge(jena,55, erfurt), edge(erfurt,205,giessen), edge(giessen,158,köln), edge(köln, 85, aachen).
+	source @ source(V) ==> dist(V, V, 0).
+	del @ dist(V, L, D1) \ dist(V, M, D2) <=> D1 <= D2 | true.
+	dist_plus1 @ dist(V, L, D1), edge(V, D2, V2) ==> dist(V2,[V2|L], D1+D2).
+	dist_plus2 @ dist(V, L, D1), edge(V2, D2, V) ==> dist(V2,[V2|L], D1+D2).
+	del_data @ edge(X,Y,Z) <=> true.
+	data(), source(berlin).`)
+	if !ok {
+		t.Error("TestCHRRule05a fails, Error in parse string")
+	}
+
+	CHRsolver()
+
+	checkResult(t, "[source(berlin), dist(berlin,berlin,0), dist(wolfsburg,[wolfsburg, berlin],230), dist(jena,[jena, berlin],259), dist(erfurt,[erfurt, jena, berlin],314), dist(giessen,[giessen, erfurt, jena, berlin],519), dist(hannover,[hannover, wolfsburg, berlin],319), dist(bielefeld,[bielefeld, hannover, wolfsburg, berlin],427), dist(köln,[köln, bielefeld, hannover, wolfsburg, berlin],621), dist(aachen,[aachen, köln, bielefeld, hannover, wolfsburg, berlin],706)]", "[]")
+	CHRtrace = 1
+	printCHRStore()
+}
+
+/*
+func TestCHRRule08(t *testing.T) {
+	CHRtrace = 3
+	ok := ParseStringCHRRulesGoals(`
+
+	data1 @ data() ==> edge(berlin, 230, wolfsburg), edge(hannover, 89, wolfsburg), edge(hannover, 108, bielefeld), edge(bielefeld, 194, köln).
+	data2 @ data() ==> edge(berlin,259, jena), edge(jena,55, erfurt), edge(erfurt,205,giessen), edge(giessen,158,köln), edge(köln, 85, aachen).
+	source @ source(V) ==> dist([V], 0).
+	del @ dist([V|L], D1) \ dist([V|M], D2) <=> D1 <= D2 | true.
+	dist_plus1a@ dist(V, D1), edge(V, D2, V2) ==> dist([V2|V], D1+D2).
+	dist_plus1b@ dist(V, D1), edge(V2, D2, V) ==> dist([V2|V], D1+D2).
+	disr_plus2a@ dist([V|L], D1), edge(V, D2, V2) ==> dist([V2, V|L], D1+D2).
+	dist_plus2b@ dist([V|L], D1), edge(V2, D2, V) ==> dist([V2, V|L], D1+D2).
+	del_data @ edge(X,Y,Z) <=> true.
+	data(), source(berlin).`)
+	if !ok {
+		t.Error("TestCHRRule05a fails, Error in parse string")
+	}
+
+	CHRsolver()
+
+	checkResult(t, "[source(berlin), dist(berlin,berlin,0), dist(wolfsburg,[wolfsburg | berlin],230), dist(jena,[jena | berlin],259), dist(erfurt,[erfurt | [jena | berlin]],314), dist(giessen,[giessen | [erfurt | [jena | berlin]]],519), dist(hannover,[hannover | [wolfsburg | berlin]],319), dist(bielefeld,[bielefeld | [hannover | [wolfsburg | berlin]]],427), dist(köln,[köln | [bielefeld | [hannover | [wolfsburg | berlin]]]],621), dist(aachen,[aachen | [köln | [bielefeld | [hannover | [wolfsburg | berlin]]]]],706)]", "[]")
+	CHRtrace = 1
+	printCHRStore()
+}
+*/

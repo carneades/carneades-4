@@ -113,6 +113,8 @@ func evalBinaryOperator(t1, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 		return evalLogAnd(t1, a1, typ1, a2, typ2)
 	case "||":
 		return evalLogOr(t1, a1, typ1, a2, typ2)
+	case "|":
+		return evalCons(t1, a1, typ1, a2, typ2)
 	}
 	return t1
 }
@@ -596,4 +598,26 @@ func evalLogOr(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
 		return Bool(true)
 	}
 	return t1
+}
+
+func evalCons(t1 Term, a1 Term, typ1 Type, a2 Term, typ2 Type) Term {
+	// fmt.Printf(" Start EvalCons A1: %s, A2: %s, \n", a1, a2)
+	t2 := List{}
+	if typ1 == ListType {
+		for _, e := range a1.(List) {
+			t2 = append(t2, e)
+		}
+	} else {
+		t2 = append(t2, a1)
+	}
+
+	if typ2 == ListType {
+		for _, e := range a2.(List) {
+			t2 = append(t2, e)
+		}
+	} else {
+		t2 = append(t2, a2)
+	}
+	// fmt.Printf(" Eval-Cons:  A1: '%s', | A2: '%s', == '%s' \n", a1, a2, t2)
+	return t2
 }

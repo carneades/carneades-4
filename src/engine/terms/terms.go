@@ -520,6 +520,35 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindin
 		//		env2 = AddBinding(t2.(Variable), t1, env)
 		//		return env2, true
 	}
+	if t1Type == CompoundType && t1.(Compound).Functor == "|" && t2Type == ListType {
+		args := t1.(Compound).Args
+		arg0 := args[0]
+		arg1 := args[1]
+		l0 := len(arg0.(List))
+		t2List := t2.(List)
+		l2 := len(t2List)
+		if arg0.Type() == ListType && l2 >= l0 {
+			for i, ele := range arg0.(List) {
+				// Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindings, ok bool)
+				env2, ok = Unify1(ele, t2List[i], renaming, visited, env)
+				if !ok {
+					return env, false
+				}
+				env = env2
+			}
+			if l2 == l0 {
+				env2, ok = Unify1(arg1, List{}, renaming, visited, env)
+			} else {
+				env2, ok = Unify1(arg1, t2List[len(arg0.(List)):], renaming, visited, env)
+			}
+			if !ok {
+				return env, false
+			}
+			env = env2
+		} else {
+			return env, false
+		}
+	}
 	if t1Type != t2Type {
 		return env, false
 	}

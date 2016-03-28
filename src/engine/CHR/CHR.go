@@ -1272,7 +1272,74 @@ func substituteStores(biEnv Bindings) {
 
 // rule fired with the environment env
 func fireRule(rule *chrRule, env Bindings) bool {
-	goals := RenameAndSubstitute(rule.body, RenameRuleVars, env)
+	var biVarEqTerm Bindings
+	biVarEqTerm = nil
+	goals := rule.body
+
+	if goals.Type() == ListType {
+		for _, g := range goals {
+			g = RenameAndSubstitute(g, RenameRuleVars, env)
+			g = Eval(g)
+
+			if g.Type() == CompoundType {
+				g1 := g.(Compound)
+				if len(g1.Args) == 2 {
+					arg0 := g1.Args[0]
+					arg0ty := arg0.Type()
+					arg1 := g1.Args[1]
+					switch g1.Functor {
+					case ":=", "is", "=":
+						if !(arg0ty == VariableType) {
+							pTraceHeadln(1, 3, "Missing Variable in assignment in body: ", g.String(), ", in rule:", rule.name)
+							return false
+						}
+
+						env = AddBinding(arg0.(Variable), arg1, env)
+						// add assignment or not add assignment - thats the question
+						// up to now the assignment will be added
+					case "==":
+						arg1ty := arg1.Type()
+						if arg0ty == VariableType && arg1ty == VariableType {
+							arg0var := arg0.(Variable)
+							arg1var := arg1.(Variable)
+							if arg0var.Name > arg1var.Name {
+								g1 = CopyCompound(g1)
+								g1.Args[0] = arg1var
+								g1.Args[1] = arg0var
+								g = g1
+								biVarEqTerm = AddBinding(arg1var, arg0var, biVarEqTerm)
+							} else {
+								biVarEqTerm = AddBinding(arg0var, arg1var, biVarEqTerm)
+							}
+						} else if arg0ty == VariableType {
+
+							biVarEqTerm = AddBinding(arg0.(Variable), arg1, biVarEqTerm)
+
+						} else if arg1ty == VariableType {
+							g1 = CopyCompound(g1)
+							g1.Args[0] = arg1
+							g1.Args[1] = arg0
+							g = g1
+							biVarEqTerm = AddBinding(arg1.(Variable), arg0, biVarEqTerm)
+						}
+					} // end switch g1.Functor
+				} // end if len(g1.Args) == 2
+				addConstraintToStore(g.(Compound))
+			} else {
+				if g.Type() == BoolType && !g.(Bool) {
+					return false
+				}
+			}
+		}
+		if biVarEqTerm != nil {
+			substituteStores(biVarEqTerm)
+		}
+	}
+	return true
+}
+
+/* old fireRule
+ 	goals := RenameAndSubstitute(rule.body, RenameRuleVars, env)
 	goals = Eval(goals)
 	if goals.Type() == ListType {
 		for _, g := range goals.(List) {
@@ -1287,3 +1354,4 @@ func fireRule(rule *chrRule, env Bindings) bool {
 	}
 	return true
 }
+*/
