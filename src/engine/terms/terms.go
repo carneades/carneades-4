@@ -249,9 +249,18 @@ func (t Compound) String() string {
 }
 
 func (t List) String() string {
+	var v Term = nil
 	args := []string{}
+
 	for _, arg := range t {
-		args = append(args, arg.String())
+		if arg.Type() == CompoundType && arg.(Compound).Functor == "|" {
+			v = arg.(Compound).Args[0]
+		} else {
+			args = append(args, arg.String())
+		}
+	}
+	if v != nil {
+		return "[" + strings.Join(args, ", ") + " | " + v.String() + "]"
 	}
 	return "[" + strings.Join(args, ", ") + "]"
 }
@@ -520,35 +529,37 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindin
 		//		env2 = AddBinding(t2.(Variable), t1, env)
 		//		return env2, true
 	}
-	if t1Type == CompoundType && t1.(Compound).Functor == "|" && t2Type == ListType {
-		args := t1.(Compound).Args
-		arg0 := args[0]
-		arg1 := args[1]
-		l0 := len(arg0.(List))
-		t2List := t2.(List)
-		l2 := len(t2List)
-		if arg0.Type() == ListType && l2 >= l0 {
-			for i, ele := range arg0.(List) {
-				// Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindings, ok bool)
-				env2, ok = Unify1(ele, t2List[i], renaming, visited, env)
+	/*
+		if t1Type == CompoundType && t1.(Compound).Functor == "|" && t2Type == ListType {
+			args := t1.(Compound).Args
+			arg0 := args[0]
+			arg1 := args[1]
+			l0 := len(arg0.(List))
+			t2List := t2.(List)
+			l2 := len(t2List)
+			if arg0.Type() == ListType && l2 >= l0 {
+				for i, ele := range arg0.(List) {
+					// Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindings, ok bool)
+					env2, ok = Unify1(ele, t2List[i], renaming, visited, env)
+					if !ok {
+						return env, false
+					}
+					env = env2
+				}
+				if l2 == l0 {
+					env2, ok = Unify1(arg1, List{}, renaming, visited, env)
+				} else {
+					env2, ok = Unify1(arg1, t2List[len(arg0.(List)):], renaming, visited, env)
+				}
 				if !ok {
 					return env, false
 				}
 				env = env2
-			}
-			if l2 == l0 {
-				env2, ok = Unify1(arg1, List{}, renaming, visited, env)
 			} else {
-				env2, ok = Unify1(arg1, t2List[len(arg0.(List)):], renaming, visited, env)
-			}
-			if !ok {
 				return env, false
 			}
-			env = env2
-		} else {
-			return env, false
 		}
-	}
+	*/
 	if t1Type != t2Type {
 		return env, false
 	}
@@ -574,11 +585,46 @@ func Unify1(t1, t2 Term, renaming bool, visited Vars, env Bindings) (env2 Bindin
 			} */
 		return env, true
 	case ListType:
-		if len(t1.(List)) != len(t2.(List)) {
+		lent1 := len(t1.(List))
+		lent2 := len(t2.(List))
+		if lent1 == 0 {
+			if lent2 == 0 {
+				return env, true
+			} else {
+				return env, false
+			}
+		}
+		lent1m1 := lent1 - 1
+		last := t1.(List)[lent1m1]
+		if last.Type() == CompoundType && last.(Compound).Functor == "|" {
+			if lent2 < lent1m1 {
+				return env, false
+			}
+			env2 := env
+			for i := 0; i < lent1m1; i++ {
+				env2, ok = Unify1(t1.(List)[i], t2.(List)[i], renaming, visited, env2)
+				if !ok {
+					return env, false
+				}
+			}
+			v := last.(Compound).Args[0]
+			if lent2 == lent1m1 {
+				env2, ok = Unify1(v, List{}, renaming, visited, env2)
+			} else {
+				env2, ok = Unify1(v, t2.(List)[lent1m1:], renaming, visited, env2)
+			}
+			if !ok {
+				return env, false
+			}
+			env = env2
+			return env, true
+		}
+		if lent1 != lent2 {
 			return env, false
 		}
 		env2 := env
-		for i, _ := range t1.(List) {
+		// for i, _ := range t1.(List) {
+		for i := 0; i < lent1; i++ {
 			env2, ok = Unify1(t1.(List)[i], t2.(List)[i], renaming, visited, env2)
 			if !ok {
 				return env, false

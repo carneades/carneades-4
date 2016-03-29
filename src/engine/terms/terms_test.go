@@ -125,15 +125,16 @@ func TestUnify2(t *testing.T) {
 }
 
 func TestUnify3(t *testing.T) {
-	ok := tunify(t, "[color(X), color(Y), mix(X,Y,Z), color(Z)]", "[color(blue), color(yellow), mix(blue,yellow,green), color(C)]")
+	ok := tunify(t, "[color(X), color(Y), mix(X,Y,Z), color(Z)]",
+		"[color(blue), color(yellow), mix(blue,yellow,green), color(green)]")
 	if !ok {
 		t.Errorf("TestUnify3 failed\n")
 	}
 }
 
 func TestUnify4(t *testing.T) {
-	ok := tunify(t, "[p(X, f(a)), f(a, Z), f(g(a,D), h(c))]",
-		"[p(a, f(X)), f(Y, b), f(g(a,b), E) ]")
+	ok := tunify(t, "[p(X, f(X)), f(A, Z), f(g(A,D), E)]",
+		"[p(a, f(a)), f(Y, b), f(g(Y,b), h(c)) ]")
 	if !ok {
 		t.Errorf("TestUnify4 failed\n")
 	}
@@ -183,7 +184,7 @@ func TestUnify10(t *testing.T) {
 	ok := tunify(t,
 		"p(f(A,A),g(B,B),B)",
 		"p(f(X,Y),g(Y,Z),X)")
-	if !ok {
+	if ok {
 		t.Errorf("TestUnify10 failed\n")
 	}
 }
@@ -194,5 +195,32 @@ func TestUnify11(t *testing.T) {
 		"p(f(X,Y),g(Y,Z),h(X))")
 	if ok {
 		t.Errorf("TestUnify11 failed\n")
+	}
+}
+
+func TestUnify12(t *testing.T) {
+	ok := tunify(t,
+		"[A, B | C]",
+		"[1, 2]")
+	if !ok {
+		t.Errorf("TestUnify12 failed\n")
+	}
+}
+
+func TestUnify13(t *testing.T) {
+	ok := tunify(t,
+		"[A, B | C]",
+		"[1, 2, 3]")
+	if !ok {
+		t.Errorf("TestUnify13 failed\n")
+	}
+}
+
+func TestUnify14(t *testing.T) {
+	ok := tunify(t,
+		"[A, B | C]",
+		"[1, 2, 3, 4, 5, 6]")
+	if !ok {
+		t.Errorf("TestUnify12 failed\n")
 	}
 }

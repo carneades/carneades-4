@@ -45,14 +45,31 @@ func Eval(t1 Term) Term {
 		}
 	case ListType:
 		t2 := t1.(List)
-		if len(t2) == 0 {
+		lent2 := len(t2)
+		if lent2 == 0 {
 			return t1
 		}
+		lent2m1 := lent2 - 1
+		last := t2[lent2m1]
 		t3 := List{}
-		for _, t4 := range t2 {
-			t3 = append(t3, Eval(t4))
+		if last.Type() == CompoundType && last.(Compound).Functor == "|" {
+			for i := 0; i < lent2m1; i++ {
+				t3 = append(t3, Eval(t2[i]))
+			}
+			t4 := last.(Compound).Args[0]
+			if t4.Type() == ListType {
+				for _, t5 := range t4.(List) {
+					t3 = append(t3, Eval(t5))
+				}
+			}
+			t1 = t3
+		} else {
+
+			for _, t4 := range t2 {
+				t3 = append(t3, Eval(t4))
+			}
+			t1 = t3
 		}
-		t1 = t3
 	}
 	return t1
 }

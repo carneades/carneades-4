@@ -508,7 +508,8 @@ func factor(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 				}
 				v := Variable{Name: n, index: big.NewInt(0)}
 				tok = s.Scan()
-				t := Compound{Functor: "|", Args: append(list, v), Prio: 1}
+				t = Compound{Functor: "|", Args: List{v}, Prio: 6}
+				t = append(list, t)
 				if tok == ']' {
 					return t, s.Scan(), ok
 				} else {
