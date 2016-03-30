@@ -1174,7 +1174,9 @@ func traceFireRule(rule *chrRule, env Bindings) bool {
 
 	if goals.Type() == ListType {
 		for _, g := range goals {
+			pTraceHead(3, 3, " Goal: ", g.String())
 			g = RenameAndSubstitute(g, RenameRuleVars, env)
+			pTraceln(3, " after rename&subst: ", g.String())
 			g = Eval(g)
 
 			if g.Type() == CompoundType {
@@ -1191,6 +1193,7 @@ func traceFireRule(rule *chrRule, env Bindings) bool {
 						}
 
 						env = AddBinding(arg0.(Variable), arg1, env)
+						pTraceHeadln(1, 3, "in fire Rule add Binding: ", arg0.(Variable).String(), " = ", arg1.String())
 						// add assignment or not add assignment - thats the question
 						// up to now the assignment will be added
 					case "==":

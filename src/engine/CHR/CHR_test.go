@@ -325,6 +325,15 @@ func tAddStringGoals(t *testing.T, goals string) bool {
 	return true
 }
 
+func checkResult(t *testing.T, chr, bi string) {
+	if chr != chr2string() {
+		t.Error(fmt.Sprintf(" exspected chr result: '%s' \n !=computed chr result: '%s'", chr, chr2string()))
+	}
+	if bi != bi2string() {
+		t.Error(fmt.Sprintf(" exspected BI result: '%s' \n !=computed BI result: '%s'", bi, bi2string()))
+	}
+}
+
 func TestCHRRule01(t *testing.T) {
 	InitStore()
 	ok := tAddStringChrRule(t, "prime01", "prime(N)", "", "N>2", "prime(N-1)")
@@ -344,15 +353,6 @@ func TestCHRRule01(t *testing.T) {
 	CHRsolver()
 	CHRtrace = 1
 	printCHRStore()
-}
-
-func checkResult(t *testing.T, chr, bi string) {
-	if chr != chr2string() {
-		t.Error(fmt.Sprintf(" exspected chr result: '%s' \n !=computed chr result: '%s'", chr, chr2string()))
-	}
-	if bi != bi2string() {
-		t.Error(fmt.Sprintf(" exspected BI result: '%s' \n !=computed BI result: '%s'", bi, bi2string()))
-	}
 }
 
 func TestCHRRule01a(t *testing.T) {
@@ -448,25 +448,23 @@ func TestCHRRule02c(t *testing.T) {
 	printCHRStore()
 }
 
-/*
 func TestCHRRule02d(t *testing.T) {
-	CHRtrace = 3
+	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
 	gcd01@ gcd(0) <=> true .
 	// linear complexity
 	gcd02@ gcd(N) \ gcd(M) <=> 0<N, N=<M | L := M - N, gcd(L).
-	gcd(94017), gcd(1155),gcd(2035).`)
+	gcd(12), gcd(27).`)
 	if !ok {
 		t.Error("TestCHRRule02d fails, Error in parse string")
 	}
 
 	CHRsolver()
 
-	checkResult(t, "[gcd(11)]", "[]")
+	checkResult(t, "[gcd(3)]", "[L7056:=15, L7058:=3, L7060:=9, L7062:=6, L7064:=3, L7066:=0]")
 	CHRtrace = 1
 	printCHRStore()
 }
-*/
 
 func TestCHRRule03(t *testing.T) {
 	InitStore()
@@ -626,7 +624,7 @@ func TestCHRRule06(t *testing.T) {
 func TestCHRRule07(t *testing.T) {
 	CHRtrace = 0
 	ok := ParseStringCHRRulesGoals(`
-	
+
 	data1 @ data() ==> edge(berlin, 230, wolfsburg), edge(hannover, 89, wolfsburg), edge(hannover, 108, bielefeld), edge(bielefeld, 194, köln).
 	data2 @ data() ==> edge(berlin,259, jena), edge(jena,55, erfurt), edge(erfurt,205,giessen), edge(giessen,158,köln), edge(köln, 85, aachen).
 	source @ source(V) ==> dist(V, [V], 0).

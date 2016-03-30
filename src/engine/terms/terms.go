@@ -831,7 +831,10 @@ func RenameAndSubstitute(t Term, idx *big.Int, env Bindings) Term {
 			// very late variable renaming
 			t = Variable{Name: t.(Variable).Name, index: idx}
 			visited[t.(Variable)] = true
-			return t
+			t2, ok = GetBinding(t.(Variable), env)
+			if !ok {
+				return t
+			}
 		}
 		for ok == true {
 			t = t2
