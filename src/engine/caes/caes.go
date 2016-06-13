@@ -12,9 +12,10 @@ package caes
 
 import (
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/terms"
 	"os"
 	"strconv"
+
+	"github.com/carneades/carneades-4/src/engine/terms"
 )
 
 // The data types are sorted alphabetically
@@ -284,7 +285,7 @@ func (arg *Argument) Undercut(l Labelling) Label {
 // with Out premises can be applicable. Out premises affect the weight of an
 // argument, not its applicability.
 func (arg *Argument) Applicable(l Labelling) bool {
-	if arg.Undercut(l) != Out {
+	if arg.Undercut(l) == Undecided {
 		return false
 	}
 	for _, p := range arg.Premises {
@@ -417,10 +418,10 @@ func (arg *Argument) GetWeight(l Labelling) float64 {
 }
 
 // A statement is supported if it is the conclusion of at least one
-// argument with weight greater than 0.0.
+// applicable argument with weight greater than 0.0.
 func (stmt *Statement) Supported(l Labelling) bool {
 	for _, arg := range stmt.Args {
-		if arg.GetWeight(l) > 0 {
+		if arg.Applicable(l) && arg.GetWeight(l) > 0 {
 			return true
 		}
 	}
@@ -428,7 +429,7 @@ func (stmt *Statement) Supported(l Labelling) bool {
 }
 
 // A statement is unsupported if it has no arguments or
-// all of its arguments are applicable but none has weight greater than 0
+// all of its arguments are applicable and weigh 0.0 or less
 func (stmt *Statement) Unsupported(l Labelling) bool {
 	for _, arg := range stmt.Args {
 		if !arg.Applicable(l) || arg.GetWeight(l) > 0 {

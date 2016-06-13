@@ -14,7 +14,6 @@ statements:
         assumed: true
     ¬app(a1): 
         text: ¬app(a1) 
-
 arguments: 
     a1:
         premises: [s11394,s11393]
@@ -26,5 +25,5 @@ arguments:
 
 tests:
   in: [s11394, s11393, s11392, ¬app(a1)]
-  undecided: [s11395]
+  out: [s11395]
 

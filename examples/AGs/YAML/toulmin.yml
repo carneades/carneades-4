@@ -43,4 +43,4 @@ arguments:
 
 tests:
   in: [s11520, s11519, s11518, s11517, s11516, s11515, ¬app(a1)]
-  undecided: [s11521]
+  out: [s11521]

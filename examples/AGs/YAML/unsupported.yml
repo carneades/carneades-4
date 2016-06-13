@@ -1,0 +1,8 @@
+meta:
+  title: Trivial example, with one non-assumption statement and no arguments
+
+statements: 
+  P: "P"
+
+tests:
+  out: [P]
