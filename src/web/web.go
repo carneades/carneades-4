@@ -285,7 +285,6 @@ func CarneadesServer(port string, templatesDir string) {
 		}
 	}
 
-	http.Handle("/", newTemplateHandler(templatesDir, "carneades.html"))
 	http.Handle(root+"/", newTemplateHandler(templatesDir, "carneades.html"))
 	http.Handle(root+"/help", newTemplateHandler(templatesDir, "help.html"))
 	http.Handle(root+"/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
