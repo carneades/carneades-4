@@ -200,10 +200,10 @@ argument_schemes:
   #   meta:
   #     title: Defeasible Modus Ponens
   #   variables: [A,B]
-  #   conclusions: [B]
   #   premises:
-  #     major: defeasibly_implies(A,B)
-  #     minor: A
+  #     major: implies(A,B)
+  #     minor: A   # A alone not allowed by CHR
+  #   conclusions: [B]
 
   established_rule:
     meta:

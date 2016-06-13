@@ -1,0 +1,32 @@
+meta:
+  title: Simulating a Dung abstract argumentation framework with an attack cycle
+  source: >
+    This example illustrates how any Dung AF can be simulated using CAES structured arguments.
+    Both the arguments and the attacks of the Dung AF are modeled by CAES arguments. 
+    Attacks are modelled as undercutters. 
+    CAES Statements model the conclusion and undercutter of each Dung argument. 
+    If the Dung AF has m arguments and n attacks, the CAES translation has at most
+    2*m statements and m+n arguments.  Thus the translation has polynomial complexity.
+    The translation is not limited to grounded semantics, since other Dung semantics have analogues in CAES. 
+    (Carneades 4.1 only *implements* grounded semantics currently.)
+    The Dung AF simulated here is:
+       Args = {a,b}
+       Attacks = {(a,b)(b,a)}
+
+
+statements:
+  ua: ¬app(a)
+  ub: ¬app(b)
+
+arguments:
+  a: 
+    conclusion: ub
+    undercutter: ua
+  b:
+    conclusion: ua
+    undercutter: ub
+    
+
+
+            
+  
