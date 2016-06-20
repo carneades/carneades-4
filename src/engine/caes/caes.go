@@ -281,8 +281,8 @@ func (arg *Argument) Undercut(l Labelling) Label {
 }
 
 // An argument is applicable if none of its premises are Undecided and
-// its Undercut property is Out. Because arguments can be cumulative, arguments
-// with Out premises can be applicable. Out premises affect the weight of an
+// its Undercut property is also not Undecided. Because arguments can be cumulative, arguments
+// with Out premises can be applicable. Out premises or In undercutters affect the weight of an
 // argument, not its applicability.
 func (arg *Argument) Applicable(l Labelling) bool {
 	if arg.Undercut(l) == Undecided {
@@ -327,7 +327,7 @@ func (arg *Argument) PropertyValue(p string, l Labelling) (result terms.Term, ok
 }
 
 // An issue is ready to be resolved if all the arguments of all its positions are
-// either undercut or applicable
+// undercut or applicable
 func (issue *Issue) ReadyToBeResolved(l Labelling) bool {
 	for _, position := range issue.Positions {
 		for _, arg := range position.Args {
@@ -630,9 +630,9 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 				// Construct the undercutter statement and
 				// add it to the statements of the graph
-				ucid := "¬applicable(" + argId + ")"
+				ucid := "undercut(" + argId + ")"
 				uc = Statement{Id: ucid,
-					Text: argId + " is not applicable."}
+					Text: argId + " is undercut."}
 				ag.Statements[normalize(ucid)] = &uc
 
 				// Construct the argument and add it to the graph
@@ -673,9 +673,9 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				// Construct an undercutter statement (for the undercutter of
 				// undercutter!) and add it to the statements of the graph
 
-				ucid := "¬applicable(" + argId + ")"
+				ucid := "undercut(" + argId + ")"
 				uc2 := Statement{Id: ucid,
-					Text: argId + " is not applicable."}
+					Text: argId + " is undercut."}
 				ag.Statements[normalize(ucid)] = &uc2
 
 				// Construct the argument and add it to the graph
