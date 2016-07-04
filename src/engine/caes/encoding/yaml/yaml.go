@@ -13,11 +13,12 @@ package yaml
 import (
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
+
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/terms"
 	"gopkg.in/yaml.v2"
-	"io"
-	"io/ioutil"
 	// "log"
 	"strconv"
 	"strings"

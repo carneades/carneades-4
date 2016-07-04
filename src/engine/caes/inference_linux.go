@@ -404,6 +404,7 @@ func (ag *ArgGraph) Infer() error {
 	if err != nil {
 		return err
 	}
+
 	defer f.Close()
 	defer os.Remove(f.Name())
 
