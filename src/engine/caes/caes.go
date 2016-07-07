@@ -222,13 +222,10 @@ func (l Labelling) init(ag *ArgGraph) {
 	}
 	ag.Statements = m2
 
-	// Make all assumed statements In and all unsupported
-	// statements out
+	// Make all assumed statements In
 	for _, s := range ag.Statements {
 		if ag.Assumptions[normalize(s.Id)] {
 			l[s] = In
-		} else if len(s.Args) == 0 {
-			l[s] = Out
 		}
 	}
 	// For each issue, if some position is In
@@ -450,18 +447,17 @@ func (ag *ArgGraph) GroundedLabelling() Labelling {
 		// Try to label Undecided statements
 		for _, stmt := range ag.Statements {
 			if l[stmt] == Undecided {
-				if stmt.Issue == nil {
-					if stmt.Supported(l) {
-						// make supported nonissues In
-						l[stmt] = In
-						changed = true
-					} else if stmt.Unsupported(l) {
-						// make unsupported nonissues Out
-						l[stmt] = Out
-						changed = true
-					}
-				} else if stmt.Issue.ReadyToBeResolved(l) {
-					// Apply proof standards to label the positions of the issue
+				if stmt.Unsupported(l) {
+					// make unsupported statements Out
+					l[stmt] = Out
+					changed = true
+				} else if stmt.Issue == nil && stmt.Supported(l) {
+					// make supported nonissues In
+					l[stmt] = In
+					changed = true
+				} else if stmt.Issue != nil && stmt.Issue.ReadyToBeResolved(l) {
+					// Apply proof standards to label the positions of issues
+					// ready to be resolved
 					stmt.Issue.Resolve(l)
 					changed = true
 				}
