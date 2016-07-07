@@ -45,11 +45,13 @@ func TestCAES(t *testing.T) {
 			for id, expected := range ag.ExpectedLabeling {
 				s, ok := ag.Statements[id]
 				if !ok {
+					success = false
 					fmt.Printf("file: %v; expected a statement for %v\n",
 						fi.Name(), id)
 				} else {
 					actual := l[s]
 					if expected != actual {
+						success = false
 						fmt.Printf("file: %v; statement: %v; expected: %v; actual: %v\n",
 							fi.Name(), id, expected, actual)
 					}

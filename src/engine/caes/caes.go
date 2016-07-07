@@ -622,20 +622,24 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			}
 
 			// construct an argument for each conclusion and add
-			// the argument to the graph
+			// the argument to the graph.  All these arguments
+			// share the same undercutter.
 
-			var uc Statement // the undercutter
+			var uc Statement    // the undercutter
+			argId := genArgId() // pseudo-argument id, representing the set of all arguments constructed by the scheme
+			// To Do: this is a hack.  Clean this up by allowing arguments
+			// to have multiple conclusions. This is a fairly big change, requiring
+			// modifications to the import and export translators and the YAML and JSON representation of arguments.
+
+			// Construct the undercutter statement and
+			// add it to the statements of the graph
+			ucid := "undercut(" + argId + ")"
+			uc = Statement{Id: ucid,
+				Text: argId + " is undercut."}
+			ag.Statements[normalize(ucid)] = &uc
 			for _, c := range conclusions {
+				// Construct an argument for each conclusion and add it to the graph
 				argId := genArgId()
-
-				// Construct the undercutter statement and
-				// add it to the statements of the graph
-				ucid := "undercut(" + argId + ")"
-				uc = Statement{Id: ucid,
-					Text: argId + " is undercut."}
-				ag.Statements[normalize(ucid)] = &uc
-
-				// Construct the argument and add it to the graph
 				arg := Argument{Id: argId,
 					Scheme:      scheme,
 					Parameters:  parameters,

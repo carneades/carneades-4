@@ -11,13 +11,21 @@ issues:
   i1:
     positions: [P, ¬P]
 
+argument_schemes:
+  s1:
+    weight:
+      constant: 0.1
+  s2:
+    weight:
+      constant: 0.5
+
 arguments:
   a1:
-    weight: 0.1
+    scheme: s1
     conclusion: P
     premises: [Q]
   a2:
-    weight: 0.5
+    scheme: s2
     conclusion: ¬P
     premises: [R]
 
