@@ -11,6 +11,7 @@ package caes
 
 import (
 	"bufio"
+	"log"
 	// "bytes"
 	"encoding/json"
 	"errors"
@@ -434,7 +435,19 @@ func (ag *ArgGraph) Infer() error {
 	// Call SWI Prolog to evaluate the theory and write arguments
 	// to standard out.  Handle SWI-Prolog errors.  Assure termination
 	// within given limits (time, stack size, ...)
-	cmd := exec.Command("C:\\Program Files (x86)\\swipl\\bin\\swipl.exe", "-s ", f.Name(), "-L"+stackLimit)
+	swipl := ""
+	//	x86exist := true
+	//	x64exist := true
+	//test if x86 path works
+	if _, err := os.Stat("C:\\Program Files (x86)\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) {
+		swipl = "C:\\Program Files (x86)\\swipl\\bin\\swipl.exe"
+	}
+
+	if _, err := os.Stat("C:\\Program Files\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) && !(len(swipl) < 1) {
+		swipl = "C:\\Program Files\\swipl\\bin\\swipl.exe"
+	}
+	log.Printf("Swipl: %s", swipl)
+	cmd := exec.Command(swipl, "-s ", f.Name(), "-L"+stackLimit)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
