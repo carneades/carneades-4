@@ -436,9 +436,6 @@ func (ag *ArgGraph) Infer() error {
 	// to standard out.  Handle SWI-Prolog errors.  Assure termination
 	// within given limits (time, stack size, ...)
 	swipl := ""
-	//	x86exist := true
-	//	x64exist := true
-	//test if x86 path works
 
 	if _, err := os.Stat("C:\\Program Files\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) {
 		swipl = "C:\\Program Files\\swipl\\bin\\swipl.exe"
