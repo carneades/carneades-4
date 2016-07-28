@@ -439,13 +439,15 @@ func (ag *ArgGraph) Infer() error {
 	//	x86exist := true
 	//	x64exist := true
 	//test if x86 path works
+
+	if _, err := os.Stat("C:\\Program Files\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) {
+		swipl = "C:\\Program Files\\swipl\\bin\\swipl.exe"
+	}
+
 	if _, err := os.Stat("C:\\Program Files (x86)\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) {
 		swipl = "C:\\Program Files (x86)\\swipl\\bin\\swipl.exe"
 	}
 
-	if _, err := os.Stat("C:\\Program Files\\swipl\\bin\\swipl.exe"); !os.IsNotExist(err) && !(len(swipl) < 1) {
-		swipl = "C:\\Program Files\\swipl\\bin\\swipl.exe"
-	}
 	log.Printf("Swipl: %s", swipl)
 	cmd := exec.Command(swipl, "-s ", f.Name(), "-L"+stackLimit)
 	stdout, err := cmd.StdoutPipe()
