@@ -445,7 +445,7 @@ func (ag *ArgGraph) Infer() error {
 		swipl = "C:\\Program Files (x86)\\swipl\\bin\\swipl.exe"
 	}
 
-	log.Printf("Swipl: %s", swipl)
+	log.Printf("PROLOG-Datei: %s", f.Name())
 	cmd := exec.Command(swipl, "-s ", f.Name(), "-L"+stackLimit)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
