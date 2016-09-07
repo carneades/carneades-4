@@ -277,11 +277,16 @@ func (arg *Argument) Undercut(l Labelling) Label {
 	}
 }
 
-// An argument is applicable if none of its premises are Undecided and
-// its Undercut property is also not Undecided. Because arguments can be cumulative, arguments
-// with Out premises can be applicable. Out premises or In undercutters affect the weight of an
-// argument, not its applicability.
+// An argument is applicable if its Undercut property is In, or the undercutter
+// is Out and none of the premises are Undecided. Because arguments can be
+// cumulative, arguments with Out premises can be applicable. Out premises or
+// In undercutters affect the weight of an argument, not its applicability.
+// The labels of the premises are irrelevant for applicability if the
+// undercutter is In.
 func (arg *Argument) Applicable(l Labelling) bool {
+	if arg.Undercut(l) == In {
+		return true
+	}
 	if arg.Undercut(l) == Undecided {
 		return false
 	}
