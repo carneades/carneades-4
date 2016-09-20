@@ -111,7 +111,8 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 	}
 
 	// Translate the argumentation schemes of the theory to CHR rules
-	for id, s := range t.ArgSchemes {
+	for _, s := range t.ArgSchemes {
+		id := s.Id
 		// If the scheme has no conclusions, skip the scheme
 		// and assume it only defines a weighing function but no rule
 		if len(s.Conclusions) > 0 {
@@ -406,7 +407,7 @@ func (ag *ArgGraph) Infer() error {
 	}
 
 	defer f.Close()
-	defer os.Remove(f.Name())
+	// defer os.Remove(f.Name())  // comment out to DEBUG
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes
@@ -479,7 +480,9 @@ func (ag *ArgGraph) Infer() error {
 			finished = true
 		default:
 			scanner.Scan()
-			bytes = append(bytes, scanner.Bytes()...)
+			b := scanner.Bytes()
+			// fmt.Println(string(b)) // DEBUG
+			bytes = append(bytes, b...)
 		}
 	}
 	re, err := regexp.Compile("}[[:space:]]*{")

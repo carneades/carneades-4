@@ -97,7 +97,7 @@ statements:
       "Joe's assertion is based on evidence."
 
 argument_schemes:
-  abduction:
+  - id: abduction
     variables: [S,T,H]
     conclusions: [H]
     premises:
@@ -107,7 +107,7 @@ argument_schemes:
     exceptions:
       CQ1: more_coherent_explanation(T,S)
         
-  analogy:
+  - id: analogy
     meta:
       title: Argument from Analogy
       source: >
@@ -123,7 +123,7 @@ argument_schemes:
       CQ1: relevant_differences(C)
       CQ2: more_on_point(S,C)
 
-  appearance:
+  - id: appearance
     meta:
       title: Argument from Appearance
       source: "Douglas Walton, ‘Argument from Appearance: A New Argumentation Scheme’, 2006."
@@ -133,7 +133,7 @@ argument_schemes:
     premises:
       - looks_like(O,C)
     
-  cause_to_effect:
+  - id: cause_to_effect
     meta:
       title: Argument from Cause to Effect
     variables: [E1,E2]
@@ -145,7 +145,7 @@ argument_schemes:
     exceptions:
       CQ1: interference(E1)
 
-  correlation_to_cause:
+  - id: correlation_to_cause
     meta:
       title: Argument from Correlation to Cause
       source: >
@@ -161,7 +161,7 @@ argument_schemes:
     exceptions:
       CQ2: causes_both(E1,E2)
         
-  credible_source:
+  - id: credible_source
     meta:
       title: "Argument from Credible Source"
       source: "Wyner, A., Atkinson, K., and Bench-Capon, T. A
@@ -181,7 +181,7 @@ argument_schemes:
       CQ2: dishonest(W)
       CQ3: other_credible_sources_disagree(S)
 
-  definition_to_verbal_classification:
+  - id: definition_to_verbal_classification
     meta:
       title: Argument from Definition to Verbal Classification
       source: >
@@ -205,7 +205,7 @@ argument_schemes:
   #     minor: A   # A alone not allowed by CHR
   #   conclusions: [B]
 
-  established_rule:
+  - id: established_rule
     meta:
       title: Argument from an Established Rule
       source: >
@@ -219,7 +219,7 @@ argument_schemes:
     assumptions:
       CQ1: valid(R)
 
-  ethotic1:
+  - id: ethotic1
     meta:
       title: Positive Argument from Ethos
       source: >
@@ -233,7 +233,7 @@ argument_schemes:
     assumptions:
       - character_is_relevant(S)
 
-  ethotic2:
+  - id: ethotic2
     meta:
       title: Negative Argument from Ethos
       source: >
@@ -247,7 +247,7 @@ argument_schemes:
     assumptions:
       - character_is_relevant(S)
 
-  expert_opinion:
+  - id: expert_opinion
     meta:
       title: Argument from Expert Opinion
       source: >
@@ -266,7 +266,7 @@ argument_schemes:
     conclusions:
       - S
 
-  ignorance:
+  - id: ignorance
     meta:
       title: Argument from Ignorance
       source: >
@@ -282,7 +282,7 @@ argument_schemes:
       CQ1: uninvestigated(S)
 
     
-  negative_consequences:
+  - id: negative_consequences
     meta:
       title: Argument from Negative Consequences
       source: >
@@ -296,7 +296,7 @@ argument_schemes:
       major: brings_about(A,G)
       minor: bad(G)
       
-  position_to_know:
+  - id: position_to_know
     meta:
       title: Argument from Position to Know
       source: >
@@ -311,7 +311,7 @@ argument_schemes:
     exceptions:
       CQ1: dishonest(W)
 
-  positive_consequences:
+  - id: positive_consequences
     meta:
       title: Argument from Positive Consequences
       source: >
@@ -325,7 +325,7 @@ argument_schemes:
       major: brings_about(A,G)
       minor: good(G)
 
-  practical_reasoning1:
+  - id: practical_reasoning1
     meta:
       title: Argument from Value-Based Practical Reasoning
       source: >
@@ -351,7 +351,7 @@ argument_schemes:
       CQ6: promote_more_effectively(V,A)
       CQ7: side_effects(A,S1,V)
 
-  practical_reasoning2:
+  - id: practical_reasoning2
     meta:
       title: Argument from Instrumental Practical Reasoning
       source: >
@@ -374,7 +374,7 @@ argument_schemes:
       CQ6: side_effects(A,S1,V)
       CQ7: incompatible_goal(G)
 
-  precedent:
+  - id: precedent
     meta:
       title: Argument from Precedent
       source: >
@@ -391,7 +391,7 @@ argument_schemes:
       CQ1: relevant_differences(R,C)
       CQ2: inapplicable_rule(R)
 
-  slippery_slope_base_case:
+  - id: slippery_slope_base_case
     meta:
       title: Slippery Slope Argument
       source: >
@@ -403,7 +403,7 @@ argument_schemes:
       - would_realize(A,E)
       - horrible_costs(E)
 
-  slippery_slope_inductive_step:
+  - id: slippery_slope_inductive_step
     meta:
       title: Slippery Slope Argument
       source: >
@@ -415,7 +415,7 @@ argument_schemes:
       - causes(E1,E2)
       - horrible_costs(E2)
             
-  sunk_costs:
+  - id: sunk_costs
     meta:
       title: Argument from Sunk Costs
       source: >
@@ -430,14 +430,14 @@ argument_schemes:
     assumptions:
       CQ1: feasible(A)
         
-  untrustworthy_due_to_bias:
+  - id: untrustworthy_due_to_bias
     variables: [W]
     premises:
       - biased(W)
     conclusions:
       - untrustworthy(W)
 
-  verbal_classification:
+  - id: verbal_classification
     meta:
       title: Argument from Verbal Classification
     variables: [O,F,G]
@@ -447,7 +447,7 @@ argument_schemes:
       - instance(O,F)
       - subclass(F,G)
 
-  witness_testimony:
+  - id: witness_testimony
     meta:
       title: Argument from Witness Testimony
       source: >

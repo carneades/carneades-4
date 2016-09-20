@@ -27,9 +27,9 @@ import (
 type (
 	argMapGraph struct {
 		Arguments             map[string]*umArgument
-		Argument_schemes      map[string]*umArgScheme
+		Argument_schemes      []*umArgScheme
 		Assumptions           []string
-		caesArgSchemes        map[string]*caes.Scheme
+		caesArgSchemes        []*caes.Scheme
 		caesLabels            map[string]caes.Label
 		caesStatements        map[string]*caes.Statement
 		caesWeighingFunctions map[string]caes.WeighingFunction
@@ -45,6 +45,7 @@ type (
 	// mapIface map[interface{}]interface{}
 
 	umArgScheme struct {
+		Id              string
 		Assumptions     interface{} // map[string]string - list or map
 		caesAssumptions map[string]string
 		caesExceptions  map[string]string
@@ -127,7 +128,12 @@ func Import(inFile io.Reader) (*caes.ArgGraph, error) {
 	if err != nil {
 		return nil, err
 	}
-	return argMapGraph2caes(m)
+	c, err := argMapGraph2caes(m)
+	if err != nil {
+		return nil, err
+	}
+	c.Theory.InitSchemeIndex()
+	return c, nil
 	//	return iface2caes(m)
 }
 
@@ -215,7 +221,8 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 	// scan argument_scheme
 	// --------------------
 
-	for name, argS := range m.Argument_schemes {
+	for _, argS := range m.Argument_schemes {
+		name := argS.Id
 		// scan weight in argument_schemes
 		argS.caesWeight, err = iface2weighfunc(argS.Weight, name, collOfWeighingFunctions)
 		if err != nil {
@@ -241,13 +248,15 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		}
 	}
 	// scan argument_scheme and set caesArgSchemes
-	m.caesArgSchemes = map[string]*caes.Scheme{}
-	for id, as := range m.Argument_schemes {
-		m.caesArgSchemes[id] = &caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
+	m.caesArgSchemes = []*caes.Scheme{}
+	for _, as := range m.Argument_schemes {
+		id := as.Id
+		s := caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
 			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions,
 			Deletions: normStringVec(as.Deletions),
 			Guards:    normStringVec(as.Guards), Conclusions: normStringVec(as.Conclusions)}
-		collOfSchemes[id] = m.caesArgSchemes[id]
+		m.caesArgSchemes = append(m.caesArgSchemes, &s)
+		collOfSchemes[id] = &s
 	}
 	return m, nil
 }
@@ -272,7 +281,11 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 	// create Theory
 	// =============
 
-	theory := &caes.Theory{Language: m.Language, WeighingFunctions: m.caesWeighingFunctions, ArgSchemes: m.caesArgSchemes, IssueSchemes: m.Issue_schemes}
+	theory := caes.NewTheory()
+	theory.Language = m.Language
+	theory.WeighingFunctions = m.caesWeighingFunctions
+	theory.ArgSchemes = m.caesArgSchemes
+	theory.IssueSchemes = m.Issue_schemes
 
 	// create ArgGraph
 	// ===============

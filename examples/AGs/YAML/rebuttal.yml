@@ -12,10 +12,10 @@ issues:
     positions: [P, ¬P]
 
 argument_schemes:
-  s1:
+  - id: s1
     weight:
       constant: 0.1
-  s2:
+  - id: s2
     weight:
       constant: 0.5
 

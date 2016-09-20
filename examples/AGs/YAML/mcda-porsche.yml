@@ -30,69 +30,69 @@ language:
 # to be expressed.
 # Exceptions can be modelled alternatively as undercutters in separate schemes.
 argument_schemes:
-  gov_stats_scheme:
-      weight:
-        constant: 0.8
-      variables: [C,S]
-      premises:
-        1: gov_stats(C,S)
-      conclusions:
-        - safety(C,S)
+  - id: gov_stats_scheme
+    weight:
+      constant: 0.8
+    variables: [C,S]
+    premises:
+      1: gov_stats(C,S)
+    conclusions:
+      - safety(C,S)
 
-  advertising_scheme:
-      weight:
-        constant: 0.4  
-      variables: [C,S]
-      premises:
-        1: advertising(C,S)
-      conclusions:
-        - safety(C,S)
+  - id: advertising_scheme
+    weight:
+      constant: 0.4
+    variables: [C,S]
+    premises:
+      1: advertising(C,S)
+    conclusions:
+      - safety(C,S)
 
-  car_buying_scheme:
-      variables: [C,P,S,F,T]  
-      meta:
-          notes: >
-            This scheme illustrates the use of weighing functions for
-            multi-criteria decision analysis.
-      weight:
-          criteria:
-            hard: []  # role names of premises which must be in
-            soft:
-              # weighted sum of soft constraints
-              price:
-                  ## factor: any positive number 
-                  ## the factors will be converted into percentages of
-                  ## to total sum of all factors
-                  factor: 2  
-                  values:
-                    low: 1.0
-                    medium: 0.5
-                    high: 0.0
-              type:
-                  factor: 2
-                  values:
-                    sports: 0.0
-                    sedan: 0.5
-                    family: 1.0
-              speed:
-                  factor: 2
-                  values:
-                    slow: 0.0    # < 100 km/hr
-                    medium: 1.0  # > 100 and < 200 km/hr
-                    fast: 0.5    # >= 200 km/hr
-              safety:
-                  factor: 4
-                  values:
-                      low: 0.0
-                      medium: 0.5
-                      high: 1.0
-      premises:
-          price: price(C,P)
-          type: type(C,T)
-          speed: speed(C,S)
-          safety: safety(C,F)
-      conclusions:    # list of atomic formulas or schema variables
-          - buy(C)
+  - id: car_buying_scheme
+    variables: [C,P,S,F,T]  
+    meta:
+      notes: >
+        This scheme illustrates the use of weighing functions for
+        multi-criteria decision analysis.
+    weight:
+      criteria:
+        hard: []  # role names of premises which must be in
+        soft:
+          # weighted sum of soft constraints
+          price:
+            ## factor: any positive number 
+            ## the factors will be converted into percentages of
+            ## to total sum of all factors
+            factor: 2  
+            values:
+              low: 1.0
+              medium: 0.5
+              high: 0.0
+          type:
+            factor: 2
+            values:
+              sports: 0.0
+              sedan: 0.5
+              family: 1.0
+          speed:
+            factor: 2
+            values:
+              slow: 0.0    # < 100 km/hr
+              medium: 1.0  # > 100 and < 200 km/hr
+              fast: 0.5    # >= 200 km/hr
+          safety:
+            factor: 4
+            values:
+              low: 0.0
+              medium: 0.5
+              high: 1.0
+    premises:
+      price: price(C,P)
+      type: type(C,T)
+      speed: speed(C,S)
+      safety: safety(C,F)
+    conclusions:    # list of atomic formulas or schema variables
+    - buy(C)
 
 issue_schemes:
     buy: ["buy(O1)", "...", "buy(On)"]

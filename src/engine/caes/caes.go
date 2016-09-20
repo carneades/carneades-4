@@ -119,8 +119,9 @@ type Statement struct {
 type Theory struct { // aka Knowledge Base
 	Language          Language
 	WeighingFunctions map[string]WeighingFunction
-	ArgSchemes        map[string]*Scheme
+	ArgSchemes        []*Scheme
 	IssueSchemes      map[string]*IssueScheme
+	schemeIndex       map[string]*Scheme
 }
 
 type WeighingFunction func(*Argument, Labelling) float64 // [0.0,1.0]
@@ -160,8 +161,15 @@ func NewTheory() *Theory {
 	return &Theory{
 		Language:          make(map[string]string),
 		WeighingFunctions: make(map[string]WeighingFunction),
-		ArgSchemes:        make(map[string]*Scheme),
+		ArgSchemes:        []*Scheme{},
 		IssueSchemes:      make(map[string]*IssueScheme),
+		schemeIndex:       make(map[string]*Scheme),
+	}
+}
+
+func (t *Theory) InitSchemeIndex() {
+	for _, s := range t.ArgSchemes {
+		t.schemeIndex[s.Id] = s
 	}
 }
 
@@ -545,7 +553,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 	}
 
 	if ag.Theory != nil {
-		scheme, ok := ag.Theory.ArgSchemes[id]
+		scheme, ok := ag.Theory.schemeIndex[id]
 		if !ok {
 			scheme, ok = BasicSchemes[id]
 		}

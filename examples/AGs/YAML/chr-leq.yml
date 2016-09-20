@@ -22,7 +22,7 @@ language:
   eq/2: "%v = %v"
 
 argument_schemes:
-  reflexivity:
+  - id: reflexivity
     variables: [X]
     premises:
       1: leq(X,X)
@@ -30,7 +30,7 @@ argument_schemes:
     conclusions:
       - true
 
-  antisymmetry:
+  - id: antisymmetry
     variables: [X,Y]
     premises:
       1: leq(X,Y) 
@@ -39,7 +39,7 @@ argument_schemes:
     conclusions:
       - eq(X,Y)
 
-  transitivity:
+  - id: transitivity
     variables: [X,Y,Z]
     premises:
       1: leq(X,Y)
@@ -47,7 +47,7 @@ argument_schemes:
     conclusions:
       - leq(X,Z)
 
-  idempotence:
+  - id: idempotence
     variables: [X,Y]
     premises:
       1: leq(X,Y)
