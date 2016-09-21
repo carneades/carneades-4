@@ -102,7 +102,7 @@ type Scheme struct {
 type Standard int
 
 const (
-	PE  Standard = iota // dialectical validity
+	PE  Standard = iota // preponderance of the evidence
 	CCE                 // clear and convincing evidence
 	BRD                 // beyond reasonable doubt
 )
@@ -634,70 +634,72 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			// the argument to the graph.  All these arguments
 			// share the same undercutter.
 
-			var uc Statement    // the undercutter
-			argId := genArgId() // pseudo-argument id, representing the set of all arguments constructed by the scheme
-			// To Do: this is a hack.  Clean this up by allowing arguments
-			// to have multiple conclusions. This is a fairly big change, requiring
-			// modifications to the import and export translators and the YAML and JSON representation of arguments.
+			if len(conclusions) > 0 {
+				var uc Statement    // the undercutter
+				argId := genArgId() // pseudo-argument id, representing the set of all arguments constructed by the scheme
+				// To Do: this is a hack.  Clean this up by allowing arguments
+				// to have multiple conclusions. This is a fairly big change, requiring
+				// modifications to the import and export translators and the YAML and JSON representation of arguments.
 
-			// Construct the undercutter statement and
-			// add it to the statements of the graph
-			ucid := "undercut(" + argId + ")"
-			uc = Statement{Id: ucid,
-				Text: argId + " is undercut."}
-			ag.Statements[normalize(ucid)] = &uc
-			for _, c := range conclusions {
-				// Construct an argument for each conclusion and add it to the graph
-				argId := genArgId()
-				arg := Argument{Id: argId,
-					Scheme:      scheme,
-					Parameters:  parameters,
-					Premises:    premises,
-					Undercutter: &uc,
-					Conclusion:  c}
-				ag.Arguments[argId] = &arg
-				c.Args = append(c.Args, &arg)
-			}
-
-			// instantiate the exceptions of the scheme
-			exceptions := []*Statement{}
-			for _, e := range scheme.Exceptions {
-				term1, ok := terms.ReadString(e)
-				if ok {
-					term2 := terms.Substitute(term1, bindings)
-					stmt, ok := ag.Statements[term2.String()]
-					if !ok {
-						s := Statement{Id: term2.String(),
-							Text: ag.Theory.Language.Apply(term2)}
-						ag.Statements[term2.String()] = &s
-						stmt = &s
-					}
-					exceptions = append(exceptions, stmt)
-				} else {
-					fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", e)
-				}
-			}
-
-			// construct an undercutting argument for each exception
-			// and add it to the argument graph
-			for _, e := range exceptions {
-				argId := genArgId()
-
-				// Construct an undercutter statement (for the undercutter of
-				// undercutter!) and add it to the statements of the graph
-
+				// Construct the undercutter statement and
+				// add it to the statements of the graph
 				ucid := "undercut(" + argId + ")"
-				uc2 := Statement{Id: ucid,
+				uc = Statement{Id: ucid,
 					Text: argId + " is undercut."}
-				ag.Statements[normalize(ucid)] = &uc2
+				ag.Statements[normalize(ucid)] = &uc
+				for _, c := range conclusions {
+					// Construct an argument for each conclusion and add it to the graph
+					argId := genArgId()
+					arg := Argument{Id: argId,
+						Scheme:      scheme,
+						Parameters:  parameters,
+						Premises:    premises,
+						Undercutter: &uc,
+						Conclusion:  c}
+					ag.Arguments[argId] = &arg
+					c.Args = append(c.Args, &arg)
+				}
 
-				// Construct the argument and add it to the graph
-				arg := Argument{Id: argId,
-					Premises:    []Premise{Premise{Stmt: e}},
-					Undercutter: &uc2,
-					Conclusion:  &uc}
-				ag.Arguments[argId] = &arg
-				uc.Args = append(uc.Args, &arg)
+				// instantiate the exceptions of the scheme
+				exceptions := []*Statement{}
+				for _, e := range scheme.Exceptions {
+					term1, ok := terms.ReadString(e)
+					if ok {
+						term2 := terms.Substitute(term1, bindings)
+						stmt, ok := ag.Statements[term2.String()]
+						if !ok {
+							s := Statement{Id: term2.String(),
+								Text: ag.Theory.Language.Apply(term2)}
+							ag.Statements[term2.String()] = &s
+							stmt = &s
+						}
+						exceptions = append(exceptions, stmt)
+					} else {
+						fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", e)
+					}
+				}
+
+				// construct an undercutting argument for each exception
+				// and add it to the argument graph
+				for _, e := range exceptions {
+					argId := genArgId()
+
+					// Construct an undercutter statement (for the undercutter of
+					// undercutter!) and add it to the statements of the graph
+
+					ucid := "undercut(" + argId + ")"
+					uc2 := Statement{Id: ucid,
+						Text: argId + " is undercut."}
+					ag.Statements[normalize(ucid)] = &uc2
+
+					// Construct the argument and add it to the graph
+					arg := Argument{Id: argId,
+						Premises:    []Premise{Premise{Stmt: e}},
+						Undercutter: &uc2,
+						Conclusion:  &uc}
+					ag.Arguments[argId] = &arg
+					uc.Args = append(uc.Args, &arg)
+				}
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "No scheme with this id: %v\n", id)

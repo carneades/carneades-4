@@ -19,13 +19,15 @@ weighing_functions:
             order: [local, state, federal] # weakest to strongest
           - property: effective_date
             order: ascending   # later dates have higher priority
-  
-argument_schemes:
+
+# The argument schemes are used only for their weighing functions
+# in this example, during argument evaluation, not to construct arguments.
+argument_schemes:  
     - id: earlier_federal_law  # some hypothetical federal law
       meta: 
         authority: federal
         effective_date: 1989-06-14
-      weight: lex    
+      weight: lex
     - id: later_state_law # some hypothetical state law
       meta:
         authority: state
