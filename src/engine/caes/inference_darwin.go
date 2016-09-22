@@ -111,7 +111,8 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 	}
 
 	// Translate the argumentation schemes of the theory to CHR rules
-	for id, s := range t.ArgSchemes {
+	for _, s := range t.ArgSchemes {
+		id := s.Id
 		// If the scheme has no conclusions, skip the scheme
 		// and assume it only defines a weighing function but no rule
 		if len(s.Conclusions) > 0 {
