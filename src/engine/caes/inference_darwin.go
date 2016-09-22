@@ -120,14 +120,15 @@ func writeCHR(t *Theory, assms map[string]bool, f *os.File) error {
 			// to delete
 			keep := []string{}
 			remove := []string{}
-			for k, term := range s.Premises {
+			for _, term := range s.Premises { // hier k entfernt
 				member := false
 				for _, d := range s.Deletions {
-					if k == d {
+					if term == d { // an dieser Stelle k --> term
 						member = true
 						break
 					}
 				}
+
 				if member {
 					remove = append(remove, term)
 				} else {
