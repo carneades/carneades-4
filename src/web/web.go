@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	//	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	// "github.com/bronze1man/go-yaml2json"
 	"github.com/carneades/carneades-4/src/common"
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/agxml"
@@ -20,6 +22,7 @@ import (
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/caf"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/dot"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/graphml"
+	cj "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	"github.com/carneades/carneades-4/src/engine/dung"
@@ -285,6 +288,34 @@ func CarneadesServer(port string, templatesDir string) {
 		}
 	}
 
+	// Evaluate an argument graph in YAML (including JSON) format and return the
+	// resulting argument graph in JSON.
+	evalArgGraphHandler := func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "%q\n", err.Error())
+			return
+		}
+		ag, err := yaml.Import(bytes.NewReader(body))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "%q\n", err.Error())
+			return
+		}
+		err = ag.Infer()
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "%q\n", err.Error())
+			return
+		}
+		l := ag.GroundedLabelling()
+		ag.ApplyLabelling(l)
+		w.WriteHeader(http.StatusOK)
+		cj.Export(w, ag)
+	}
+
 	http.Handle(root+"/", newTemplateHandler(templatesDir, "carneades.html"))
 	http.Handle(root+"/help", newTemplateHandler(templatesDir, "help.html"))
 	http.Handle(root+"/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
@@ -294,6 +325,7 @@ func CarneadesServer(port string, templatesDir string) {
 	http.Handle(root+"/dung-help", newTemplateHandler(templatesDir, "dung-help.html"))
 	http.HandleFunc(root+"/dung", dungHandler)
 	http.Handle(root+"/imprint", newTemplateHandler(templatesDir, "imprint.html"))
+	http.HandleFunc(root+"/eval-arg-graph", evalArgGraphHandler)
 
 	// start the web server
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

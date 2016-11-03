@@ -201,16 +201,6 @@ func NewLabelling() Labelling {
 	return Labelling(make(map[*Statement]Label))
 }
 
-// Normalize the string representation of a term
-func normalize(s string) string {
-	t, ok := terms.ReadString(s)
-	if ok {
-		return t.String()
-	} else {
-		return s
-	}
-}
-
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
 // and unassumed statements without arguments Out.
@@ -219,20 +209,20 @@ func (l Labelling) init(ag *ArgGraph) {
 	// Normalize the keys of the assumptions table
 	m := map[string]bool{}
 	for k, v := range ag.Assumptions {
-		m[normalize(k)] = v
+		m[terms.Normalize(k)] = v
 	}
 	ag.Assumptions = m
 
 	// Normalize the keys of the statements table
 	m2 := map[string]*Statement{}
 	for k, v := range ag.Statements {
-		m2[normalize(k)] = v
+		m2[terms.Normalize(k)] = v
 	}
 	ag.Statements = m2
 
 	// Make all assumed statements In
 	for _, s := range ag.Statements {
-		if ag.Assumptions[normalize(s.Id)] {
+		if ag.Assumptions[terms.Normalize(s.Id)] {
 			l[s] = In
 		}
 	}
@@ -489,7 +479,7 @@ func (ag *ArgGraph) Inconsistent() bool {
 	for _, issue := range ag.Issues {
 		found := false
 		for _, p := range issue.Positions {
-			if ag.Assumptions[normalize(p.Id)] {
+			if ag.Assumptions[terms.Normalize(p.Id)] {
 				if found {
 					// inconsistency, because a previous position
 					// of the issue was found to be assumed true
@@ -646,7 +636,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				ucid := "undercut(" + argId + ")"
 				uc = Statement{Id: ucid,
 					Text: argId + " is undercut."}
-				ag.Statements[normalize(ucid)] = &uc
+				ag.Statements[terms.Normalize(ucid)] = &uc
 				for _, c := range conclusions {
 					// Construct an argument for each conclusion and add it to the graph
 					argId := genArgId()
@@ -690,7 +680,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 					ucid := "undercut(" + argId + ")"
 					uc2 := Statement{Id: ucid,
 						Text: argId + " is undercut."}
-					ag.Statements[normalize(ucid)] = &uc2
+					ag.Statements[terms.Normalize(ucid)] = &uc2
 
 					// Construct the argument and add it to the graph
 					arg := Argument{Id: argId,

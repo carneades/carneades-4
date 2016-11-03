@@ -91,6 +91,15 @@ type BindEle struct {
 	Next Bindings
 }
 
+func Normalize(s string) string {
+	t, ok := ReadString(s)
+	if ok {
+		return t.String()
+	} else {
+		return s
+	}
+}
+
 func AddBinding(v Variable, t Term, b Bindings) Bindings {
 	// fmt.Printf(" Add Binding %s-%d == %s \n", v.String(), v.index, t.String())
 	return &BindEle{Var: v, T: t, Next: b}

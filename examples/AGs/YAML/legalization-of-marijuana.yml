@@ -1,0 +1,158 @@
+meta:
+  title: Legalization of Marijuana
+  notes: >
+    A reconstruction of arguments about the pros and cons of legalizing marijuana 
+  sources:
+    - http://www.nytimes.com/2014/08/01/opinion/Legalizing-Marijuana-Pros-and-Cons.html?_r=0#addenda
+    - http://www.dbp.idebate.org/en/index.php/Debate:_Legalization_of_Marijuana#Pro.2Fcon_resources
+
+
+statements:
+  legalize: Marijuana should be legalized.
+  ¬legalize:  Marijuana should not be legalized.
+  harmless: Marijuana is harmless.
+  ¬harmless: Marijuana is not harmless.
+  # liberty: Individuals should  be free to use marijuana.
+  # ¬liberty: Individuals should not be free  to use marijuana.
+  social-costs: Legalization would entail heavy social costs.
+  ¬social-costs: Legalization would not entail heavy  social costs.
+  reduced-consumption: Legalization would reduce the consumption of marijuana.
+  ¬reduced-consumption: Legalization  would not reduce the consumption of marijuana.
+  # gateway: Marijuana is a gateway drug.
+  # ¬gateway: Marijuana is not a gateway drug.
+  # relieve-courts: Legalization would relieve strained courts.
+  # ¬relieve-courts: Legalization would not relieve strained courts.
+  reduce-crime: Legalization would reduce crime.
+  ¬reduce-crime:  Legalization would not reduce crime.
+  # prohibition-feasible: The  prohibition of marijuana is feasible.
+  # ¬prohibition-feasible: The prohibition of marijuana is not feasible.
+  economical: Legalization would be economical.
+  ¬economical: Legalization would not be economical.
+  # regulation-superior: Regulation of marijuana would be superior to a ban.
+  # ¬regulation-superior: Regulation of marijuana  would not be superior to a ban.
+  # racist: Prohibition enforcement is racially biased.
+  # ¬racist: Prohibition enforcement is not racially  biased.
+  # growing-potency: Marijuana is growing in potency.
+  # ¬growing-potency: Marijuana is not growing in potency.
+  # growing-potency-irrelevant: It does not matter whether marijuana is growing in potency.
+  legal-drugs-have-higher-consumption: Legal drugs, like alcohol and tobacco, are used more than illegal drugs.
+  # legalization-desired: The public wants marijuana to be legalized.
+  # ¬legalization-desired: The public does not want marijuana to be legalized.
+  # treaties: Legalization would contravene international treaties.
+  # ¬treaties: Legalization would not contravene international treaties.
+  us-drug-use-statistics: 52 percent of Americans 12 or older used alcohol, 27 percent used tobacco and only 7 percent used marijuana.
+  emergency-rooms: Marrijuana emergency roolm admissions are reported at the rate of 1,250 a day and 455,000 a year.
+  highway-crashes: Highway crashes double for marijuana users.
+  robbed-future: Prohibition has robbed children of their future, through imprisonment.
+  prison-complex: Prohibition has led to the construction of a huge prison-industrial complex.
+  harmful-for-young-brains: Marijuana is harmful for still-developing adolescent brains.
+  costs-of-regulation: Legalization would create an economic burden for regulating the drug.
+  costs-of-treatment:  Legalization would create an economic burden to treat new problematic users.
+  increased-risk-of-substance-use-disorders: Research shows that use of marijuana, especially in early adolescence, significantly heightens risks of substance use disorders in later life.
+  better-treatment-and-prevention-infrastructure: Legalize would require the provision of a much better prevention and treatment infrastructure.
+
+issues:
+  i1:
+    positions: [legalize, ¬legalize]
+  i2:
+    positions: [harmless, ¬harmless]
+  # i3:
+  #   positions: [liberty, ¬liberty]
+  i4:
+    positions: [social-costs, ¬social-costs]
+  i5:
+    positions: [reduced-consumption, ¬reduced-consumption]
+  # i6:
+  #   positions: [gateway,¬gateway]
+  # i7:
+  #   positions: [relieve-courts, ¬relieve-courts]
+  i8:
+    positions: [reduce-crime, ¬reduce-crime]
+  # i9:
+  #   positions: [prohibition-feasible, ¬prohibition-feasible]
+  i10:
+    positions: [economical, ¬economical]
+  # i11:
+  #   positions: [regulation-superior, ¬regulation-superior]
+  # i12:
+  #   positions: [racist, ¬racist]
+  # i13:
+  #   positions: [growing-potency, ¬growing-potency]
+  # i14:
+  #  positions: [legalization-desired, ¬legalization-desired]
+  # i15:
+  #   positions: [treaties, ¬treaties]
+      
+arguments:
+  a1:
+    scheme: cumulative
+    conclusion: legalize
+    premises:
+      - harmless
+      # - liberty
+      - ¬social-costs
+      - reduced-consumption
+      #- ¬gateway
+      # - relieve-courts
+      - reduce-crime
+      # - ¬prohibition-feasible
+      - economical
+      # - regulation-superior
+      # - racist
+      # - ¬growing-potency
+      # - legalization-desired
+      # - ¬treaties
+  a2:
+    scheme: cumulative
+    conclusion: ¬legalize
+    premises:
+      - ¬harmless
+      # - ¬liberty
+      - social-costs
+      - ¬reduced-consumption
+      # - gateway
+      # - ¬relieve-courts
+      - ¬reduce-crime
+      # - prohibition-feasible
+      - ¬economical
+      # - ¬regulation-superior
+      # - ¬racist
+      # - growing-potency
+      # - ¬legalization-desired
+      # - treaties
+  a3:
+    conclusion: ¬reduced-consumption
+    premises:
+      - legal-drugs-have-higher-consumption
+  a4:
+    conclusion: legal-drugs-have-higher-consumption
+    premises:
+      - us-drug-use-statistics
+  a5:
+    conclusion: ¬harmless
+    scheme: cumulative
+    premises:
+      - emergency-rooms
+      - highway-crashes
+      - harmful-for-young-brains
+      - increased-risk-of-substance-use-disorders
+  a6:
+    conclusion: ¬social-costs
+    premises:
+      - robbed-future
+      - prison-complex 
+  a7:
+    conclusion: ¬economical
+    scheme: cumulative
+    premises:
+      - costs-of-regulation
+      - costs-of-treatment
+      - better-treatment-and-prevention-infrastructure
+
+assumptions:
+  - us-drug-use-statistics
+  - harmful-for-young-brains
+  - emergency-rooms
+  - costs-of-regulation
+  - robbed-future
+  - prison-complex
