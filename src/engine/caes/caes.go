@@ -116,6 +116,18 @@ type Statement struct {
 	Label    Label       // for storing the evaluated label
 }
 
+// A Rulebase is a set of constraint handling rules.
+// https://en.wikipedia.org/wiki/Constraint_Handling_Rules
+// The strings in the methods of the Rulebase interface
+// denote terms, represented using Prolog syntax.
+type Rulebase interface {
+	// Infer returns true if the goals succeed and false if they fail.
+	// The list of strings returned represents the constraint store
+	Infer(goals []string) (bool, []string, error)
+	// AddRule adds a constraint handling rule to the rulebase
+	AddRule(name string, keep []string, delete []string, guard []string, body []string) error
+}
+
 type Theory struct { // aka Knowledge Base
 	Language          Language
 	WeighingFunctions map[string]WeighingFunction

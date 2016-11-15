@@ -321,17 +321,18 @@ func CarneadesServer(port string, templatesDir string) {
 		}
 	}
 
-	rootHandler := func(w http.ResponseWriter, req *http.Request) {
-		// Allow cross origin sharing of Carneades web services
-		if req.Method == http.MethodOptions {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			return
-		}
-	}
-
 	// Evaluate an argument graph in YAML (including JSON) format and return the
 	// resulting argument graph in JSON.
 	evalArgGraphHandler := func(w http.ResponseWriter, req *http.Request) {
+		if origin := req.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "POST")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		}
+		// Stop here if it is a preflighted OPTIONS request
+		if req.Method == "OPTIONS" {
+			return
+		}
 		accept := req.Header.Get("Accept")
 		if accept == "image/svg+xml" {
 			w.Header().Set("Content-Type", "image/svg+xml")
@@ -371,7 +372,6 @@ func CarneadesServer(port string, templatesDir string) {
 		}
 	}
 
-	http.HandleFunc(root, rootHandler)
 	http.Handle(root+"/", newTemplateHandler(templatesDir, "carneades.html"))
 	http.Handle(root+"/help", newTemplateHandler(templatesDir, "help.html"))
 	http.Handle(root+"/eval-form", newTemplateHandler(templatesDir, "eval-form.html"))
