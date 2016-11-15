@@ -53,6 +53,34 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.templ.Execute(w, t)
 }
 
+// Export an ArgGraph to some output format supported by dot, writing the output to
+// a http.ResponseWriter
+func exportArgGraph(ag *caes.ArgGraph, w http.ResponseWriter, outputFormat string) error {
+	cmd := exec.Command("dot", "-T"+outputFormat)
+	w2 := bytes.NewBuffer([]byte{})
+	cmd.Stdin = w2
+	cmd.Stdout = w
+	err := dot.Export(w2, ag)
+	if err != nil {
+		return err
+	}
+	// Limit the runtime of dot
+	cmd.Start()
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Wait()
+	}()
+	select {
+	case <-time.After(timeLimit * time.Second):
+		cmd.Process.Kill()
+	case err := <-done:
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func CarneadesServer(port string, templatesDir string) {
 
 	root := "/carneades"
@@ -131,35 +159,40 @@ func CarneadesServer(port string, templatesDir string) {
 				return
 			}
 		case "dot":
-			err = dot.Export(w, *ag)
+			err = dot.Export(w, ag)
 			if err != nil {
 				errorTemplate.Execute(w, err.Error())
 				return
 			}
 		case "png", "svg":
-			cmd := exec.Command("dot", "-T"+outputFormat)
-			w2 := bytes.NewBuffer([]byte{})
-			cmd.Stdin = w2
-			cmd.Stdout = w
-			err = dot.Export(w2, *ag)
+			//			cmd := exec.Command("dot", "-T"+outputFormat)
+			//			w2 := bytes.NewBuffer([]byte{})
+			//			cmd.Stdin = w2
+			//			cmd.Stdout = w
+			//			err = dot.Export(w2, *ag)
+			//			if err != nil {
+			//				errorTemplate.Execute(w, err.Error())
+			//				return
+			//			}
+			//			// Limit the runtime of dot
+			//			cmd.Start()
+			//			done := make(chan error, 1)
+			//			go func() {
+			//				done <- cmd.Wait()
+			//			}()
+			//			select {
+			//			case <-time.After(timeLimit * time.Second):
+			//				cmd.Process.Kill()
+			//			case err := <-done:
+			//				if err != nil {
+			//					errorTemplate.Execute(w, err.Error())
+			//					return
+			//				}
+			//			}
+			err := exportArgGraph(ag, w, outputFormat)
 			if err != nil {
 				errorTemplate.Execute(w, err.Error())
 				return
-			}
-			// Limit the runtime of dot
-			cmd.Start()
-			done := make(chan error, 1)
-			go func() {
-				done <- cmd.Wait()
-			}()
-			select {
-			case <-time.After(timeLimit * time.Second):
-				cmd.Process.Kill()
-			case err := <-done:
-				if err != nil {
-					errorTemplate.Execute(w, err.Error())
-					return
-				}
 			}
 
 		default:
@@ -291,7 +324,12 @@ func CarneadesServer(port string, templatesDir string) {
 	// Evaluate an argument graph in YAML (including JSON) format and return the
 	// resulting argument graph in JSON.
 	evalArgGraphHandler := func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		accept := req.Header.Get("Accept")
+		if accept == "image/svg+xml" {
+			w.Header().Set("Content-Type", "image/svg+xml")
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+		}
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -313,7 +351,17 @@ func CarneadesServer(port string, templatesDir string) {
 		l := ag.GroundedLabelling()
 		ag.ApplyLabelling(l)
 		w.WriteHeader(http.StatusOK)
-		cj.Export(w, ag)
+		if accept == "image/svg+xml" {
+			err := exportArgGraph(ag, w, "svg")
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				fmt.Fprintf(w, "%q\n", err.Error())
+				return
+			}
+		} else {
+			cj.Export(w, ag) // export to JSON
+		}
+
 	}
 
 	http.Handle(root+"/", newTemplateHandler(templatesDir, "carneades.html"))

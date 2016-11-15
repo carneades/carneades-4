@@ -10,9 +10,10 @@ package dot
 import (
 	"errors"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"strings"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 const (
@@ -217,7 +218,7 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 	}
 }
 
-func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err error) {
+func mkNodesAndEdges(ag *caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err error) {
 	stat2Node := make(map[string]string)
 	firstNode := true
 	firstEdge := true
@@ -364,7 +365,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	return
 }
 
-func Export(w io.Writer, ag caes.ArgGraph) error {
+func Export(w io.Writer, ag *caes.ArgGraph) error {
 	nodes, edges, err := mkNodesAndEdges(ag)
 	if err != nil {
 		return err

@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/aif"
@@ -11,8 +14,6 @@ import (
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
-	"log"
-	"os"
 )
 
 const helpEval = `
@@ -203,7 +204,7 @@ func evalCmd() {
 			return
 		}
 	case "dot":
-		err = dot.Export(outFile, *ag)
+		err = dot.Export(outFile, ag)
 		outFile.Close()
 		if err != nil {
 			log.Fatal(err)
