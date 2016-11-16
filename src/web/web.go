@@ -324,11 +324,10 @@ func CarneadesServer(port string, templatesDir string) {
 	// Evaluate an argument graph in YAML (including JSON) format and return the
 	// resulting argument graph in JSON.
 	evalArgGraphHandler := func(w http.ResponseWriter, req *http.Request) {
-		if origin := req.Header.Get("Origin"); origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Access-Control-Allow-Methods", "POST")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 		// Stop here if it is a preflighted OPTIONS request
 		if req.Method == "OPTIONS" {
 			return
