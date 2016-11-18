@@ -66,6 +66,11 @@ func NewVariable(name string) Variable {
 	return Variable{Name: name, index: big.NewInt(0)}
 }
 
+func NewCompound(f string, args []Term) Term {
+	c := Compound{Functor: f, Args: args}
+	return Term(c)
+}
+
 func CopyCompound(c Compound) (c1 Compound) {
 	c1 = Compound{
 		Functor:           c.Functor,

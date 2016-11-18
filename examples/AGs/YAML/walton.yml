@@ -51,7 +51,7 @@ language:
   known/1: "%s is known to be true."
   legitimate_value/1: "%s is a legitimate value."
   looks_like/2: "%s looks like a %s."
-  member/2: "%s contains %s as a member."
+  in/2: "%s contains %s as a member."
   more_coherent_explanation/2: "There exists a more coherent explanation than theory %s of observation %s."
   more_on_point/2: "%s is false in another case which is more on point than case %s."
   negative_consequences/1: "Performing action %s would have negative consequences."
@@ -66,7 +66,7 @@ language:
   rule_of_case/2: "Rule %s is the ratio decidendi of case %s."
   satisfies_definition/2: "%s satisfies definition %s."
   should_be_performed/1: "Action %s should be performed."
-  side_effects/3: "Performing %s in %s would have side-effects which demote %s or some other value."
+  side_effects/2: "Performing %s in %s would have side-effects which demote some value."
   similar_case/1: "Case %s is similar to the current case."
   subclass/2:  "%s is a subclass of %s."
   sunk_costs/2:  "The costs incurred performing %s thus far are %s."
@@ -103,9 +103,9 @@ argument_schemes:
     premises:
       - observed(S)
       - explanation(T,S)
-      - member(T,H)
+      - in(T,H)
     exceptions:
-      CQ1: more_coherent_explanation(T,S)
+      - more_coherent_explanation(T,S)
         
   - id: analogy
     meta:
@@ -120,8 +120,8 @@ argument_schemes:
       - in_case(S,C)
       - asserts(E,A)
     exceptions:
-      CQ1: relevant_differences(C)
-      CQ2: more_on_point(S,C)
+      - relevant_differences(C)
+      - more_on_point(S,C)
 
   - id: appearance
     meta:
@@ -140,10 +140,10 @@ argument_schemes:
     conclusions:
       - will_occur(E2)
     premises:
-      minor: has_occurred(E2)
-      major: causes(E1,E2)
+      - has_occurred(E2)
+      - causes(E1,E2)
     exceptions:
-      CQ1: interference(E1)
+      - interference(E1)
 
   - id: correlation_to_cause
     meta:
@@ -155,11 +155,11 @@ argument_schemes:
     conclusions:
       - causes(E1,E2)
     premises:
-      major: correlated(E1,E2)
+      - correlated(E1,E2)
     assumptions:
-      CQ1: explanatory_theory(E1,E2)
+      - explanatory_theory(E1,E2)
     exceptions:
-      CQ2: causes_both(E1,E2)
+      - causes_both(E1,E2)
         
   - id: credible_source
     meta:
@@ -173,13 +173,13 @@ argument_schemes:
     variables: [W,D,S]
     conclusions: [S]
     premises:
-      source: credible_source(W,D)
-      assertion: asserts(W,S)
-      domain: in_domain(S,D)
+      - credible_source(W,D)
+      - asserts(W,S)
+      - in_domain(S,D)
     exceptions:
-      CQ1: biased(W)
-      CQ2: dishonest(W)
-      CQ3: other_credible_sources_disagree(S)
+      - biased(W)
+      - dishonest(W)
+      - other_credible_sources_disagree(S)
 
   - id: definition_to_verbal_classification
     meta:
@@ -191,18 +191,18 @@ argument_schemes:
     conclusions:
       - instance(O,G)
     premises:
-      definition: satisfies_definition(O,D)
-      classification: classified_as(D,G)
+      - satisfies_definition(O,D)
+      - classified_as(D,G)
     exceptions:
-      CQ1: inadequate_definition(D,G)
+      - inadequate_definition(D,G)
 
   # defeasible_modus_ponens:
   #   meta:
   #     title: Defeasible Modus Ponens
   #   variables: [A,B]
   #   premises:
-  #     major: implies(A,B)
-  #     minor: A   # A alone not allowed by CHR
+  #     - implies(A,B)
+  #     - A   # A alone not allowed by CHR
   #   conclusions: [B]
 
   - id: established_rule
@@ -214,10 +214,10 @@ argument_schemes:
     variables: [C,R]
     conclusions: [C]
     premises:
-      major: has_conclusion(R,C)
-      minor: applicable(R)
+      - has_conclusion(R,C)
+      - applicable(R)
     assumptions:
-      CQ1: valid(R)
+      - valid(R)
 
   - id: ethotic1
     meta:
@@ -255,14 +255,14 @@ argument_schemes:
         University Park, Albany, 1997, p.211-225.
     variables: [W,D,S]
     premises:
-      major: expert(W,D)
-      domain: in_domain(S,D)
-      minor: asserts(W,S)
+      - expert(W,D)
+      - in_domain(S,D)
+      - asserts(W,S)
     exceptions:
-      CQ1: untrustworthy(W)
-      CQ2: inconsistent_with_other_experts(S)
+      - untrustworthy(W)
+      - inconsistent_with_other_experts(S)
     assumptions:
-      CQ3: based_on_evidence(asserts(W,S))
+      - based_on_evidence(asserts(W,S))
     conclusions:
       - S
 
@@ -276,10 +276,10 @@ argument_schemes:
     conclusions:
       - ¬S
     premises:
-      major: would_be_known(S)
-      minor: ¬known(S)
+      - would_be_known(S)
+      - ¬known(S)
     exceptions:
-      CQ1: uninvestigated(S)
+      - uninvestigated(S)
 
     
   - id: negative_consequences
@@ -293,8 +293,8 @@ argument_schemes:
     conclusions:
       - ¬should_be_performed(A)
     premises:
-      major: brings_about(A,G)
-      minor: bad(G)
+      - brings_about(A,G)
+      - bad(G)
       
   - id: position_to_know
     meta:
@@ -305,11 +305,11 @@ argument_schemes:
     variables: [W,D,S]
     conclusions: [S]
     premises:
-      major: position_to_know(W,D)
-      minor: asserts(W,S)
-      domain: in_domain(S,D)
+      - position_to_know(W,D)
+      - asserts(W,S)
+      - in_domain(S,D)
     exceptions:
-      CQ1: dishonest(W)
+      - dishonest(W)
 
   - id: positive_consequences
     meta:
@@ -322,8 +322,8 @@ argument_schemes:
     conclusions:
       - should_be_performed(A)
     premises:
-      major: brings_about(A,G)
-      minor: good(G)
+      - brings_about(A,G)
+      - good(G)
 
   - id: practical_reasoning1
     meta:
@@ -342,14 +342,14 @@ argument_schemes:
       - would_be_realized(G,S2)
       - would_promote_value(G,V)
     assumptions:
-      CQ1: legitimate_value(V)
-      CQ2: worthy_goal(G)
-      CQ3: possible(A)
+      - legitimate_value(V)
+      - worthy_goal(G)
+      - possible(A)
     exceptions:
-      CQ4: bring_about_more_effectively(S2,A)
-      CQ5: realize_more_effectively(G,A)
-      CQ6: promote_more_effectively(V,A)
-      CQ7: side_effects(A,S1,V)
+      - bring_about_more_effectively(S2,A)
+      - realize_more_effectively(G,A)
+      - promote_more_effectively(V,A)
+      - side_effects(A,S1)
 
   - id: practical_reasoning2
     meta:
@@ -357,7 +357,7 @@ argument_schemes:
       source: >
         Walton, Douglas (2015). Goal-Based Reasoning for Argumentation. 
         Cambridge University Press.
-    variables: [A,S1,S2,G,V]
+    variables: [A,S1,S2,G]
     conclusions:
       - should_be_performed(A)
     premises:
@@ -365,14 +365,14 @@ argument_schemes:
       - would_bring_about(A,S1,S2)
       - would_be_realized(G,S2)
     assumptions:
-      CQ1: possible(A)
-      CQ2: possible(G)
+      - possible(A)
+      - possible(G)
     exceptions:
-      CQ3: bring_about_more_effectively(S2,A)
-      CQ4: realize_more_effectively(G,A)
-      CQ5: intervening_actions(A,G)
-      CQ6: side_effects(A,S1,V)
-      CQ7: incompatible_goal(G)
+      - bring_about_more_effectively(S2,A)
+      - realize_more_effectively(G,A)
+      - intervening_actions(A,G)
+      - side_effects(A,S1)
+      - incompatible_goal(G)
 
   - id: precedent
     meta:
@@ -388,8 +388,8 @@ argument_schemes:
       - rule_of_case(R,C)
       - has_conclusion(R,S)
     exceptions:
-      CQ1: relevant_differences(R,C)
-      CQ2: inapplicable_rule(R)
+      - relevant_differences(R,C)
+      - inapplicable_rule(R)
 
   - id: slippery_slope_base_case
     meta:
@@ -428,7 +428,7 @@ argument_schemes:
       - sunk_costs(A,C)
       - too_high_to_waste(C)
     assumptions:
-      CQ1: feasible(A)
+      - feasible(A)
         
   - id: untrustworthy_due_to_bias
     variables: [W]
@@ -465,19 +465,18 @@ argument_schemes:
       - believes(W,S)
       - asserts(W,S)
     assumptions:
-      CQ1: internally_consistent(S)
+      - internally_consistent(S)
     exceptions:
-      CQ2: inconsistent_with_facts(S)
-      CQ3: inconsitent_with_other_witnesses(S)
-      CQ4: biased(W)
-      CQ5: implausible(S)
-
+      - inconsistent_with_facts(S)
+      - inconsistent_with_other_witnesses(S)
+      - biased(W)
+      - implausible(S)
 
 assumptions:
+  - biased(joe)
   - expert(joe, climate)
   - asserts(joe,¬caused_by(global_warming,humans))
   - in_domain(¬caused_by(global_warming, humans), climate)
-  - biased(joe)
 
 
 

@@ -87,12 +87,13 @@ type Scheme struct {
 	// a capital letter
 	Variables   []string // declaration of schema variables
 	Weight      WeighingFunction
-	Premises    map[string]string // role names to atomic formulas
-	Assumptions map[string]string // role names to atomic formulas
-	Exceptions  map[string]string // role names to atomic formulas
+	Roles       []string // Roles[i] is the role name of Premises[i]
+	Premises    []string // list of atomic formulas
+	Assumptions []string // list of atomic formulas
+	Exceptions  []string // list of atomic formulas
 	// Deletions and Guards are extensions for implementing
 	// schemes using Constrating Handling Rules (CHR)
-	Deletions []string // list of role names of premises to delete
+	Deletions []string // list of atomic formulas
 	Guards    []string // list of atomic formulas
 	// Note that multiple conclusions are allowed, as in CHR
 	Conclusions []string // list of atomic formulas or schema variables
@@ -582,8 +583,8 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			premises := []Premise{}
 			conclusions := []*Statement{}
 
-			addPremises := func(m map[string]string, assumptions bool) {
-				for role, p := range m {
+			addPremises := func(l []string, assumptions bool) {
+				for i, p := range l {
 					term1, ok := terms.ReadString(p)
 					if ok {
 						term2 := terms.Substitute(term1, bindings)
@@ -603,6 +604,10 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 						if assumptions {
 							ag.Assumptions[term2.String()] = true
 						}
+						role := ""
+						if i < len(scheme.Roles) {
+							role = scheme.Roles[i]
+						}
 						premises = append(premises, Premise{Role: role, Stmt: stmt})
 					} else {
 						fmt.Fprintf(os.Stderr, "Could not parse term: %v\n", p)
@@ -611,6 +616,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			}
 
 			addPremises(scheme.Premises, false)
+			addPremises(scheme.Deletions, false)
 			// add the assumptions as additional premises
 			addPremises(scheme.Assumptions, true)
 
@@ -707,4 +713,170 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			fmt.Fprintf(os.Stderr, "No scheme with this id: %v\n", id)
 		}
 	}
+}
+
+// makeIssue: match the patterns of an issue scheme against the
+// statements of the argument graph.  If more than one statement
+// matches, make them positions of an issue, creating the issue
+// if one does not already exist and adding it to the argument graph.
+// Every statement may be a position of at most one issue.  No statement
+// is made a position of some issue if this constraint would be violated.
+// If some pattern is not synatically correct and thus cannot be parsed,
+// an error is returned and the argument graph is left unchanged.
+// If all goes well, the argument graph is updated and nil is returned
+func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error) {
+
+	// skip issue schemes with no patterns
+	if len(patterns) == 0 {
+		fmt.Fprintf(os.Stderr, "Issue scheme with no patterns: %v\n", issueScheme)
+		return
+	}
+	// Try to match the first pattern with each statement
+	// in the argument graph.
+	pattern, ok := terms.ReadString(patterns[0])
+
+	if !ok {
+		fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", patterns[0])
+		return
+	}
+	for wff1, stmt := range ag.Statements {
+		term1, ok := terms.ReadString(wff1)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff1)
+			continue
+		}
+		var bindings terms.Bindings
+		bindings, ok = terms.Match(pattern, term1, bindings)
+		if !ok {
+			continue // terms do not match
+		} else {
+			candidates := []*Statement{stmt}
+
+			// Check if the issue scheme defines an enumeration.
+			isEnumeration := len(patterns) > 1 && patterns[1] == "..."
+
+			// Create a copy of bindings with all variables with names ending
+			// in integer indexes unbound
+			var bindings2 terms.Bindings
+			for env := bindings; env != nil; env = env.Next {
+				v := env.Var
+				t := env.T
+				suffix := v.Name[len(v.Name)-1:]
+				_, err := strconv.Atoi(suffix)
+				if err != nil {
+					// the variable does not end with an integer suffix
+					// so keep its binding
+					bindings2 = terms.AddBinding(v, t, bindings2)
+				}
+			}
+
+			// For each matching statement, iterate over the statements
+			// again to try to find other positions of the issue. Whether or
+			// not a statement is a position depends on the remaining patterns
+			// of the issue scheme and, in particular, whether or not the
+			// issue scheme is an enumeration.
+
+			for wff2, stmt2 := range ag.Statements {
+				if wff2 == wff1 {
+					// skip the matching statement found previously
+					continue
+				}
+				term2, ok := terms.ReadString(wff2)
+				if !ok {
+					fmt.Fprintf(os.Stderr, "Statement key not a term: %v\n", wff2)
+					continue
+				}
+
+				match := false
+				if !isEnumeration {
+					// try matching against each of the remaining patterns
+					// and update the bindings and add the statement as
+					// as candidate if any pattern matches
+					for _, p := range patterns[1:] {
+						pattern2, ok := terms.ReadString(p)
+						if !ok {
+							fmt.Fprintf(os.Stderr, "Could not parse issue scheme pattern: %v\n", p)
+							continue
+						}
+						bindings, match = terms.Match(pattern2, term2, bindings)
+						if match {
+							break
+						}
+					}
+				} else {
+					// Use a fresh copy of bindings2 for enumeration issue patterns
+					var b2copy terms.Bindings
+					for env := bindings2; env != nil; env = env.Next {
+						k := env.Var
+						v := env.T
+						b2copy = terms.AddBinding(k, v, b2copy)
+					}
+					b2copy, match = terms.Match(pattern, term2, b2copy)
+				}
+				if !match {
+					continue // terms do not match
+				} else {
+					candidates = append(candidates, stmt2)
+				}
+			}
+
+			// Check whether any of the candidates found are already at issue
+			// and, if so, that they are all positions of the same issue.
+			// No statement may be a position of more than one issue.
+			// Add candidates which do not violate the single issue constraint
+			// to the list of positions.
+			var issue *Issue
+			var positions = []*Statement{}
+			for _, c := range candidates {
+				if c.Issue != nil {
+					if issue == nil {
+						issue = c.Issue
+					} else if c.Issue != issue {
+						// found a conflict, due to statements being positions of different issues
+						fmt.Fprintf(os.Stderr, "Statement matching an issue scheme is already a position of different issue: %v\n", c.Id)
+						continue
+					}
+				}
+				positions = append(positions, c)
+			}
+
+			// Do not make an issue when there are less than two positions
+			if len(positions) < 2 {
+				continue
+			}
+
+			// Add the statements which are not at issue to the existing
+			// issue, if any, or create a new issue and add all the statements
+			// found as positions of the new issue.
+			if issue == nil {
+				// create a new issue
+				issue = NewIssue()
+				issue.Positions = positions
+				for _, pos := range positions {
+					pos.Issue = issue
+				}
+				// generate an id for the new issue
+				i := len(ag.Issues) + 1
+				prefix := "i"
+				id := prefix + strconv.Itoa(i)
+				_, existing := ag.Issues[id]
+				for existing {
+					i++
+					id = prefix + strconv.Itoa(i)
+					_, existing = ag.Issues[id]
+				}
+				// add the new issue to the argument graph
+				issue.Id = id
+				ag.Issues[id] = issue
+			} else {
+				// add new positions to the existing issue
+				for _, pos := range positions {
+					if pos.Issue == nil {
+						pos.Issue = issue
+					}
+				}
+			}
+		}
+	}
+	return err
 }

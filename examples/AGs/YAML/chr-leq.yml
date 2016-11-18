@@ -24,35 +24,33 @@ language:
 argument_schemes:
   - id: reflexivity
     variables: [X]
-    premises:
-      1: leq(X,X)
-    deletions: [1]
+    deletions: 
+      - leq(X,X)
     conclusions:
       - true
 
   - id: antisymmetry
     variables: [X,Y]
-    premises:
-      1: leq(X,Y) 
-      2: leq(Y,X)
-    deletions: [1,2]
+    deletions:
+      - leq(X,Y) 
+      - leq(Y,X)
     conclusions:
       - eq(X,Y)
 
   - id: transitivity
     variables: [X,Y,Z]
     premises:
-      1: leq(X,Y)
-      2: leq(Y,Z)
+      - leq(X,Y)
+      - leq(Y,Z)
     conclusions:
       - leq(X,Z)
 
   - id: idempotence
     variables: [X,Y]
     premises:
-      1: leq(X,Y)
-      2: leq(X,Y)
-    deletions: [2]
+      - leq(X,Y)
+    deletions:
+      - leq(X,Y)
     conclusions:
       - true
 

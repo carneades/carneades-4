@@ -35,7 +35,7 @@ argument_schemes:
       constant: 0.8
     variables: [C,S]
     premises:
-      1: gov_stats(C,S)
+      - gov_stats(C,S)
     conclusions:
       - safety(C,S)
 
@@ -44,7 +44,7 @@ argument_schemes:
       constant: 0.4
     variables: [C,S]
     premises:
-      1: advertising(C,S)
+      - advertising(C,S)
     conclusions:
       - safety(C,S)
 
@@ -87,12 +87,12 @@ argument_schemes:
               medium: 0.5
               high: 1.0
     premises:
-      price: price(C,P)
-      type: type(C,T)
-      speed: speed(C,S)
-      safety: safety(C,F)
+      - price(C,P)
+      - type(C,T)
+      - speed(C,S)
+      - safety(C,F)
     conclusions:    # list of atomic formulas or schema variables
-    - buy(C)
+      - buy(C)
 
 issue_schemes:
     buy: ["buy(O1)", "...", "buy(On)"]

@@ -45,20 +45,17 @@ type (
 	// mapIface map[interface{}]interface{}
 
 	umArgScheme struct {
-		Id              string
-		Assumptions     interface{} // map[string]string - list or map
-		caesAssumptions map[string]string
-		caesExceptions  map[string]string
-		caesPremises    map[string]string
-		caesWeight      caes.WeighingFunction
-		Conclusions     []string
-		Deletions       []string
-		Exceptions      interface{} // map[string]string - list or map
-		Guards          []string
-		Meta            caes.Metadata
-		Premises        interface{} // map[string]string - list or map
-		Variables       []string
-		Weight          interface{}
+		Id          string
+		Assumptions []string
+		caesWeight  caes.WeighingFunction
+		Conclusions []string
+		Deletions   []string
+		Exceptions  []string
+		Guards      []string
+		Meta        caes.Metadata
+		Premises    []string
+		Variables   []string
+		Weight      interface{}
 		// string
 		// Constant: float64
 		// Criteria: {Hard: []string Soft: map[string]{Factor: float64 Values: map[string]float64}
@@ -204,7 +201,7 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 			collOfAssumptions[stat] = true
 		}
 	}
-	// scan weithing_functions
+	// scan weighing_functions
 	// -----------------------
 	m.caesWeighingFunctions = map[string]caes.WeighingFunction{}
 	for name, body := range m.Weighing_functions {
@@ -228,31 +225,31 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 		if err != nil {
 			return nil, err
 		}
-		// scan premises in argument_schemes
-		//  to do
-		argS.caesPremises, err = iface2mapStringString("premises", argS.Premises)
-		if err != nil {
-			return nil, err
-		}
-		// scan assumptions in argument_schemes
-		// to do
-		argS.caesAssumptions, err = iface2mapStringString("assumption", argS.Assumptions)
-		if err != nil {
-			return nil, err
-		}
-		// scan exceptions in argument_schemes
-		// to do
-		argS.caesExceptions, err = iface2mapStringString("exceptions", argS.Exceptions)
-		if err != nil {
-			return nil, err
-		}
+		//		// scan premises in argument_schemes
+		//		//  to do
+		//		argS.caesPremises, err = iface2mapStringString("premises", argS.Premises)
+		//		if err != nil {
+		//			return nil, err
+		//		}
+		//		// scan assumptions in argument_schemes
+		//		// to do
+		//		argS.caesAssumptions, err = iface2mapStringString("assumption", argS.Assumptions)
+		//		if err != nil {
+		//			return nil, err
+		//		}
+		//		// scan exceptions in argument_schemes
+		//		// to do
+		//		argS.caesExceptions, err = iface2mapStringString("exceptions", argS.Exceptions)
+		//		if err != nil {
+		//			return nil, err
+		//		}
 	}
 	// scan argument_scheme and set caesArgSchemes
 	m.caesArgSchemes = []*caes.Scheme{}
 	for _, as := range m.Argument_schemes {
 		id := as.Id
 		s := caes.Scheme{Id: id, Metadata: as.Meta, Variables: as.Variables, Weight: as.caesWeight,
-			Premises: as.caesPremises, Assumptions: as.caesAssumptions, Exceptions: as.caesExceptions,
+			Premises: as.Premises, Assumptions: as.Assumptions, Exceptions: as.Exceptions,
 			Deletions: normStringVec(as.Deletions),
 			Guards:    normStringVec(as.Guards), Conclusions: normStringVec(as.Conclusions)}
 		m.caesArgSchemes = append(m.caesArgSchemes, &s)
