@@ -36,6 +36,6 @@ func MakeSWIPrologCmd(f *os.File) *exec.Cmd {
 	}
 
 	log.Printf("PROLOG-Datei: %s", f.Name())
-	cmd := exec.Command("swipl", "-s ", f.Name(), "-L"+stackLimit)
+	cmd := exec.Command(swipl, "-s ", f.Name(), "-L"+stackLimit)
 	return cmd
 }
