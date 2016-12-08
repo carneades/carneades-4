@@ -2,14 +2,14 @@ meta:
   title: Rebuttal Example
 
 statements:
-  P: P
-  ¬P: ¬P
-  Q: Q
-  R: R
+  p: P
+  ¬p: ¬P
+  q: Q
+  r: R
 
 issues:
   i1:
-    positions: [P, ¬P]
+    positions: [p, ¬p]
 
 argument_schemes:
   - id: s1
@@ -22,17 +22,17 @@ argument_schemes:
 arguments:
   a1:
     scheme: s1
-    conclusion: P
-    premises: [Q]
+    conclusion: p
+    premises: [q]
   a2:
     scheme: s2
-    conclusion: ¬P
-    premises: [R]
+    conclusion: ¬p
+    premises: [r]
 
-assumptions: [Q,R]
+assumptions: [q,r]
 
 tests:
-  in: [¬P,Q,R]
-  out: [P]
+  in: [¬p,q,r]
+  out: [p]
 
   

@@ -336,6 +336,47 @@ func (t Compound) Arity() int {
 	return len(t.Args)
 }
 
+func Ground(t Term, b Bindings) bool {
+	switch t.Type() {
+	case CompoundType:
+		if t.(Compound).Arity() > 0 {
+			for _, t2 := range t.(Compound).Args {
+				if Ground(t2, b) {
+					return false
+				}
+			}
+		}
+		return true
+	case ListType:
+		for _, t2 := range t.(List) {
+			if !Ground(t2, b) {
+				return false
+			}
+		}
+		return true
+	case VariableType:
+		t2, ok := GetBinding(t.(Variable), b)
+		if ok {
+			return Ground(t2, b)
+		} else {
+			return false
+		}
+	default:
+		return true
+	}
+}
+
+func AtomicFormula(t Term) bool {
+	switch t.Type() {
+	case AtomType:
+		return true
+	case CompoundType:
+		return true
+	default:
+		return false
+	}
+}
+
 // stream of pointers to big integers for renaming variables
 var Counter <-chan *big.Int
 

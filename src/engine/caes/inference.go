@@ -10,7 +10,7 @@
 package caes
 
 import (
-	// "fmt"
+	//	"fmt"
 	"strings"
 
 	"github.com/carneades/carneades-4/src/engine/terms"
@@ -67,6 +67,7 @@ func (ag *ArgGraph) Infer() error {
 		return nil
 	}
 	rb := TheoryToSWIRulebase(ag.Theory)
+	// rb := TheoryToRuleStore(ag.Theory)
 
 	// Create an index of the previous arguments constructed
 	// to avoid constructing equivalent instanstiations of schemes
@@ -89,8 +90,10 @@ func (ag *ArgGraph) Infer() error {
 		assums[k] = v
 	}
 	goals := []string{}
+	// fmt.Printf("goals:\n")
 	for assm, _ := range assums {
 		goals = append(goals, assm)
+		// fmt.Printf("   %s\n", assm)
 	}
 
 	success, store, err := rb.Infer(goals)
@@ -101,7 +104,9 @@ func (ag *ArgGraph) Infer() error {
 		return nil
 	}
 
+	// fmt.Printf("store:\n")
 	for _, s := range store {
+		// fmt.Printf("   %s\n", s)
 		// If the term does not represent an argument already in the graph
 		// then, if the term does represent an argument, use it to
 		// add an argument to the argument graph by instantiating the

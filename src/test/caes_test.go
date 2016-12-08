@@ -30,6 +30,7 @@ func TestCAES(t *testing.T) {
 	checkErr(err)
 	success := true
 	for _, fi := range files {
+		// fmt.Printf("filename: %s\n", examples+fi.Name())
 		f, err := os.Open(examples + fi.Name())
 		checkErr(err)
 		if path.Ext(f.Name()) == ".yml" {

@@ -109,7 +109,7 @@ const (
 )
 
 type Statement struct {
-	Id       string // an atomic formula, using Prolog syntax
+	Id       string // a ground atomic formula, using Prolog syntax
 	Metadata Metadata
 	Text     string      // natural language
 	Issue    *Issue      // nil if not at issue
