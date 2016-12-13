@@ -17,7 +17,7 @@ import (
 
 // Translate a theory into a GoCHR rulestore
 func TheoryToRuleStore(t *Theory) *chr.RuleStore {
-	fmt.Printf("TheoryToRuleStore\n")
+	// fmt.Printf("TheoryToRuleStore\n")
 	rs := chr.MakeRuleStore()
 	for _, s := range t.ArgSchemes {
 		// If the scheme has no conclusions, skip the scheme
@@ -38,7 +38,7 @@ func TheoryToRuleStore(t *Theory) *chr.RuleStore {
 			// Errors raised by AddRule are ignored. The rule is just skipped.
 			// Note that the body of the rules includes the assumptions
 			// and conclusions of the scheme.
-			fmt.Printf("AddRule id=%s, premises=%s, deletions=%s, guards=%s, conclusions=%s\n", s.Id, premises, s.Deletions, s.Guards, conclusions)
+			// fmt.Printf("AddRule id=%s, premises=%s, deletions=%s, guards=%s, conclusions=%s\n", s.Id, premises, s.Deletions, s.Guards, conclusions)
 			rs.AddRule(s.Id, premises, s.Deletions, s.Guards, conclusions)
 		}
 	}
