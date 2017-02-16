@@ -58,7 +58,7 @@ type (
 		Weight      interface{}
 		// string
 		// Constant: float64
-		// Criteria: {Hard: []string Soft: map[string]{Factor: float64 Values: map[string]float64}
+		// Criteria: {Hard: []int Soft: map[string]{Factor: float64 Values: map[string]float64}
 		// Preference: []{Property: string Order: sting || []string
 	}
 	umArgument struct {
@@ -783,7 +783,7 @@ func iface2preference(pref interface{}) (caes.WeighingFunction, []caes.PropertyO
 }
 
 func iface2criteria(cr interface{}) (caes.WeighingFunction, *caes.Criteria, error) {
-	c := caes.Criteria{HardConstraints: []string{}, SoftConstraints: map[string]caes.SoftConstraint{}}
+	c := caes.Criteria{HardConstraints: []int{}, SoftConstraints: map[string]caes.SoftConstraint{}}
 
 	switch subT := cr.(type) {
 	case map[interface{}]interface{}:
@@ -796,8 +796,8 @@ func iface2criteria(cr interface{}) (caes.WeighingFunction, *caes.Criteria, erro
 					case []interface{}:
 						for _, ele := range value.([]interface{}) {
 							switch eleT := ele.(type) {
-							case string:
-								c.HardConstraints = append(c.HardConstraints, ele.(string))
+							case int:
+								c.HardConstraints = append(c.HardConstraints, ele.(int))
 							default:
 								return nil, nil,
 									errors.New("*** Error element of criteria: hard: is not a 'string', found type '" + fmt.Sprintf("%v", eleT) + "'\n")

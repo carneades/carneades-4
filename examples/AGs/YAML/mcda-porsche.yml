@@ -56,7 +56,7 @@ argument_schemes:
         multi-criteria decision analysis.
     weight:
       criteria:
-        hard: []  # role names of premises which must be in
+        hard: []  # indices (0-based) of premises which must be in
         soft:
           # weighted sum of soft constraints
           price:

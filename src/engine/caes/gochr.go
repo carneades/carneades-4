@@ -10,6 +10,7 @@ package caes
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	chr "github.com/hfried/GoCHR/src/engine/CHR"
@@ -17,7 +18,7 @@ import (
 
 // Translate a theory into a GoCHR rulestore
 func TheoryToRuleStore(t *Theory) *chr.RuleStore {
-	// fmt.Printf("TheoryToRuleStore\n")
+	log.Printf("TheoryToRuleStore\n") // DEBUG
 	rs := chr.MakeRuleStore()
 	for _, s := range t.ArgSchemes {
 		// If the scheme has no conclusions, skip the scheme

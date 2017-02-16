@@ -26,7 +26,7 @@ type ByProperties struct {
 }
 
 type Criteria struct {
-	HardConstraints []string                  // role names of hard constraints
+	HardConstraints []int                     // premise indices of hard constraints
 	SoftConstraints map[string]SoftConstraint // role name to soft constraint
 }
 
@@ -146,8 +146,8 @@ func CriteriaWeighingFunction(cs *Criteria) WeighingFunction {
 	return func(arg *Argument, l Labelling) float64 {
 		// check the hard constraints
 		for _, hc := range cs.HardConstraints {
-			for _, p := range arg.Premises {
-				if hc == p.Role && l[p.Stmt] == Out {
+			for i, p := range arg.Premises {
+				if hc == i && l[p.Stmt] == Out {
 					return 0.0 // KO Criteria
 				}
 			}
