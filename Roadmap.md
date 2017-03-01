@@ -31,6 +31,12 @@
 - Argument construction, via a CHR inference engine
 
 # v4.3
+
+- Argument validation, by matching arguments to schemes
+- Argumentation scheme validation, checking for syntatic and semantic errors in a theory (knowledge-base) 
+- Native implementation of a CHR inference engine, in Go, for constructing arguments. Removes the dependency on Prolog.
+
+# v4.4
 - CRUD (Create, Read, Update and Delete) operations for managing argument graphs using the Open Source CoachDB document database system 
 - Create and upload argument graphs to a CoachDB database
 - Search for, retreive and read (view) argument graphs in the database
@@ -38,11 +44,10 @@
 - Delete argument graphs from the database
 - Web user interfaces will be provided for all these database operations
 
-# v4.4
-- Argument validation, by matching arguments to schemes
+# v4.5
 - Goal selection, using abduction, continuing our prior work: Ballnat, S. and Gordon, T.F. Goal Selection in Argumentation Processes — A Formal Model of Abduction in Argument Evaluation Structures. Computational Models of Argument – Proceedings of COMMA 2010, IOS Press (2010), 51–62.
 
-# v4.5
+# v4.6
 
 - Interactive, web-based argument browser and structured survey tool
 - The browser will provide "guided tours" of argument graphs, to help users to understand the arguments, taking into    consideration their interests and assumptions or beliefs.
