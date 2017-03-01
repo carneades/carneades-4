@@ -2,21 +2,21 @@ meta:
   title: Self Defeat Example
 
 statements: 
-  P: P
-  ¬P: ¬P
+  p: P
+  np: ¬P
 
 issues:
   i1:
-    positions: [P, ¬P]
+    positions: [p, np]
  
 arguments:
   a1:
-    conclusion: P
-    premises: [¬P]
+    conclusion: p
+    premises: [np]
   a2:
-    conclusion: ¬P
-    premises: [P]
+    conclusion: np 
+    premises: [p]
 
 tests:
-  undecided: [P, ¬P]
+  undecided: [p, np]
 

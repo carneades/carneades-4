@@ -2,16 +2,16 @@ meta:
   title: Even Loop Example
 
 statements:
-  P: P
-  Q: Q
+  p: P
+  q: Q
 
 arguments:
   a1:
-    conclusion: Q
-    premises: [P]
+    conclusion: q
+    premises: [p]
   a2:
-    conclusion: P
-    premises: [Q]
+    conclusion: p
+    premises: [q]
 
 tests:
-  undecided: [P,Q]
+  undecided: [p,q]

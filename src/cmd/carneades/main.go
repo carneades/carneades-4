@@ -13,6 +13,18 @@ import (
 	"github.com/carneades/carneades-4/src/common"
 )
 
+var inputFormats = []string{"caf", "yaml", "aif", "agxml", "lkif"}
+var outputFormats = []string{"graphml", "yaml", "dot"}
+
+func contains(l []string, s1 string) bool {
+	for _, s2 := range l {
+		if s1 == s2 {
+			return true
+		}
+	}
+	return false
+}
+
 const help = `
 Carneades is a tool for evaluating and visualizing argument graphs.
 
@@ -33,6 +45,8 @@ func main() {
 		fmt.Printf("%s\nversion: %s\nsource: %s\nblog: %s\nTry 'carneades help' for instructions.\n", common.Name, common.Version, common.Source, common.Blog)
 	} else {
 		switch os.Args[1] {
+		case "check":
+			checkCmd()
 		case "eval":
 			evalCmd()
 		case "dung":
@@ -44,6 +58,8 @@ func main() {
 				fmt.Printf("%s\n", help)
 			} else {
 				switch os.Args[2] {
+				case "check":
+					fmt.Printf("%s\n", helpCheck)
 				case "eval":
 					fmt.Printf("%s\n", helpEval)
 				case "dung":

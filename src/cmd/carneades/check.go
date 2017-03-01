@@ -10,16 +10,16 @@ import (
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/agxml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/aif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/caf"
-	"github.com/carneades/carneades-4/src/engine/caes/encoding/dot"
-	"github.com/carneades/carneades-4/src/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
+	"github.com/carneades/carneades-4/src/engine/validation"
 )
 
-const helpEval = `
-usage: carneades eval [-f input-format] [-t output-format] [-o output-file] [input-file]
+const helpCheck = `
+usage: carneades check [-f input-format] [input-file]
 
-Evaluates an argument graph and prints it in the selected output format.
+Checks an argument graph for syntactic and semantic errors
+and prints out error messages to the standard output.
 
 If no input-file is specified, input is read from stdin. 
 
@@ -60,37 +60,14 @@ http://www.tfgordon.de/publications/files/GordonLKIF2008.pdf
 LKIF is the native format of Carneades 2, a desktop argument mapping
 tool with a graphical user interface. Also known as the Carneades Editor.
 https://github.com/carneades/carneades-2
-
-The -t flag ("to") specifies the output format of the evaluated argument
-graph. Currently graphml, dot, and yaml are supported. (default: graphml)	
-
-GraphML is an XML schema for directed graphs.  Graphml is supported by 
-several graph editors and visualizations tools.  For further information see:
-
-    http://graphml.graphdrawing.org/
-
-The graphml produced by Carneades is intended for use with the yEd
-graph editor. For more information about yEd, see:
-
-    https://www.yworks.com/en/products/yfiles/yed/
-	
-The "dot" format is the native format of the open source GraphViz network
-visualization project. For further information see:
-
-	http://graphviz.org/
-
-The -o flag specifies the output file name. If the -o flag is not used, 
-output goes to stdout.
 `
 
-func evalCmd() {
+func checkCmd() {
 	eval := flag.NewFlagSet("eval", flag.ContinueOnError)
 	fromFlag := eval.String("f", "yaml", "the format of the source file")
-	toFlag := eval.String("t", "graphml", "the format of the output file")
-	outFileFlag := eval.String("o", "", "the filename of the output file")
 
 	var inFile *os.File
-	var outFile *os.File
+	var outFile *os.File = os.Stdout
 	var err error
 
 	if err := eval.Parse(os.Args[2:]); err != nil {
@@ -101,10 +78,7 @@ func evalCmd() {
 		log.Fatal(fmt.Errorf("unsupported input format: %s\n", *fromFlag))
 		return
 	}
-	if !contains(outputFormats, *toFlag) {
-		log.Fatal(fmt.Errorf("unsupported output format: %s\n", *toFlag))
-		return
-	}
+
 	switch eval.NArg() {
 	case 0:
 		inFile = os.Stdin
@@ -116,15 +90,6 @@ func evalCmd() {
 	default:
 		log.Fatal(fmt.Errorf("incorrect number of arguments after the command flags; should be 0, to read from stdin, or 1, naming the input file\n"))
 		return
-	}
-	if *outFileFlag == "" {
-		outFile = os.Stdout
-	} else {
-		outFile, err = os.Create(*outFileFlag)
-		if err != nil {
-			log.Fatal(fmt.Errorf("%s\n", err))
-			return
-		}
 	}
 
 	var ag *caes.ArgGraph
@@ -170,36 +135,11 @@ func evalCmd() {
 		return
 	}
 
-	// Apply the theory of the argument graph, if any, to
-	// derive further arguments
-	ag.Infer()
+	// Validate the argument graph
+	problems := validation.Validate(ag)
 
-	// evaluate the argument graph, using grounded semantics
-	// and update the labels of the statements in the argument graph
-	l := ag.GroundedLabelling()
-	// fmt.Printf("labelling=%v\n", l)
-	ag.ApplyLabelling(l)
-
-	switch *toFlag {
-	case "yaml":
-		yaml.Export(outFile, ag)
-		outFile.Close()
-	case "graphml":
-		err = graphml.Export(outFile, ag)
-		outFile.Close()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	case "dot":
-		err = dot.Export(outFile, ag)
-		outFile.Close()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	default:
-		log.Fatal(fmt.Errorf("unknown or unsupported output format: %s\n", *toFlag))
-		return
+	// Print out any problems found to standard out
+	for _, p := range problems {
+		fmt.Fprintf(outFile, "%s; %s\n", p.Category, p.Description)
 	}
 }

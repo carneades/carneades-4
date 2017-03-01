@@ -2,16 +2,16 @@ meta:
   title: Support Loop Example
 
 statements:
-  P: P
-  Q: Q
+  p: P
+  q: Q
 
 arguments:
   a1:
-    conclusion: P
-    premises: [Q]
+    conclusion: p
+    premises: [q]
   a2:
-    conclusion: Q
-    premises: [P]
+    conclusion: q
+    premises: [p]
 
 tests:
-  undecided: [P,Q]
+  undecided: [p,q]

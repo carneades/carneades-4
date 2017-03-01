@@ -2,18 +2,17 @@ meta:
   title: Trivial Examples
 
 statements: 
-  P: 
-    text: P 
-  Q:
+  p: P 
+  q: 
     text: Q
     assumed: true
-  R: 
+  r: 
     text: R
 
 arguments:
   a1:
-    conclusion: R
+    conclusion: r
 
 tests:
-  in: [Q, R]
-  out: [P]
+  in: [q, r]
+  out: [p]

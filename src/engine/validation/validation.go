@@ -13,10 +13,10 @@ package validation
 
 import (
 	"fmt"
-	"io"
+	"strconv"
+	"strings"
 
 	"github.com/carneades/carneades-4/src/engine/caes"
-	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	"github.com/carneades/carneades-4/src/engine/terms"
 )
 
@@ -30,7 +30,36 @@ const (
 	ARGUMENT
 	ASSUMPTION
 	EXPECTEDLABELING
+	LANGUAGE
+	SCHEME  // Argument Scheme
+	ISCHEME // Issue Scheme
 )
+
+func (c Category) String() string {
+	switch c {
+	case IMPORT:
+		return "import"
+	case STATEMENT:
+		return "statement"
+	case ISSUE:
+		return "issue"
+	case ARGUMENT:
+		return "argument"
+	case ASSUMPTION:
+		return "assumption"
+	case EXPECTEDLABELING:
+		return "expected labeling"
+	case LANGUAGE:
+		return "language"
+	case SCHEME:
+		return "argument scheme"
+	case ISCHEME:
+		return "issue scheme"
+	default:
+		return ""
+	}
+
+}
 
 // Problem represents an error in some Carneades source file
 type Problem struct {
@@ -45,13 +74,13 @@ func validateStatements(ag *caes.ArgGraph) []Problem {
 		// Check that the key is a term
 		t, ok := terms.ReadString(k)
 		if !ok {
-			p := Problem{STATEMENT, fmt.Sprint("Key %s is not a term.", k)}
+			p := Problem{STATEMENT, fmt.Sprintf("Key not a term: %s.", k)}
 			problems = append(problems, p)
 		} else {
 			// Check that the term is a ground atomic formula
 			var b terms.Bindings // empty environment
 			if !terms.AtomicFormula(t) || !terms.Ground(t, b) {
-				p := Problem{STATEMENT, fmt.Sprint("Key %s is not a ground atomic formula.", k)}
+				p := Problem{STATEMENT, fmt.Sprintf("Key not a ground atomic formula: %s.", k)}
 				problems = append(problems, p)
 			}
 		}
@@ -87,6 +116,9 @@ func validateIssues(ag *caes.ArgGraph) []Problem {
 func validateArguments(ag *caes.ArgGraph) []Problem {
 	problems := []Problem{}
 	for id, arg := range ag.Arguments {
+		if caes.IsBasicScheme(arg.Scheme) {
+			return problems
+		}
 		// check that number of parameters matches the number of variables in the scheme
 		if len(arg.Parameters) != len(arg.Scheme.Variables) {
 			p := Problem{ARGUMENT, fmt.Sprintf("Argument %s does not have the number of parameters declared in its scheme.", id)}
@@ -112,7 +144,7 @@ func validateArguments(ag *caes.ArgGraph) []Problem {
 						// Premises of schemes are checked elsewhere
 						_, ok := terms.Match(t1, t2, nil)
 						if !ok {
-							p := Problem{ARGUMENT, fmt.Sprint("Premise %s of argument %s does not match its premise in the scheme.", pr.Stmt.Id, id)}
+							p := Problem{ARGUMENT, fmt.Sprintf("Premise %s of argument %s does not match its premise in the scheme.", pr.Stmt.Id, id)}
 							problems = append(problems, p)
 						}
 					} else {
@@ -122,7 +154,7 @@ func validateArguments(ag *caes.ArgGraph) []Problem {
 						// Assumptions of schemes are checked elsewhere
 						_, ok := terms.Match(t1, t2, nil)
 						if !ok {
-							p := Problem{ARGUMENT, fmt.Sprint("Premise %s of argument %s does not match its assumption in the scheme.", pr.Stmt.Id, id)}
+							p := Problem{ARGUMENT, fmt.Sprintf("Premise %s of argument %s does not match its assumption in the scheme.", pr.Stmt.Id, id)}
 							problems = append(problems, p)
 						}
 					}
@@ -132,7 +164,7 @@ func validateArguments(ag *caes.ArgGraph) []Problem {
 		// Check whether the conclusion matches some conclusion of the scheme
 		t3, ok := terms.ReadString(arg.Conclusion.Id)
 		if !ok {
-			p := Problem{ARGUMENT, fmt.Sprint("Conclusion %s of argument %s is not a term.", arg.Conclusion.Id, id)}
+			p := Problem{ARGUMENT, fmt.Sprintf("Conclusion %s of argument %s is not a term.", arg.Conclusion.Id, id)}
 			problems = append(problems, p)
 		}
 		found := false
@@ -147,7 +179,7 @@ func validateArguments(ag *caes.ArgGraph) []Problem {
 			}
 		}
 		if !found {
-			p := Problem{ARGUMENT, fmt.Sprint("Conclusion %s of argument %s does not match a conclusion of the argument's scheme.", arg.Conclusion.Id, id)}
+			p := Problem{ARGUMENT, fmt.Sprintf("Conclusion %s of argument %s does not match a conclusion of the argument's scheme.", arg.Conclusion.Id, id)}
 			problems = append(problems, p)
 		}
 	}
@@ -161,22 +193,22 @@ func validateAssumptions(ag *caes.ArgGraph) []Problem {
 		// Check that the key is a term
 		t, ok := terms.ReadString(k)
 		if !ok {
-			p := Problem{ASSUMPTION, fmt.Sprint("Assumption %s is not a term.", k)}
+			p := Problem{ASSUMPTION, fmt.Sprintf("Not a term: %s", k)}
 			problems = append(problems, p)
 		} else {
 			// Check that the term is a ground atomic formula
 			var b terms.Bindings // empty environment
 			if !terms.AtomicFormula(t) || !terms.Ground(t, b) {
-				p := Problem{ASSUMPTION, fmt.Sprint("Assumption %s is not a ground atomic formula.", k)}
+				p := Problem{ASSUMPTION, fmt.Sprintf("Not a ground atomic formula: %s.", k)}
 				problems = append(problems, p)
 			}
 		}
 		// Check that there is a statement for the assumption
-		_, ok = ag.Statements[k]
-		if !ok {
-			p := Problem{ASSUMPTION, fmt.Sprint("Assumption %s is not declared to be a statement in the argument graph.", k)}
-			problems = append(problems, p)
-		}
+		//		_, ok = ag.Statements[k]
+		//		if !ok {
+		//			p := Problem{ASSUMPTION, fmt.Sprintf("Not declared to be a statement: %s.", k)}
+		//			problems = append(problems, p)
+		//		}
 	}
 	return problems
 }
@@ -188,21 +220,223 @@ func validateExpectedLabeling(ag *caes.ArgGraph) []Problem {
 		// Check that the key is a term
 		t, ok := terms.ReadString(k)
 		if !ok {
-			p := Problem{EXPECTEDLABELING, fmt.Sprint("In the expected labeling, %s is not a term.", k)}
+			p := Problem{EXPECTEDLABELING, fmt.Sprintf("In the expected labeling, %s is not a term.", k)}
 			problems = append(problems, p)
 		} else {
 			// Check that the term is a ground atomic formula
 			var b terms.Bindings // empty environment
 			if !terms.AtomicFormula(t) || !terms.Ground(t, b) {
-				p := Problem{EXPECTEDLABELING, fmt.Sprint("In the expected labeling, %s is not a ground atomic formula.", k)}
+				p := Problem{EXPECTEDLABELING, fmt.Sprintf("In the expected labeling, %s is not a ground atomic formula.", k)}
 				problems = append(problems, p)
 			}
 		}
 		// Check that there is a statement for the term
 		_, ok = ag.Statements[k]
 		if !ok {
-			p := Problem{EXPECTEDLABELING, fmt.Sprint("In the expected labeling, %s is not declared to be a statement in the argument graph.", k)}
+			p := Problem{EXPECTEDLABELING, fmt.Sprintf("In the expected labeling, %s is not declared to be a statement in the argument graph.", k)}
 			problems = append(problems, p)
+		}
+	}
+	return problems
+}
+
+func validateLanguage(l caes.Language) []Problem {
+	isPred := func(s string) bool {
+		t, ok := terms.ReadString(s)
+		return ok && t.Type() == terms.AtomType
+	}
+	// count the number of verbs in a format string
+	verbCount := func(s string) int {
+		n := 0
+		for _, c := range s {
+			if c == '%' {
+				n++
+			}
+		}
+		return n
+	}
+	problems := []Problem{}
+	for k, v := range l {
+		// check that the key has the form predicate/arity
+		l := strings.Split(k, "/")
+		if len(l) != 2 {
+			p := Problem{LANGUAGE, fmt.Sprintf("Key does not have the form predicate/arity: %s", k)}
+			problems = append(problems, p)
+		} else if !isPred(l[0]) {
+			p := Problem{LANGUAGE, fmt.Sprintf("%s is not a predicate symbol.", l[0])}
+			problems = append(problems, p)
+		} else {
+			var n int
+			_, err := fmt.Sscanf(l[1], "%d", &n)
+			if err != nil {
+				p := Problem{LANGUAGE, fmt.Sprintf("Non-integer arity of the predicate %s: %s", l[0], l[1])}
+				problems = append(problems, p)
+			} else if verbCount(v) != n {
+				p := Problem{LANGUAGE, fmt.Sprintf("Format string does not have %d placeholders (verbs): %s", n, l[1])}
+				problems = append(problems, p)
+			}
+		}
+	}
+	return problems
+}
+
+// Validate that each string in a list represents a logical variable
+func validateVariables(l []string) []Problem {
+	problems := []Problem{}
+	for _, v := range l {
+		t, ok := terms.ReadString(v)
+		if !ok || t.Type() != terms.VariableType {
+			p := Problem{SCHEME, fmt.Sprintf("Not a scheme variable: %s\n", v)}
+			problems = append(problems, p)
+		}
+	}
+	return problems
+}
+
+// Validate an argumentation scheme s against a lanuage l
+func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
+	// Checks if s is declared as a variable in the scheme.
+	declaredVariable := func(s2 string) bool {
+		for _, v := range s.Variables {
+			if s2 == v {
+				return true
+			}
+		}
+		return false
+	}
+
+	problems := validateVariables(s.Variables)
+
+	validateAtom := func(atm string, kind string) {
+		t, ok := terms.ReadString(atm)
+		if !ok {
+			p := Problem{SCHEME, fmt.Sprintf("This %s is not a term: %s.", kind, atm)}
+			problems = append(problems, p)
+		} else {
+			var key string
+			switch t.Type() {
+			case terms.AtomType:
+				key = t.String() + "/" + "0"
+			case terms.CompoundType:
+				key = t.(terms.Compound).Functor + "/" + strconv.Itoa(len(t.(terms.Compound).Args))
+			case terms.VariableType:
+				if kind != "conclusion" {
+					p := Problem{SCHEME, fmt.Sprintf("A %s may not be a variable: %s.", kind, atm)}
+					problems = append(problems, p)
+				}
+			default:
+				p := Problem{SCHEME, fmt.Sprintf("This %s is not an atomic formula: %s.", kind, atm)}
+				problems = append(problems, p)
+			}
+			// Check that the predicate of the atom, with the given arity, has been declared in the language
+			_, ok := l[key]
+			if !ok && kind != "conclusion" {
+				p := Problem{SCHEME, fmt.Sprintf("Predicate of %s not declared in the language: %s.", kind, key)}
+				problems = append(problems, p)
+			}
+			// Check that all variables in the atom have been declared in the scheme
+			vars := t.OccurVars()
+			for _, v := range vars {
+				if !declaredVariable(v.Name) {
+					p := Problem{SCHEME, fmt.Sprintf("Variable of %s not declared in the scheme: %s.", kind, v)}
+					problems = append(problems, p)
+				}
+			}
+		}
+	}
+
+	for _, atm := range s.Premises {
+		validateAtom(atm, "premise")
+	}
+	for _, atm := range s.Assumptions {
+		validateAtom(atm, "assumption")
+	}
+	for _, atm := range s.Exceptions {
+		validateAtom(atm, "exception")
+	}
+	for _, atm := range s.Deletions {
+		validateAtom(atm, "deletion")
+	}
+	for _, atm := range s.Guards {
+		validateAtom(atm, "guard")
+	}
+	for _, atm := range s.Conclusions {
+		validateAtom(atm, "conclusion")
+	}
+	return problems
+}
+
+// Validate the argumentation schemes of a theory
+func validateSchemes(theory *caes.Theory) []Problem {
+	problems := []Problem{}
+	ids := map[string]bool{}
+	for _, s := range theory.ArgSchemes {
+		if ids[s.Id] {
+			p := Problem{SCHEME, fmt.Sprintf("Duplicate argumentation scheme id: %s.", s.Id)}
+			problems = append(problems, p)
+		} else {
+			ids[s.Id] = true
+		}
+		problems = append(problems, validateScheme(s, theory.Language)...)
+	}
+	return problems
+}
+
+func validateIssueSchemes(theory *caes.Theory) []Problem {
+	problems := []Problem{}
+	l := theory.Language
+
+	validateAtom := func(t terms.Term) {
+		var key string
+		switch t.Type() {
+		case terms.AtomType:
+			key = t.String() + "/" + "0"
+		case terms.CompoundType:
+			key = t.(terms.Compound).Functor + "/" + strconv.Itoa(len(t.(terms.Compound).Args))
+		default:
+			p := Problem{ISCHEME, fmt.Sprintf("Issue pattern is not an atomic formula: %s.", t.String())}
+			problems = append(problems, p)
+		}
+		// Check that the predicate of the atom, with the given arity, has been declared in the language
+		_, ok := l[key]
+		if !ok {
+			p := Problem{ISCHEME, fmt.Sprintf("Predicate of issue pattern not declared in the language: %s.", key)}
+			problems = append(problems, p)
+		}
+	}
+
+	for _, is := range theory.IssueSchemes {
+		s := *is
+		// Check that each string in the list of the scheme represents an atom, or
+		// has three elements, where the first an last are atoms and the
+		// second is "...".  If it is an atom, also check that its predicate
+		// is defined in the language.
+		if len(s) == 3 && s[1] == "..." {
+			for _, i := range []int{0, 2} {
+				t, ok := terms.ReadString(s[i])
+				if !ok {
+					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not a term: %s.", s[i])}
+					problems = append(problems, p)
+				} else if t.Type() != terms.AtomType && t.Type() != terms.CompoundType {
+					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not an atom: %s.", s[i])}
+					problems = append(problems, p)
+				}
+			}
+		} else {
+			for i, _ := range s {
+				t, ok := terms.ReadString(s[i])
+				if !ok {
+					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not a term: %s.", s[i])}
+					problems = append(problems, p)
+				} else if t.Type() != terms.AtomType && t.Type() != terms.CompoundType {
+					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not an atom: %s.", s[i])}
+					problems = append(problems, p)
+				} else {
+					// Check that each atom has a predicate defined in the language,
+					// with the correct arity
+					validateAtom(t)
+				}
+			}
 		}
 	}
 	return problems
@@ -210,23 +444,21 @@ func validateExpectedLabeling(ag *caes.ArgGraph) []Problem {
 
 // Validate a theory of an argument graph
 func validateTheory(ag *caes.ArgGraph) []Problem {
-	// START HERE
-	return []Problem{}
+	problems := validateLanguage(ag.Theory.Language)
+	schemeProblems := validateSchemes(ag.Theory)
+	if len(schemeProblems) > 0 {
+		problems = append(problems, schemeProblems...)
+	}
+	issueSchemeProblems := validateIssueSchemes(ag.Theory)
+	if len(issueSchemeProblems) > 0 {
+		problems = append(problems, issueSchemeProblems...)
+	}
+	return problems
 }
 
-// Validate a Carneades file, represented in YAML
-func Validate(file io.Reader) []Problem {
+// Validate an argument graph
+func Validate(ag *caes.ArgGraph) []Problem {
 	problems := []Problem{}
-
-	// Validate that YAML file represents an argument graph
-	ag, err := yaml.Import(file)
-	// TO DO: implement yaml.Validate, which returns a list of all
-	// problems found, rather than just the first found.
-	if err != nil {
-		problems = append(problems, Problem{IMPORT, err.Error()})
-		return problems
-	}
-
 	problems = append(problems, validateStatements(ag)...)
 	problems = append(problems, validateIssues(ag)...)
 	problems = append(problems, validateArguments(ag)...)

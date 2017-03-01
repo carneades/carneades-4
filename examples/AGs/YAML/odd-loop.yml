@@ -2,21 +2,21 @@ meta:
   title: An Odd Loop Example
 
 statements:
-  P: P
-  Q: Q
-  R: R
+  p: P
+  q: Q
+  r: R
 
 arguments:
   a1:
-    conclusion: Q
-    premises: [P]
+    conclusion: q
+    premises: [p]
   a2:
-    conclusion: P
-    premises: [R]
+    conclusion: p
+    premises: [r]
   a3:
-    conclusion: R
-    premises: [Q]
+    conclusion: r
+    premises: [q]
 
 tests:
-  undecided: [P,Q,R]
+  undecided: [p,q,r]
 

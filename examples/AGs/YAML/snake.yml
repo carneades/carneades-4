@@ -9,55 +9,55 @@ meta:
 statements:
   snake: It is a snake.
   rope: It is a coil of rope.
-  looks like snake:  It looks like a snake.
-  looks like rope: It looks like a coil of rope.
-  moved when jumped over: It moved when it was jumped over.
-  did not move when jumped over: It did not move when it was jumped over.
-  moved when prodded: It moved when it was prodded with a stick.
-  did not move when prodded: It did not move when it was prodded with a stick.
+  looks_like_snake:  It looks like a snake.
+  looks_like_rope: It looks like a coil of rope.
+  moved_when_jumped_over: It moved when it was jumped over.
+  did_not_move_when_jumped_over: It did not move when it was jumped over.
+  moved_when_prodded: It moved when it was prodded with a stick.
+  did_not_move_when_prodded: It did not move when it was prodded with a stick.
 
 issues:
   i1: 
     positions: [snake, rope]
   i2:
     positions: 
-      - moved when jumped over
-      - did not move when jumped over
+      - moved_when_jumped_over
+      - did_not_move_when_jumped_over
   i3:
     positions: 
-      - moved when prodded
-      - did not move when prodded
+      - moved_when_prodded
+      - did_not_move_when_prodded
 
 arguments:
   a1: 
     scheme: cumulative
     conclusion: snake
     premises:
-      - looks like snake
-      - moved when jumped over
-      - moved when prodded
+      - looks_like_snake
+      - moved_when_jumped_over
+      - moved_when_prodded
   a2:
     scheme: cumulative
     conclusion: rope
     premises:
-      - looks like rope
-      - did not move when jumped over
-      - did not move when prodded
+      - looks_like_rope
+      - did_not_move_when_jumped_over
+      - did_not_move_when_prodded
 
 assumptions:
-  - looks like snake
-  - looks like rope
-  - did not move when prodded
-  - did not move when jumped over
+  - looks_like_snake
+  - looks_like_rope
+  - did_not_move_when_prodded
+  - did_not_move_when_jumped_over
 
 tests:
   in: 
-    - looks like snake
-    - looks like rope
-    - did not move when jumped over
-    - did not move when prodded
+    - looks_like_snake
+    - looks_like_rope
+    - did_not_move_when_jumped_over
+    - did_not_move_when_prodded
     - rope
   out:
-    - moved when jumped over
-    - moved when prodded
+    - moved_when_jumped_over
+    - moved_when_prodded
     - snake

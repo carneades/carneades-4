@@ -5,30 +5,30 @@ meta:
     to be derived for other issues.
 
 statements:
-  P: P is true
-  ¬P: P is not true
-  Q: Q is true.
-  ¬Q: Q is not true
+  p: P is true
+  np: P is not true
+  q: Q is true.
+  nq: Q is not true
 
 issues:
   i1: 
-    positions: [P, ¬P]
+    positions: [p, np]
   i2:
-    positions: [Q, ¬Q]
+    positions: [q, nq]
 
 arguments:
   a1:
-    conclusion: Q
-    premises: [P]
+    conclusion: q
+    premises: [p]
   a2:
-    conclusion: ¬Q
-    premises: [¬P]
+    conclusion: nq
+    premises: [np]
 
 # inconsistent assumptions!
-assumptions: [P, ¬P]
+assumptions: [p, np]
 
 tests:
-  in:  [P, ¬P]
-  out: [Q, ¬Q]
+  in:  [p, np]
+  out: [q, nq]
 
   

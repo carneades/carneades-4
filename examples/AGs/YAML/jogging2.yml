@@ -8,30 +8,30 @@ meta:
 
 statements: 
   hot: It is hot.
-  ¬hot: It is not hot.
+  nhot: It is not hot.
   rain: It is raining.
-  ¬rain: It is not raining.
+  nrain: It is not raining.
   jog: Go jogging.
-  ¬jog: Do not go jogging.
+  njog: Do not go jogging.
 
 issues:
   i1:
-    positions: [jog, ¬jog]
+    positions: [jog, njog]
   i2:
-    positions: [rain,¬rain]
+    positions: [rain,nrain]
   i3:
-    positions: [hot,¬hot]
+    positions: [hot,nhot]
 
 arguments:
   a1:
     scheme: cumulative
-    conclusion: ¬jog
-    premises: [rain,¬hot]
+    conclusion: njog
+    premises: [rain,nhot]
 
   a2: 
     scheme: cumulative
-    conclusion: ¬jog
-    premises: [hot,¬rain]
+    conclusion: njog
+    premises: [hot,nrain]
 
   a3:
     scheme: cumulative
@@ -42,6 +42,6 @@ assumptions: [rain, hot]
 
 tests:
   in: [rain, hot, jog]
-  out: [¬jog,¬hot,¬rain]
+  out: [njog,nhot,nrain]
   undecided: []
 

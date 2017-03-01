@@ -2,7 +2,7 @@ meta:
   title: Trivial example, with one non-assumption statement and no arguments
 
 statements: 
-  P: "P"
+  p: P
 
 tests:
-  out: [P]
+  out: [p]

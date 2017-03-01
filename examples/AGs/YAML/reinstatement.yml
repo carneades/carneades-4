@@ -2,31 +2,31 @@ meta:
   title: Reinstatement Example
 
 statements:
-  P: P
-  ¬P: ¬P
-  Q: Q
-  R: R
-  S: S
+  p: P
+  np: ¬P
+  q: Q
+  r: R
+  s: S
 
 issues:
   i1:
-    positions: [P, ¬P]
+    positions: [p, np]
 
 arguments:
   a1: 
-    conclusion: P
-    premises: [Q]
+    conclusion: p
+    premises: [q]
   a2:
     scheme: factorized
-    conclusion: ¬P
-    premises: [R]
+    conclusion: np 
+    premises: [r]
   a3:
     scheme: factorized
-    conclusion: P
-    premises: [R,S]
+    conclusion: p
+    premises: [r,s]
 
-assumptions: [Q,R,S]
+assumptions: [q,r,s]
 
 tests:
-  in: [Q,R,S,P]
-  out: [¬P]
+  in: [q,r,s,p]
+  out: [np]

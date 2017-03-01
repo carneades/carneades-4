@@ -71,6 +71,15 @@ var BasicSchemes = map[string]*Scheme{
 	"factorized": &Scheme{Id: "factorized", Weight: FactorizedWeighingFunction},
 }
 
+func IsBasicScheme(scheme *Scheme) bool {
+	for _, s := range BasicSchemes {
+		if scheme == s {
+			return true
+		}
+	}
+	return false
+}
+
 func LinkedWeighingFunction(arg *Argument, l Labelling) float64 {
 	for _, p := range arg.Premises {
 		if l[p.Stmt] != In {

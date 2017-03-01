@@ -341,7 +341,7 @@ func Ground(t Term, b Bindings) bool {
 	case CompoundType:
 		if t.(Compound).Arity() > 0 {
 			for _, t2 := range t.(Compound).Args {
-				if Ground(t2, b) {
+				if !Ground(t2, b) {
 					return false
 				}
 			}

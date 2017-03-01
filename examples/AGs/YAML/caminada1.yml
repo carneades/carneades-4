@@ -6,24 +6,24 @@ meta:
 statements:
   j: J 
   r: R
-  ¬r: not R
+  nr: not R
   s: S
-  ¬s: not S
+  ns: not S
   m: M 
   wf: WF
 
 issues:
   i1: 
-    positions: [s, ¬s]
+    positions: [s, ns]
   i2: 
-    positions: [r, ¬r]
+    positions: [r, nr]
 
 arguments:
   a1:
     conclusion: s
     premises: [j]
   a2:
-    conclusion: ¬s
+    conclusion: ns
     premises: [m]
   a3:
     conclusion: r
@@ -33,4 +33,4 @@ assumptions: [j, m, wf]
 
 tests:
   in: [j, m, wf, r]
-  out: [¬s, s, ¬r]
+  out: [ns, s, nr]

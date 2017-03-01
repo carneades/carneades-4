@@ -2,22 +2,22 @@ meta:
   title: Indepedent Support Loop Example
 
 statements:
-  P: P
-  Q: Q
-  R: R
+  p: P
+  q: Q
+  r: R
 
 arguments:
   a1:
-    conclusion: P
-    premises: [Q]
+    conclusion: p
+    premises: [q]
   a2:
-    conclusion: Q
-    premises: [P]
+    conclusion: q
+    premises: [p]
   a3:
-    conclusion: P
-    premises: [R]
+    conclusion: p
+    premises: [r]
 
-assumptions: [R]
+assumptions: [r]
 
 tests:
-  in: [P,Q,R]
+  in: [p,q,r]

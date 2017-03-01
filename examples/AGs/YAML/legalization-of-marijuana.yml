@@ -9,79 +9,79 @@ meta:
 
 statements:
   legalize: Marijuana should be legalized.
-  ¬legalize:  Marijuana should not be legalized.
+  nlegalize:  Marijuana should not be legalized.
   harmless: Marijuana is harmless.
-  ¬harmless: Marijuana is not harmless.
+  nharmless: Marijuana is not harmless.
   # liberty: Individuals should  be free to use marijuana.
-  # ¬liberty: Individuals should not be free  to use marijuana.
-  social-costs: Legalization would entail heavy social costs.
-  ¬social-costs: Legalization would not entail heavy  social costs.
-  reduced-consumption: Legalization would reduce the consumption of marijuana.
-  ¬reduced-consumption: Legalization  would not reduce the consumption of marijuana.
+  # nliberty: Individuals should not be free  to use marijuana.
+  social_costs: Legalization would entail heavy social costs.
+  nsocial_costs: Legalization would not entail heavy  social costs.
+  reduced_consumption: Legalization would reduce the consumption of marijuana.
+  nreduced_consumption: Legalization  would not reduce the consumption of marijuana.
   # gateway: Marijuana is a gateway drug.
-  # ¬gateway: Marijuana is not a gateway drug.
-  # relieve-courts: Legalization would relieve strained courts.
-  # ¬relieve-courts: Legalization would not relieve strained courts.
-  reduce-crime: Legalization would reduce crime.
-  ¬reduce-crime:  Legalization would not reduce crime.
-  # prohibition-feasible: The  prohibition of marijuana is feasible.
-  # ¬prohibition-feasible: The prohibition of marijuana is not feasible.
+  # ngateway: Marijuana is not a gateway drug.
+  # relieve_courts: Legalization would relieve strained courts.
+  # nrelieve_courts: Legalization would not relieve strained courts.
+  reduce_crime: Legalization would reduce crime.
+  nreduce_crime:  Legalization would not reduce crime.
+  # prohibition_feasible: The  prohibition of marijuana is feasible.
+  # nprohibition_feasible: The prohibition of marijuana is not feasible.
   economical: Legalization would be economical.
-  ¬economical: Legalization would not be economical.
-  # regulation-superior: Regulation of marijuana would be superior to a ban.
-  # ¬regulation-superior: Regulation of marijuana  would not be superior to a ban.
+  neconomical: Legalization would not be economical.
+  # regulation_superior: Regulation of marijuana would be superior to a ban.
+  # nregulation_superior: Regulation of marijuana  would not be superior to a ban.
   # racist: Prohibition enforcement is racially biased.
-  # ¬racist: Prohibition enforcement is not racially  biased.
-  # growing-potency: Marijuana is growing in potency.
-  # ¬growing-potency: Marijuana is not growing in potency.
-  # growing-potency-irrelevant: It does not matter whether marijuana is growing in potency.
-  legal-drugs-have-higher-consumption: Legal drugs, like alcohol and tobacco, are used more than illegal drugs.
-  # legalization-desired: The public wants marijuana to be legalized.
-  # ¬legalization-desired: The public does not want marijuana to be legalized.
+  # nracist: Prohibition enforcement is not racially  biased.
+  # growing_potency: Marijuana is growing in potency.
+  # ngrowing_potency: Marijuana is not growing in potency.
+  # growing_potency_irrelevant: It does not matter whether marijuana is growing in potency.
+  legal_drugs_have_higher_consumption: Legal drugs, like alcohol and tobacco, are used more than illegal drugs.
+  # legalization_desired: The public wants marijuana to be legalized.
+  # nlegalization_desired: The public does not want marijuana to be legalized.
   # treaties: Legalization would contravene international treaties.
-  # ¬treaties: Legalization would not contravene international treaties.
-  us-drug-use-statistics: 52 percent of Americans 12 or older used alcohol, 27 percent used tobacco and only 7 percent used marijuana.
-  emergency-rooms: Marrijuana emergency roolm admissions are reported at the rate of 1,250 a day and 455,000 a year.
-  highway-crashes: Highway crashes double for marijuana users.
-  robbed-future: Prohibition has robbed children of their future, through imprisonment.
-  prison-complex: Prohibition has led to the construction of a huge prison-industrial complex.
-  harmful-for-young-brains: Marijuana is harmful for still-developing adolescent brains.
-  costs-of-regulation: Legalization would create an economic burden for regulating the drug.
-  costs-of-treatment:  Legalization would create an economic burden to treat new problematic users.
-  increased-risk-of-substance-use-disorders: Research shows that use of marijuana, especially in early adolescence, significantly heightens risks of substance use disorders in later life.
-  better-treatment-and-prevention-infrastructure: Legalize would require the provision of a much better prevention and treatment infrastructure.
+  # ntreaties: Legalization would not contravene international treaties.
+  us_drug_use_statistics: 52 percent of Americans 12 or older used alcohol, 27 percent used tobacco and only 7 percent used marijuana.
+  emergency_rooms: Marrijuana emergency roolm admissions are reported at the rate of 1,250 a day and 455,000 a year.
+  highway_crashes: Highway crashes double for marijuana users.
+  robbed_future: Prohibition has robbed children of their future, through imprisonment.
+  prison_complex: Prohibition has led to the construction of a huge prison-industrial complex.
+  harmful_for_young_brains: Marijuana is harmful for still-developing adolescent brains.
+  costs_of_regulation: Legalization would create an economic burden for regulating the drug.
+  costs_of_treatment:  Legalization would create an economic burden to treat new problematic users.
+  increased_risk_of_substance_use_disorders: Research shows that use of marijuana, especially in early adolescence, significantly heightens risks of substance use disorders in later life.
+  better_treatment_and_prevention_infrastructure: Legalize would require the provision of a much better prevention and treatment infrastructure.
 
 issues:
   i1:
-    positions: [legalize, ¬legalize]
+    positions: [legalize, nlegalize]
   i2:
-    positions: [harmless, ¬harmless]
+    positions: [harmless, nharmless]
   # i3:
-  #   positions: [liberty, ¬liberty]
+  #   positions: [liberty, nliberty]
   i4:
-    positions: [social-costs, ¬social-costs]
+    positions: [social_costs, nsocial_costs]
   i5:
-    positions: [reduced-consumption, ¬reduced-consumption]
+    positions: [reduced_consumption, nreduced_consumption]
   # i6:
-  #   positions: [gateway,¬gateway]
+  #   positions: [gateway,ngateway]
   # i7:
-  #   positions: [relieve-courts, ¬relieve-courts]
+  #   positions: [relieve_courts, nrelieve_courts]
   i8:
-    positions: [reduce-crime, ¬reduce-crime]
+    positions: [reduce_crime, nreduce_crime]
   # i9:
-  #   positions: [prohibition-feasible, ¬prohibition-feasible]
+  #   positions: [prohibition_feasible, nprohibition_feasible]
   i10:
-    positions: [economical, ¬economical]
+    positions: [economical, neconomical]
   # i11:
-  #   positions: [regulation-superior, ¬regulation-superior]
+  #   positions: [regulation_superior, nregulation_superior]
   # i12:
-  #   positions: [racist, ¬racist]
+  #   positions: [racist, nracist]
   # i13:
-  #   positions: [growing-potency, ¬growing-potency]
+  #   positions: [growing_potency, ngrowing_potency]
   # i14:
-  #  positions: [legalization-desired, ¬legalization-desired]
+  #  positions: [legalization_desired, nlegalization_desired]
   # i15:
-  #   positions: [treaties, ¬treaties]
+  #   positions: [treaties, ntreaties]
       
 arguments:
   a1:
@@ -90,69 +90,69 @@ arguments:
     premises:
       - harmless
       # - liberty
-      - ¬social-costs
-      - reduced-consumption
-      #- ¬gateway
-      # - relieve-courts
-      - reduce-crime
-      # - ¬prohibition-feasible
+      - nsocial_costs
+      - reduced_consumption
+      #- ngateway
+      # - relieve_courts
+      - reduce_crime
+      # - nprohibition_feasible
       - economical
-      # - regulation-superior
+      # - regulation_superior
       # - racist
-      # - ¬growing-potency
-      # - legalization-desired
-      # - ¬treaties
+      # - ngrowing_potency
+      # - legalization_desired
+      # - ntreaties
   a2:
     scheme: cumulative
-    conclusion: ¬legalize
+    conclusion: nlegalize
     premises:
-      - ¬harmless
-      # - ¬liberty
-      - social-costs
-      - ¬reduced-consumption
+      - nharmless
+      # - nliberty
+      - social_costs
+      - nreduced_consumption
       # - gateway
-      # - ¬relieve-courts
-      - ¬reduce-crime
-      # - prohibition-feasible
-      - ¬economical
-      # - ¬regulation-superior
-      # - ¬racist
-      # - growing-potency
-      # - ¬legalization-desired
+      # - nrelieve_courts
+      - nreduce_crime
+      # - prohibition_feasible
+      - neconomical
+      # - nregulation_superior
+      # - nracist
+      # - growing_potency
+      # - nlegalization_desired
       # - treaties
   a3:
-    conclusion: ¬reduced-consumption
+    conclusion: nreduced_consumption
     premises:
-      - legal-drugs-have-higher-consumption
+      - legal_drugs_have_higher_consumption
   a4:
-    conclusion: legal-drugs-have-higher-consumption
+    conclusion: legal_drugs_have_higher_consumption
     premises:
-      - us-drug-use-statistics
+      - us_drug_use_statistics
   a5:
-    conclusion: ¬harmless
+    conclusion: nharmless
     scheme: cumulative
     premises:
-      - emergency-rooms
-      - highway-crashes
-      - harmful-for-young-brains
-      - increased-risk-of-substance-use-disorders
+      - emergency_rooms
+      - highway_crashes
+      - harmful_for_young_brains
+      - increased_risk_of_substance_use_disorders
   a6:
-    conclusion: ¬social-costs
+    conclusion: nsocial_costs
     premises:
-      - robbed-future
-      - prison-complex 
+      - robbed_future
+      - prison_complex 
   a7:
-    conclusion: ¬economical
+    conclusion: neconomical
     scheme: cumulative
     premises:
-      - costs-of-regulation
-      - costs-of-treatment
-      - better-treatment-and-prevention-infrastructure
+      - costs_of_regulation
+      - costs_of_treatment
+      - better_treatment_and_prevention_infrastructure
 
 assumptions:
-  - us-drug-use-statistics
-  - harmful-for-young-brains
-  - emergency-rooms
-  - costs-of-regulation
-  - robbed-future
-  - prison-complex
+  - us_drug_use_statistics
+  - harmful_for_young_brains
+  - emergency_rooms
+  - costs_of_regulation
+  - robbed_future
+  - prison_complex

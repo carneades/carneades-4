@@ -17,7 +17,7 @@ statements:
   hardship: Watson has undergone hardship and sickness.
   stiffArm: Watson holds his left arm in a stiff and unnatural manner.
   injured: Watson injured his left arm.
-  Afghanistan: Watson has recently been in Afghanistan.
+  afghanistan: Watson has recently been in Afghanistan.
 
 arguments:
   a1: 
@@ -36,7 +36,7 @@ arguments:
     conclusion: injured
     premises: [stiffArm]
   a6:
-    conclusion: Afghanistan
+    conclusion: afghanistan
     premises: [armyDoctor, hardship, injured, wasInWarmerClimate]
 
 assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
@@ -45,7 +45,7 @@ assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
 tests:
   in: [gentleman, fairWrists, darkFace, haggard, stiffArm,
        warmerClimate, sunNecessary, armyDoctor, notNaturalSkinColor,
-       hardship, injured, Afghanistan, wasInWarmerClimate]
+       hardship, injured, afghanistan, wasInWarmerClimate]
   out: []
   undecided: []
 
