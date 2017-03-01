@@ -281,12 +281,13 @@ func validateLanguage(l caes.Language) []Problem {
 }
 
 // Validate that each string in a list represents a logical variable
-func validateVariables(l []string) []Problem {
+func validateVariables(s *caes.Scheme) []Problem {
+	l := s.Variables
 	problems := []Problem{}
 	for _, v := range l {
 		t, ok := terms.ReadString(v)
 		if !ok || t.Type() != terms.VariableType {
-			p := Problem{SCHEME, fmt.Sprintf("Not a scheme variable: %s\n", v)}
+			p := Problem{SCHEME, fmt.Sprintf("In %s, not a scheme variable: %s\n", s.Id, v)}
 			problems = append(problems, p)
 		}
 	}
@@ -305,40 +306,44 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 		return false
 	}
 
-	problems := validateVariables(s.Variables)
+	problems := validateVariables(s)
 
 	validateAtom := func(atm string, kind string) {
 		t, ok := terms.ReadString(atm)
 		if !ok {
-			p := Problem{SCHEME, fmt.Sprintf("This %s is not a term: %s.", kind, atm)}
+			p := Problem{SCHEME, fmt.Sprintf("In %s, this %s is not a term: %s.", s.Id, kind, atm)}
 			problems = append(problems, p)
 		} else {
 			var key string
+			var varOrBool bool = false
 			switch t.Type() {
+			case terms.BoolType:
+				varOrBool = true
 			case terms.AtomType:
 				key = t.String() + "/" + "0"
 			case terms.CompoundType:
 				key = t.(terms.Compound).Functor + "/" + strconv.Itoa(len(t.(terms.Compound).Args))
 			case terms.VariableType:
+				varOrBool = true
 				if kind != "conclusion" {
-					p := Problem{SCHEME, fmt.Sprintf("A %s may not be a variable: %s.", kind, atm)}
+					p := Problem{SCHEME, fmt.Sprintf("In %s, a %s may not be a variable: %s.", s.Id, kind, atm)}
 					problems = append(problems, p)
 				}
 			default:
-				p := Problem{SCHEME, fmt.Sprintf("This %s is not an atomic formula: %s.", kind, atm)}
+				p := Problem{SCHEME, fmt.Sprintf("In %s, this %s is not an atomic formula: %s.", s.Id, kind, atm)}
 				problems = append(problems, p)
 			}
 			// Check that the predicate of the atom, with the given arity, has been declared in the language
 			_, ok := l[key]
-			if !ok && kind != "conclusion" {
-				p := Problem{SCHEME, fmt.Sprintf("Predicate of %s not declared in the language: %s.", kind, key)}
+			if !ok && !varOrBool {
+				p := Problem{SCHEME, fmt.Sprintf("In %s, predicate of %s not declared in the language: %s.", s.Id, kind, key)}
 				problems = append(problems, p)
 			}
 			// Check that all variables in the atom have been declared in the scheme
 			vars := t.OccurVars()
 			for _, v := range vars {
 				if !declaredVariable(v.Name) {
-					p := Problem{SCHEME, fmt.Sprintf("Variable of %s not declared in the scheme: %s.", kind, v)}
+					p := Problem{SCHEME, fmt.Sprintf("In %s, Variable of %s not declared in the scheme: %s.", s.Id, kind, v)}
 					problems = append(problems, p)
 				}
 			}
@@ -386,7 +391,7 @@ func validateIssueSchemes(theory *caes.Theory) []Problem {
 	problems := []Problem{}
 	l := theory.Language
 
-	validateAtom := func(t terms.Term) {
+	validateAtom := func(sid string, t terms.Term) {
 		var key string
 		switch t.Type() {
 		case terms.AtomType:
@@ -394,18 +399,18 @@ func validateIssueSchemes(theory *caes.Theory) []Problem {
 		case terms.CompoundType:
 			key = t.(terms.Compound).Functor + "/" + strconv.Itoa(len(t.(terms.Compound).Args))
 		default:
-			p := Problem{ISCHEME, fmt.Sprintf("Issue pattern is not an atomic formula: %s.", t.String())}
+			p := Problem{ISCHEME, fmt.Sprintf("In %s, pattern is not an atomic formula: %s.", sid, t.String())}
 			problems = append(problems, p)
 		}
 		// Check that the predicate of the atom, with the given arity, has been declared in the language
 		_, ok := l[key]
 		if !ok {
-			p := Problem{ISCHEME, fmt.Sprintf("Predicate of issue pattern not declared in the language: %s.", key)}
+			p := Problem{ISCHEME, fmt.Sprintf("In %s, predicate of issue pattern not declared in the language: %s.", sid, key)}
 			problems = append(problems, p)
 		}
 	}
 
-	for _, is := range theory.IssueSchemes {
+	for sid, is := range theory.IssueSchemes {
 		s := *is
 		// Check that each string in the list of the scheme represents an atom, or
 		// has three elements, where the first an last are atoms and the
@@ -415,10 +420,10 @@ func validateIssueSchemes(theory *caes.Theory) []Problem {
 			for _, i := range []int{0, 2} {
 				t, ok := terms.ReadString(s[i])
 				if !ok {
-					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not a term: %s.", s[i])}
+					p := Problem{ISCHEME, fmt.Sprintf("In %s, pattern is not a term: %s.", sid, s[i])}
 					problems = append(problems, p)
 				} else if t.Type() != terms.AtomType && t.Type() != terms.CompoundType {
-					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not an atom: %s.", s[i])}
+					p := Problem{ISCHEME, fmt.Sprintf("In %s, pattern is not an atom: %s.", sid, s[i])}
 					problems = append(problems, p)
 				}
 			}
@@ -426,15 +431,15 @@ func validateIssueSchemes(theory *caes.Theory) []Problem {
 			for i, _ := range s {
 				t, ok := terms.ReadString(s[i])
 				if !ok {
-					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not a term: %s.", s[i])}
+					p := Problem{ISCHEME, fmt.Sprintf("In %s, pattern is not a term: %s.", sid, s[i])}
 					problems = append(problems, p)
 				} else if t.Type() != terms.AtomType && t.Type() != terms.CompoundType {
-					p := Problem{ISCHEME, fmt.Sprintf("Pattern is not an atom: %s.", s[i])}
+					p := Problem{ISCHEME, fmt.Sprintf("In %s, pattern is not an atom: %s.", sid, s[i])}
 					problems = append(problems, p)
 				} else {
 					// Check that each atom has a predicate defined in the language,
 					// with the correct arity
-					validateAtom(t)
+					validateAtom(sid, t)
 				}
 			}
 		}

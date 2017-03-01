@@ -368,6 +368,8 @@ func Ground(t Term, b Bindings) bool {
 
 func AtomicFormula(t Term) bool {
 	switch t.Type() {
+	case BoolType:
+		return true
 	case AtomType:
 		return true
 	case CompoundType:
