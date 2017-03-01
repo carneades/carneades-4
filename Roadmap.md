@@ -13,7 +13,7 @@
     * Cycles
     * Cumulative arguments
     * Issue-based Information Systems (IBIS)
-    * Multicriteria Decision-Making (MCDM)
+    * Multi-criteria Decision Analysis (MCDA)
 - Import
     * Simple, plain text format, based on YAML
     * The Legal Knowledge Interchange Format (LKIF), used by Carneades 2
