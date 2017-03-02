@@ -10,7 +10,7 @@
 package caes
 
 import (
-	//	"fmt"
+	// "fmt"
 	"strings"
 
 	"github.com/carneades/carneades-4/src/engine/terms"
@@ -62,70 +62,67 @@ func termToArgDesc(s string) (bool, *ArgDesc) {
 // and argument graph is left unchanged. If all goes well, the argument
 // graph is updated and nil is returned.
 func (ag *ArgGraph) Infer() error {
-	// do nothing if the theory has no schemes
-	if len(ag.Theory.ArgSchemes) == 0 {
-		return nil
-	}
-	rb := TheoryToSWIRulebase(ag.Theory)
-	// rb := TheoryToRuleStore(ag.Theory)
+	if len(ag.Theory.ArgSchemes) != 0 {
+		rb := TheoryToSWIRulebase(ag.Theory)
+		// rb := TheoryToRuleStore(ag.Theory)
 
-	// Create an index of the previous arguments constructed
-	// to avoid constructing equivalent instanstiations of schemes
-	// and to allow the inference engine to construct undercutters
-	prevArgs := map[string]bool{}
-	for _, a := range ag.Arguments {
-		if a != nil {
-			prevArgs["argument("+a.Scheme.Id+",["+strings.Join(a.Parameters, ",")+"])"] = true
+		// Create an index of the previous arguments constructed
+		// to avoid constructing equivalent instanstiations of schemes
+		// and to allow the inference engine to construct undercutters
+		prevArgs := map[string]bool{}
+		for _, a := range ag.Arguments {
+			if a != nil {
+				prevArgs["argument("+a.Scheme.Id+",["+strings.Join(a.Parameters, ",")+"])"] = true
+			}
 		}
-	}
 
-	// The assumptions to be used as goals in the query with the CHR inference
-	// engine consists of the union of the assumptions of the argument graph
-	// and the assumptions for each of the previous arguments
-	assums := map[string]bool{}
-	for k, v := range ag.Assumptions {
-		assums[k] = v
-	}
-	for k, v := range prevArgs {
-		assums[k] = v
-	}
-	goals := []string{}
-	// fmt.Printf("goals:\n")
-	for assm, _ := range assums {
-		goals = append(goals, assm)
-		// fmt.Printf("   %s\n", assm)
-	}
+		// The assumptions to be used as goals in the query with the CHR inference
+		// engine consists of the union of the assumptions of the argument graph
+		// and the assumptions for each of the previous arguments
+		assums := map[string]bool{}
+		for k, v := range ag.Assumptions {
+			assums[k] = v
+		}
+		for k, v := range prevArgs {
+			assums[k] = v
+		}
+		goals := []string{}
+		// fmt.Printf("goals:\n")
+		for assm, _ := range assums {
+			goals = append(goals, assm)
+			// fmt.Printf("   %s\n", assm)
+		}
 
-	success, store, err := rb.Infer(goals)
-	if err != nil {
-		return err
-	}
-	if !success {
-		return nil
-	}
+		success, store, err := rb.Infer(goals)
+		if err != nil {
+			return err
+		}
+		if !success {
+			return nil
+		}
 
-	// fmt.Printf("store:\n")
-	for _, s := range store {
-		// fmt.Printf("   %s\n", s)
-		// If the term does not represent an argument already in the graph
-		// then, if the term does represent an argument, use it to
-		// add an argument to the argument graph by instantiating the
-		// argumentation scheme applied.
-		if _, exists := prevArgs[s]; !exists {
-			isArg, a := termToArgDesc(s)
-			if isArg {
-				ag.InstantiateScheme(a.Scheme, a.Values)
-				prevArgs[s] = true
+		// fmt.Printf("store:\n")
+		for _, s := range store {
+			// fmt.Printf("   %s\n", s)
+			// If the term does not represent an argument already in the graph
+			// then, if the term does represent an argument, use it to
+			// add an argument to the argument graph by instantiating the
+			// argumentation scheme applied.
+			if _, exists := prevArgs[s]; !exists {
+				isArg, a := termToArgDesc(s)
+				if isArg {
+					ag.InstantiateScheme(a.Scheme, a.Values)
+					prevArgs[s] = true
+				}
 			}
 		}
 	}
-
 	// Use issue schemes of the theory to derive or update the issues
 	// of the argument graph
 
 	if ag.Theory.IssueSchemes != nil {
 		for issue, patterns := range ag.Theory.IssueSchemes {
-			err = ag.makeIssue(issue, *patterns)
+			err := ag.makeIssue(issue, *patterns)
 			if err != nil {
 				return err
 			}

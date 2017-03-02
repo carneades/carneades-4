@@ -67,7 +67,7 @@ func checkCmd() {
 	fromFlag := eval.String("f", "yaml", "the format of the source file")
 
 	var inFile *os.File
-	var outFile *os.File = os.Stdout
+	var outFile *os.File = os.Stderr
 	var err error
 
 	if err := eval.Parse(os.Args[2:]); err != nil {
@@ -140,6 +140,10 @@ func checkCmd() {
 
 	// Print out any problems found to standard out
 	for _, p := range problems {
-		fmt.Fprintf(outFile, "%s; %s\n", p.Category, p.Description)
+		if p.Expression == "" {
+			fmt.Fprintf(outFile, "%s: %s: %s\n", p.Category, p.Id, p.Description)
+		} else {
+			fmt.Fprintf(outFile, "%s: %s: %s: %s\n", p.Category, p.Id, p.Description, p.Expression)
+		}
 	}
 }

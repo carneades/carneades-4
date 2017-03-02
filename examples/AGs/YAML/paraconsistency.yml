@@ -6,29 +6,29 @@ meta:
 
 statements:
   p: P is true
-  np: P is not true
+  ¬p: P is not true
   q: Q is true.
-  nq: Q is not true
+  ¬q: Q is not true
 
 issues:
   i1: 
-    positions: [p, np]
+    positions: [p, ¬p]
   i2:
-    positions: [q, nq]
+    positions: [q, ¬q]
 
 arguments:
   a1:
     conclusion: q
     premises: [p]
   a2:
-    conclusion: nq
-    premises: [np]
+    conclusion: ¬q
+    premises: [¬p]
 
 # inconsistent assumptions!
-assumptions: [p, np]
+assumptions: [p, ¬p]
 
 tests:
-  in:  [p, np]
-  out: [q, nq]
+  in:  [p, ¬p]
+  out: [q, ¬q]
 
   

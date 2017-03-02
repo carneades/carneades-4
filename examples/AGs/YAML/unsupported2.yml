@@ -3,32 +3,32 @@ meta:
 
 statements: 
   p: P
-  np: ¬P
+  ¬p: ¬P
   q: Q
-  napp(a1): ¬app(a1)
+  ¬app(a1): ¬app(a1)
 
 issues:
   i1:
-    positions: [p, np]
+    positions: [p, ¬p]
   
 arguments:
   a1:
     premises: [p]
     conclusion: q
-    undercutter: napp(a1)
+    undercutter: ¬app(a1)
   a2:
     premises: [p]
-    conclusion: np 
+    conclusion: ¬p 
   a3:
-    premises: [np]
+    premises: [¬p]
     conclusion: p
 
 assumptions:
-  - napp(a1)
+  - ¬app(a1)
 
 tests:
-  undecided: [p,np]
-  in: [napp(a1)]
+  undecided: [p,¬p]
+  in: [¬app(a1)]
   out: [q]
 
   

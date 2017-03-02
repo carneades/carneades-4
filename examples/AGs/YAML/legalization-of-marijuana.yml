@@ -9,37 +9,37 @@ meta:
 
 statements:
   legalize: Marijuana should be legalized.
-  nlegalize:  Marijuana should not be legalized.
+  ¬legalize:  Marijuana should not be legalized.
   harmless: Marijuana is harmless.
-  nharmless: Marijuana is not harmless.
+  ¬harmless: Marijuana is not harmless.
   # liberty: Individuals should  be free to use marijuana.
   # nliberty: Individuals should not be free  to use marijuana.
   social_costs: Legalization would entail heavy social costs.
-  nsocial_costs: Legalization would not entail heavy  social costs.
+  ¬social_costs: Legalization would not entail heavy  social costs.
   reduced_consumption: Legalization would reduce the consumption of marijuana.
-  nreduced_consumption: Legalization  would not reduce the consumption of marijuana.
+  ¬reduced_consumption: Legalization  would not reduce the consumption of marijuana.
   # gateway: Marijuana is a gateway drug.
-  # ngateway: Marijuana is not a gateway drug.
+  # ¬gateway: Marijuana is not a gateway drug.
   # relieve_courts: Legalization would relieve strained courts.
-  # nrelieve_courts: Legalization would not relieve strained courts.
+  # ¬relieve_courts: Legalization would not relieve strained courts.
   reduce_crime: Legalization would reduce crime.
-  nreduce_crime:  Legalization would not reduce crime.
+  ¬reduce_crime:  Legalization would not reduce crime.
   # prohibition_feasible: The  prohibition of marijuana is feasible.
-  # nprohibition_feasible: The prohibition of marijuana is not feasible.
+  # ¬prohibition_feasible: The prohibition of marijuana is not feasible.
   economical: Legalization would be economical.
-  neconomical: Legalization would not be economical.
+  ¬economical: Legalization would not be economical.
   # regulation_superior: Regulation of marijuana would be superior to a ban.
-  # nregulation_superior: Regulation of marijuana  would not be superior to a ban.
+  # ¬regulation_superior: Regulation of marijuana  would not be superior to a ban.
   # racist: Prohibition enforcement is racially biased.
-  # nracist: Prohibition enforcement is not racially  biased.
+  # ¬racist: Prohibition enforcement is not racially  biased.
   # growing_potency: Marijuana is growing in potency.
-  # ngrowing_potency: Marijuana is not growing in potency.
+  # ¬growing_potency: Marijuana is not growing in potency.
   # growing_potency_irrelevant: It does not matter whether marijuana is growing in potency.
   legal_drugs_have_higher_consumption: Legal drugs, like alcohol and tobacco, are used more than illegal drugs.
   # legalization_desired: The public wants marijuana to be legalized.
-  # nlegalization_desired: The public does not want marijuana to be legalized.
+  # ¬legalization_desired: The public does not want marijuana to be legalized.
   # treaties: Legalization would contravene international treaties.
-  # ntreaties: Legalization would not contravene international treaties.
+  # ¬treaties: Legalization would not contravene international treaties.
   us_drug_use_statistics: 52 percent of Americans 12 or older used alcohol, 27 percent used tobacco and only 7 percent used marijuana.
   emergency_rooms: Marrijuana emergency roolm admissions are reported at the rate of 1,250 a day and 455,000 a year.
   highway_crashes: Highway crashes double for marijuana users.
@@ -53,35 +53,35 @@ statements:
 
 issues:
   i1:
-    positions: [legalize, nlegalize]
+    positions: [legalize, ¬legalize]
   i2:
-    positions: [harmless, nharmless]
+    positions: [harmless, ¬harmless]
   # i3:
   #   positions: [liberty, nliberty]
   i4:
-    positions: [social_costs, nsocial_costs]
+    positions: [social_costs, ¬social_costs]
   i5:
-    positions: [reduced_consumption, nreduced_consumption]
+    positions: [reduced_consumption, ¬reduced_consumption]
   # i6:
-  #   positions: [gateway,ngateway]
+  #   positions: [gateway,¬gateway]
   # i7:
-  #   positions: [relieve_courts, nrelieve_courts]
+  #   positions: [relieve_courts, ¬relieve_courts]
   i8:
-    positions: [reduce_crime, nreduce_crime]
+    positions: [reduce_crime, ¬reduce_crime]
   # i9:
-  #   positions: [prohibition_feasible, nprohibition_feasible]
+  #   positions: [prohibition_feasible, ¬prohibition_feasible]
   i10:
-    positions: [economical, neconomical]
+    positions: [economical, ¬economical]
   # i11:
-  #   positions: [regulation_superior, nregulation_superior]
+  #   positions: [regulation_superior, ¬regulation_superior]
   # i12:
-  #   positions: [racist, nracist]
+  #   positions: [racist, ¬racist]
   # i13:
-  #   positions: [growing_potency, ngrowing_potency]
+  #   positions: [growing_potency, ¬growing_potency]
   # i14:
-  #  positions: [legalization_desired, nlegalization_desired]
+  #  positions: [legalization_desired, ¬legalization_desired]
   # i15:
-  #   positions: [treaties, ntreaties]
+  #   positions: [treaties, ¬treaties]
       
 arguments:
   a1:
@@ -90,38 +90,38 @@ arguments:
     premises:
       - harmless
       # - liberty
-      - nsocial_costs
+      - ¬social_costs
       - reduced_consumption
-      #- ngateway
+      #- ¬gateway
       # - relieve_courts
       - reduce_crime
-      # - nprohibition_feasible
+      # - ¬prohibition_feasible
       - economical
       # - regulation_superior
       # - racist
-      # - ngrowing_potency
+      # - ¬growing_potency
       # - legalization_desired
-      # - ntreaties
+      # - ¬treaties
   a2:
     scheme: cumulative
-    conclusion: nlegalize
+    conclusion: ¬legalize
     premises:
-      - nharmless
+      - ¬harmless
       # - nliberty
       - social_costs
-      - nreduced_consumption
+      - ¬reduced_consumption
       # - gateway
-      # - nrelieve_courts
-      - nreduce_crime
+      # - ¬relieve_courts
+      - ¬reduce_crime
       # - prohibition_feasible
-      - neconomical
-      # - nregulation_superior
-      # - nracist
+      - ¬economical
+      # - ¬regulation_superior
+      # - ¬racist
       # - growing_potency
-      # - nlegalization_desired
+      # - ¬legalization_desired
       # - treaties
   a3:
-    conclusion: nreduced_consumption
+    conclusion: ¬reduced_consumption
     premises:
       - legal_drugs_have_higher_consumption
   a4:
@@ -129,7 +129,7 @@ arguments:
     premises:
       - us_drug_use_statistics
   a5:
-    conclusion: nharmless
+    conclusion: ¬harmless
     scheme: cumulative
     premises:
       - emergency_rooms
@@ -137,12 +137,12 @@ arguments:
       - harmful_for_young_brains
       - increased_risk_of_substance_use_disorders
   a6:
-    conclusion: nsocial_costs
+    conclusion: ¬social_costs
     premises:
       - robbed_future
       - prison_complex 
   a7:
-    conclusion: neconomical
+    conclusion: ¬economical
     scheme: cumulative
     premises:
       - costs_of_regulation

@@ -726,9 +726,9 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 // If all goes well, the argument graph is updated and nil is returned
 func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error) {
 
-	// skip issue schemes with no patterns
-	if len(patterns) == 0 {
-		fmt.Fprintf(os.Stderr, "Issue scheme with no patterns: %v\n", issueScheme)
+	// skip issue schemes with less than two patterns
+	if len(patterns) < 2 {
+		fmt.Fprintf(os.Stderr, "Issue scheme with less than two patterns: %v\n", issueScheme)
 		return
 	}
 	// Try to match the first pattern with each statement
@@ -753,7 +753,7 @@ func (ag *ArgGraph) makeIssue(issueScheme string, patterns []string) (err error)
 			candidates := []*Statement{stmt}
 
 			// Check if the issue scheme defines an enumeration.
-			isEnumeration := len(patterns) > 1 && patterns[1] == "..."
+			isEnumeration := len(patterns) == 3 && patterns[1] == "..."
 
 			// Create a copy of bindings with all variables with names ending
 			// in integer indexes unbound

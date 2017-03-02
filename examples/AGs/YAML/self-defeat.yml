@@ -3,20 +3,19 @@ meta:
 
 statements: 
   p: P
-  np: ¬P
+  ¬p: ¬P
 
-issues:
-  i1:
-    positions: [p, np]
- 
+issue_schemes:
+  negation: ["¬Q", "Q"]
+
 arguments:
   a1:
     conclusion: p
-    premises: [np]
+    premises: [¬p]
   a2:
-    conclusion: np 
+    conclusion: ¬p 
     premises: [p]
 
 tests:
-  undecided: [p, np]
+  undecided: [p, ¬p]
 

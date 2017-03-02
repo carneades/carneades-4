@@ -8,7 +8,6 @@ meta:
     Argumentation Schemes. Cambridge University Press.
 
 language:
-  not/1: "%s is not true."
   applicable/1: "Argument %s is applicable."
   asserts/2: "%s asserts that %s is true."
   bad/1: "%s is bad."
@@ -89,13 +88,13 @@ language:
 
 statements:
    expert(joe,climate): Joe is a climate expert.
-   in_domain(not(caused_by(global_warming,humans)),climate): >
+   in_domain(¬caused_by(global_warming,humans),climate): >
       The claim that global warming is not caused by humans is in the climate domain.
-   asserts(joe,not(caused_by(global_warming,humans))): >
+   asserts(joe,¬caused_by(global_warming,humans)): >
       Joe asserts that global warming is not caused by humans.
-   not(caused_by(global_warming,humans)): >
+   ¬caused_by(global_warming,humans): >
       Global warming is not caused by humans.
-   based_on_evidence(asserts(joe,not(caused_by(global_warming,humans)))): 
+   based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): 
       "Joe's assertion is based on evidence."
 
 argument_schemes:
@@ -242,7 +241,7 @@ argument_schemes:
         Douglas Walton, A Pragmatic Theory of Fallacy,
         The University of Alabama Press, Tuscaloosa and London, 1995, p. 152.
     variables: [P,S]
-    conclusions: [not(S)]
+    conclusions: [¬S]
     premises:
       - asserts(P,S)
       - bad_moral_character(P)
@@ -276,10 +275,10 @@ argument_schemes:
         The University of Alabama Press, Tuscaloosa and London, 1995, p. 150
     variables: [S]
     conclusions:
-      - not(S)
+      - ¬S
     premises:
       - would_be_known(S)
-      - not(known(S))
+      - ¬known(S)
     exceptions:
       - uninvestigated(S)
 
@@ -293,7 +292,7 @@ argument_schemes:
         1995, pp. 155-156.
     variables: [A,G]
     conclusions:
-      - not(should_be_performed(A))
+      - ¬should_be_performed(A)
     premises:
       - brings_about(A,G)
       - bad(G)
@@ -477,8 +476,8 @@ argument_schemes:
 assumptions:
   - biased(joe)
   - expert(joe, climate)
-  - asserts(joe,not(caused_by(global_warming,humans)))
-  - in_domain(not(caused_by(global_warming, humans), climate))
+  - asserts(joe,¬caused_by(global_warming,humans))
+  - in_domain(¬caused_by(global_warming, humans), climate)
 
 
 

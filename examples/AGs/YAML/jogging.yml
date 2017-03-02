@@ -10,21 +10,21 @@ statements:
   hot: It is hot.
   rain: It is raining.
   jog: Go jogging.
-  njog: Do not go jogging.
+  ¬jog: Do not go jogging.
 
 issues:
   i1:
-    positions: [jog, njog]
+    positions: [jog, ¬jog]
 
 arguments:
   a1:
     scheme: factorized
-    conclusion: njog
+    conclusion: ¬jog
     premises: [rain]
 
   a2: 
     scheme: factorized
-    conclusion: njog
+    conclusion: ¬jog
     premises: [hot]
 
   a3:
@@ -36,6 +36,6 @@ assumptions: [rain, hot]
 
 tests:
   in: [rain, hot, jog]
-  out: [njog]
+  out: [¬jog]
   undecided: []
 
