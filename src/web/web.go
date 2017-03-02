@@ -29,6 +29,7 @@ import (
 	ddot "github.com/carneades/carneades-4/src/engine/dung/encoding/dot"
 	dgml "github.com/carneades/carneades-4/src/engine/dung/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/dung/encoding/tgf"
+	"github.com/carneades/carneades-4/src/engine/validation"
 )
 
 const afLimit = 20   // max number of arguments handled by the Dung solver
@@ -140,64 +141,78 @@ func CarneadesServer(port string, templatesDir string) {
 			return
 		}
 
-		// Apply the theory of the argument graph, if any, to
-		// derive further arguments
-		ag.Infer()
-		// evaluate the argument graph, using grounded semantics
-		// and update the labels of the statements in the argument graph
-		l := ag.GroundedLabelling()
-		// fmt.Printf("labelling=%v\n", l)
-		ag.ApplyLabelling(l)
+		// Validate the argument graph
+		problems := validation.Validate(ag)
 
-		switch outputFormat {
-		case "yaml":
-			yaml.Export(w, ag)
-		case "graphml":
-			err = graphml.Export(w, ag)
-			if err != nil {
-				errorTemplate.Execute(w, err.Error())
-				return
+		// Print out any problems found to standard out
+		for _, p := range problems {
+			if p.Expression == "" {
+				fmt.Fprintf(w, "%s: %s: %s\n", p.Category, p.Id, p.Description)
+			} else {
+				fmt.Fprintf(w, "%s: %s: %s: %s\n", p.Category, p.Id, p.Description, p.Expression)
 			}
-		case "dot":
-			err = dot.Export(w, ag)
-			if err != nil {
-				errorTemplate.Execute(w, err.Error())
-				return
-			}
-		case "png", "svg":
-			//			cmd := exec.Command("dot", "-T"+outputFormat)
-			//			w2 := bytes.NewBuffer([]byte{})
-			//			cmd.Stdin = w2
-			//			cmd.Stdout = w
-			//			err = dot.Export(w2, *ag)
-			//			if err != nil {
-			//				errorTemplate.Execute(w, err.Error())
-			//				return
-			//			}
-			//			// Limit the runtime of dot
-			//			cmd.Start()
-			//			done := make(chan error, 1)
-			//			go func() {
-			//				done <- cmd.Wait()
-			//			}()
-			//			select {
-			//			case <-time.After(timeLimit * time.Second):
-			//				cmd.Process.Kill()
-			//			case err := <-done:
-			//				if err != nil {
-			//					errorTemplate.Execute(w, err.Error())
-			//					return
-			//				}
-			//			}
-			err := exportArgGraph(ag, w, outputFormat)
-			if err != nil {
-				errorTemplate.Execute(w, err.Error())
-				return
-			}
+		}
 
-		default:
-			errorTemplate.Execute(w, fmt.Sprintf("unknown or unsupported output format: %s\n", outputFormat))
-			return
+		if len(problems) == 0 {
+			// Apply the theory of the argument graph, if any, to
+			// derive further arguments
+			ag.Infer()
+			// evaluate the argument graph, using grounded semantics
+			// and update the labels of the statements in the argument graph
+			l := ag.GroundedLabelling()
+			// fmt.Printf("labelling=%v\n", l)
+			ag.ApplyLabelling(l)
+
+			switch outputFormat {
+			case "yaml":
+				yaml.Export(w, ag)
+			case "graphml":
+				err = graphml.Export(w, ag)
+				if err != nil {
+					errorTemplate.Execute(w, err.Error())
+					return
+				}
+			case "dot":
+				err = dot.Export(w, ag)
+				if err != nil {
+					errorTemplate.Execute(w, err.Error())
+					return
+				}
+			case "png", "svg":
+				//			cmd := exec.Command("dot", "-T"+outputFormat)
+				//			w2 := bytes.NewBuffer([]byte{})
+				//			cmd.Stdin = w2
+				//			cmd.Stdout = w
+				//			err = dot.Export(w2, *ag)
+				//			if err != nil {
+				//				errorTemplate.Execute(w, err.Error())
+				//				return
+				//			}
+				//			// Limit the runtime of dot
+				//			cmd.Start()
+				//			done := make(chan error, 1)
+				//			go func() {
+				//				done <- cmd.Wait()
+				//			}()
+				//			select {
+				//			case <-time.After(timeLimit * time.Second):
+				//				cmd.Process.Kill()
+				//			case err := <-done:
+				//				if err != nil {
+				//					errorTemplate.Execute(w, err.Error())
+				//					return
+				//				}
+				//			}
+				err := exportArgGraph(ag, w, outputFormat)
+				if err != nil {
+					errorTemplate.Execute(w, err.Error())
+					return
+				}
+
+			default:
+				errorTemplate.Execute(w, fmt.Sprintf("unknown or unsupported output format: %s\n", outputFormat))
+				return
+			}
 		}
 	}
 

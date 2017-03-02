@@ -14,7 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
+	// "log"
 	"os"
 	"strings"
 	"time"
@@ -90,7 +90,7 @@ func (rb *SWIRulebase) AddRule(name string, keeps []string, deletes []string, gu
 
 // Translate a theory into a SWIRulebase
 func TheoryToSWIRulebase(t *Theory) *SWIRulebase {
-	log.Println("TheoryToSWIRulebase") // DEBUG
+	// log.Println("TheoryToSWIRulebase") // DEBUG
 	rb := MakeSWIRulebase(t.Language)
 	for _, s := range t.ArgSchemes {
 		// If the scheme has no conclusions, skip the scheme

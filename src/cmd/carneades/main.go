@@ -32,6 +32,7 @@ Usage: carneades command [arguments]
 
 The commands are:
 
+check - validate an structured argument graph and report any syntactic or semantic errors 
 eval - evaluate a structured argument graph
 dung - compute extensions of a Dung abstract argumentation framework
 server - start the Carneades web service

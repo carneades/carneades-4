@@ -14,12 +14,16 @@ import (
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/graphml"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/lkif"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
+	"github.com/carneades/carneades-4/src/engine/validation"
 )
 
 const helpEval = `
 usage: carneades eval [-f input-format] [-t output-format] [-o output-file] [input-file]
 
-Evaluates an argument graph and prints it in the selected output format.
+Evaluates an argument graph and prints the result in the selected output format.
+The argument graph is first checked for syntactic and semantic errors and
+evaluted only if no errors where found.  Any problems found are printed
+to stderr.
 
 If no input-file is specified, input is read from stdin. 
 
@@ -170,36 +174,50 @@ func evalCmd() {
 		return
 	}
 
-	// Apply the theory of the argument graph, if any, to
-	// derive further arguments
-	ag.Infer()
+	// Validate the argument graph
+	problems := validation.Validate(ag)
 
-	// evaluate the argument graph, using grounded semantics
-	// and update the labels of the statements in the argument graph
-	l := ag.GroundedLabelling()
-	// fmt.Printf("labelling=%v\n", l)
-	ag.ApplyLabelling(l)
+	// Print out any problems found to standard out
+	for _, p := range problems {
+		if p.Expression == "" {
+			fmt.Fprintf(outFile, "%s: %s: %s\n", p.Category, p.Id, p.Description)
+		} else {
+			fmt.Fprintf(outFile, "%s: %s: %s: %s\n", p.Category, p.Id, p.Description, p.Expression)
+		}
+	}
 
-	switch *toFlag {
-	case "yaml":
-		yaml.Export(outFile, ag)
-		outFile.Close()
-	case "graphml":
-		err = graphml.Export(outFile, ag)
-		outFile.Close()
-		if err != nil {
-			log.Fatal(err)
+	if len(problems) == 0 {
+		// Apply the theory of the argument graph, if any, to
+		// derive further arguments
+		ag.Infer()
+
+		// evaluate the argument graph, using grounded semantics
+		// and update the labels of the statements in the argument graph
+		l := ag.GroundedLabelling()
+		// fmt.Printf("labelling=%v\n", l)
+		ag.ApplyLabelling(l)
+
+		switch *toFlag {
+		case "yaml":
+			yaml.Export(outFile, ag)
+			outFile.Close()
+		case "graphml":
+			err = graphml.Export(outFile, ag)
+			outFile.Close()
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+		case "dot":
+			err = dot.Export(outFile, ag)
+			outFile.Close()
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+		default:
+			log.Fatal(fmt.Errorf("unknown or unsupported output format: %s\n", *toFlag))
 			return
 		}
-	case "dot":
-		err = dot.Export(outFile, ag)
-		outFile.Close()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	default:
-		log.Fatal(fmt.Errorf("unknown or unsupported output format: %s\n", *toFlag))
-		return
 	}
 }
