@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 const header = `
 :- use_module(library(chr)).
