@@ -20,9 +20,10 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"io/ioutil"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 type LKIF struct {
@@ -99,6 +100,7 @@ type Premise struct {
 
 // Convert to an LKIF argument graph to a CAES argument graph
 func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
+	assums := map[string]bool{}
 	cag := caes.NewArgGraph()
 	if lag.Id != "" {
 		cag.Metadata["id"] = lag.Id
@@ -165,10 +167,10 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 		// between facts and assumptions
 		switch s.Value {
 		case "true":
-			cag.Assumptions[stmt.Id] = true
+			assums[stmt.Id] = true
 		case "false":
 			c := complement(stmt.Id)
-			cag.Assumptions[c] = true
+			assums[c] = true
 		default:
 			continue
 		}
@@ -234,7 +236,7 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 				args[e.Id] = e
 			case "assumption":
 				arg.Premises = append(arg.Premises, pr)
-				cag.Assumptions[pr.Stmt.Id] = true
+				assums[pr.Stmt.Id] = true
 			default:
 				continue
 			}
@@ -262,6 +264,11 @@ func (lag *ArgumentGraph) Caes() *caes.ArgGraph {
 	}
 	for _, arg := range args {
 		cag.Arguments[arg.Id] = arg
+	}
+	for k, v := range assums {
+		if v {
+			cag.Assumptions = append(cag.Assumptions, k)
+		}
 	}
 	return cag
 }

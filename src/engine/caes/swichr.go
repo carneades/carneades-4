@@ -20,6 +20,8 @@ import (
 	"time"
 )
 
+const DEBUG = true
+
 const header = `
 :- use_module(library(chr)).
 :- chr_constraint argument/2, go/0, '¬'/1.
@@ -180,7 +182,9 @@ func (rb *SWIRulebase) Infer(goals []string) (bool, []string, error) {
 	}
 
 	defer f.Close()
-	defer os.Remove(f.Name()) // comment out to DEBUG
+	if !DEBUG {
+		defer os.Remove(f.Name())
+	}
 
 	err = writeCHR(rb, goals, f)
 	if err != nil {

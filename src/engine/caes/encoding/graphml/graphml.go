@@ -10,8 +10,9 @@ package graphml
 import (
 	"errors"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 const (
@@ -253,12 +254,14 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 	stat2Node := make(map[string]string)
 	firstNode := true
 	firstEdge := true
+	assums := caes.SliceToMap(ag.Assumptions)
+
 	// Statements []
 	for _, stat := range ag.Statements {
 		nNode := newGmlNode() // shapeType [] (rectangle)
 		stat2Node[stat.Id] = nNode.id
 		nNode.nodeLabel = stat.Text
-		if ag.Assumptions[stat.Id] {
+		if assums[stat.Id] {
 			nNode.underlinedLabel = true
 		}
 		switch stat.Label {

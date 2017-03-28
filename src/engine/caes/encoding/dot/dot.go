@@ -219,6 +219,7 @@ func pEdges(w io.Writer, edges []gmlEdge) {
 }
 
 func mkNodesAndEdges(ag *caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err error) {
+	assums := caes.SliceToMap(ag.Assumptions)
 	stat2Node := make(map[string]string)
 	firstNode := true
 	firstEdge := true
@@ -227,7 +228,7 @@ func mkNodesAndEdges(ag *caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err e
 		nNode := newGmlNode() // shapeType [] (rectangle)
 		stat2Node[stat.Id] = nNode.id
 		nNode.nodeLabel = stat.Text
-		if ag.Assumptions[stat.Id] {
+		if assums[stat.Id] {
 			nNode.underlinedLabel = true
 		}
 		switch stat.Label {

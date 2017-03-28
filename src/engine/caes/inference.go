@@ -76,21 +76,15 @@ func (ag *ArgGraph) Infer() error {
 			}
 		}
 
-		// The assumptions to be used as goals in the query with the CHR inference
-		// engine consists of the union of the assumptions of the argument graph
+		// The goals in the query with the CHR inference
+		// engine consist of the union of the assumptions of the argument graph
 		// and the assumptions for each of the previous arguments
-		assums := map[string]bool{}
-		for k, v := range ag.Assumptions {
-			assums[k] = v
-		}
-		for k, v := range prevArgs {
-			assums[k] = v
-		}
 		goals := []string{}
-		// fmt.Printf("goals:\n")
-		for assm, _ := range assums {
-			goals = append(goals, assm)
-			// fmt.Printf("   %s\n", assm)
+		for _, k := range ag.Assumptions {
+			goals = append(goals, k)
+		}
+		for k, _ := range prevArgs {
+			goals = append(goals, k)
 		}
 
 		success, store, err := rb.Infer(goals)

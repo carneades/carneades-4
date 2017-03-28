@@ -19,9 +19,10 @@ package aif
 
 import (
 	"encoding/json"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"io/ioutil"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 type AIF struct {
@@ -156,8 +157,9 @@ func (ag AIF) Caes() *caes.ArgGraph {
 		cag.Arguments[arg.Id] = arg
 	}
 
-	cag.Assumptions = assms
-
+	for k, _ := range assms {
+		cag.Assumptions = append(cag.Assumptions, k)
+	}
 	return cag
 }
 

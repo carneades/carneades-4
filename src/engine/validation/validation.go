@@ -191,7 +191,7 @@ func validateArguments(ag *caes.ArgGraph) []Problem {
 // Validate the assumptions of an argument graph
 func validateAssumptions(ag *caes.ArgGraph) []Problem {
 	problems := []Problem{}
-	for k, _ := range ag.Assumptions {
+	for _, k := range ag.Assumptions {
 		// Check that the key is a term
 		t, ok := terms.ReadString(k)
 		if !ok {

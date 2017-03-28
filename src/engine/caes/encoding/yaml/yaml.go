@@ -99,7 +99,7 @@ var sp0, sp1, sp2, sp3, sp4, sp5, sp6, sp7 string
 
 var collOfSchemes map[string]*caes.Scheme                    // collecion of all defined schemes
 var collOfWeighingFunctions map[string]caes.WeighingFunction // collection of all defined weighing functions
-var collOfAssumptions map[string]bool                        // collection of all assumptions
+var collOfAssumptions []string                               // collection of all assumptions
 var collOfStatements map[string]*caes.Statement              // collection of statements
 var collOfWF2source map[string]interface{}                   // collection of weighing function to her definition
 // string (Basic)
@@ -110,7 +110,7 @@ func Import(inFile io.Reader) (*caes.ArgGraph, error) {
 
 	collOfWeighingFunctions = caes.BasicWeighingFunctions
 	collOfSchemes = caes.BasicSchemes
-	collOfAssumptions = map[string]bool{}
+	collOfAssumptions = []string{}
 	collOfWF2source = map[string]interface{}{}
 
 	data, err := ioutil.ReadAll(inFile)
@@ -198,7 +198,7 @@ func scanArgMapGraph(m *argMapGraph) (*argMapGraph, error) {
 	if m.Assumptions != nil && len(m.Assumptions) != 0 {
 		for _, stat := range m.Assumptions {
 			stat = normString(stat)
-			collOfAssumptions[stat] = true
+			collOfAssumptions = append(collOfAssumptions, stat)
 		}
 	}
 	// scan weighing_functions
@@ -286,7 +286,11 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 
 	// create ArgGraph
 	// ===============
-	caesAg = &caes.ArgGraph{Metadata: m.Meta, References: m.References, Theory: theory}
+	caesAg = caes.NewArgGraph()
+	caesAg.Metadata = m.Meta
+	caesAg.References = m.References
+	caesAg.Theory = theory
+
 	// Metadata
 	// --------
 	// fmt.Printf("   ---  Metadata --- \n %v \n ------End Metadata --- \n", caesAg.Metadata)
@@ -430,10 +434,9 @@ func caesArgMapGraph2caes(m *argMapGraph) (caesAg *caes.ArgGraph, err error) {
 	}
 	// fmt.Printf("   ---  Arguments --- \n %v \n ------End Arguments --- \n", caesAg.Arguments)
 	// Assumptions
-	caesAg.Assumptions = map[string]bool{}
-	for yamlAss, boolval := range collOfAssumptions {
-		// fmt.Printf(" Assumption: %s=%v \n", yamlAss, boolval)
-		caesAg.Assumptions[yamlAss] = boolval
+	caesAg.Assumptions = []string{}
+	for _, yamlAss := range collOfAssumptions {
+		caesAg.Assumptions = append(caesAg.Assumptions, yamlAss)
 		if caesAg.Theory == nil {
 			found = false
 			for _, caesArg_Stat := range caesAg.Statements {
@@ -1105,13 +1108,13 @@ func iface2xstatement(st_value interface{}, stat *caes.Statement) (*caes.Stateme
 		case "assumed":
 			switch t := st_subvalue.(type) {
 			case bool:
-				collOfAssumptions[stat.Id] = st_subvalue.(bool)
+				if st_subvalue.(bool) {
+					collOfAssumptions = append(collOfAssumptions, stat.Id)
+				}
 				// fmt.Printf("     assumed: %v \n", stat.Assumed)
 			case int:
-				if st_subvalue.(int) == 0 {
-					collOfAssumptions[stat.Id] = false
-				} else {
-					collOfAssumptions[stat.Id] = true
+				if st_subvalue.(int) == 1 {
+					collOfAssumptions = append(collOfAssumptions, stat.Id)
 				}
 				// fmt.Printf("     assumed: %v \n", stat.Assumed)
 			default:
@@ -1725,10 +1728,8 @@ func writeArgGraph1(noRefs bool, f io.Writer, caesAg *caes.ArgGraph) {
 	}
 	if caesAg.Assumptions != nil && len(caesAg.Assumptions) != 0 {
 		fmt.Fprintf(f, "assumptions:\n")
-		for stat, boolval := range caesAg.Assumptions {
-			if boolval {
-				fmt.Fprintf(f, "%s- %s\n", sp1, stat)
-			}
+		for _, stat := range caesAg.Assumptions {
+			fmt.Fprintf(f, "%s- %s\n", sp1, stat)
 		}
 		/*		fmt.Fprintf(f, "assumptions: [")
 				first := true

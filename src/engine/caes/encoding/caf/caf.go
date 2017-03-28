@@ -17,10 +17,11 @@ import (
 	"encoding/xml"
 	// "errors"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"io/ioutil"
 	"regexp"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 type CAF struct {
@@ -280,10 +281,10 @@ func (caf *CAF) Caes() *caes.ArgGraph {
 		}
 
 		if s.Weight > 0.5 {
-			cag.Assumptions[stmt.Id] = true
+			cag.Assumptions = append(cag.Assumptions, stmt.Id)
 		} else if s.Weight < 0.5 {
 			c := complement(stmt.Id)
-			cag.Assumptions[c] = true
+			cag.Assumptions = append(cag.Assumptions, c)
 		}
 
 		if s.Value > 0.5 {

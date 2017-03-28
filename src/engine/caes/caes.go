@@ -38,7 +38,8 @@ type ArgGraph struct {
 	Arguments        map[string]*Argument
 	References       map[string]Metadata // key -> metadata
 	Theory           *Theory
-	Assumptions      map[string]bool  // keys are atomic formulas or statement keys
+	Assumptions      []string         // atomic formulas or statement keys
+	assums           map[string]bool  // map representation of the assumptions
 	ExpectedLabeling map[string]Label // for testing
 }
 
@@ -193,7 +194,8 @@ func NewArgGraph() *ArgGraph {
 		Statements:       map[string]*Statement{},
 		Arguments:        map[string]*Argument{},
 		References:       make(map[string]Metadata),
-		Assumptions:      map[string]bool{},
+		Assumptions:      []string{},
+		assums:           make(map[string]bool),
 		Theory:           NewTheory(),
 		ExpectedLabeling: map[string]Label{},
 	}
@@ -214,28 +216,40 @@ func NewLabelling() Labelling {
 	return Labelling(make(map[*Statement]Label))
 }
 
+func SliceToMap(s []string) map[string]bool {
+	result := map[string]bool{}
+	for _, k := range s {
+		result[k] = true
+	}
+	return result
+}
+
 // Initialize a labelling by making all assumptions In
 // other positions of each issue with an assumption Out,
 // and unassumed statements without arguments Out.
 func (l Labelling) init(ag *ArgGraph) {
-
-	// Normalize the keys of the assumptions table
-	m := map[string]bool{}
-	for k, v := range ag.Assumptions {
-		m[terms.Normalize(k)] = v
+	// Normalize the assumptions
+	s := []string{}
+	for _, k := range ag.Assumptions {
+		s = append(s, terms.Normalize(k))
 	}
-	ag.Assumptions = m
+	ag.Assumptions = s
+
+	// Map representation of the assumptions
+	// to make membership test efficient
+	ag.assums = SliceToMap(ag.Assumptions)
 
 	// Normalize the keys of the statements table
 	m2 := map[string]*Statement{}
 	for k, v := range ag.Statements {
 		m2[terms.Normalize(k)] = v
 	}
+
 	ag.Statements = m2
 
 	// Make all assumed statements In
 	for _, s := range ag.Statements {
-		if ag.Assumptions[terms.Normalize(s.Id)] {
+		if ag.assums[terms.Normalize(s.Id)] {
 			l[s] = In
 		}
 	}
@@ -492,7 +506,7 @@ func (ag *ArgGraph) Inconsistent() bool {
 	for _, issue := range ag.Issues {
 		found := false
 		for _, p := range issue.Positions {
-			if ag.Assumptions[terms.Normalize(p.Id)] {
+			if ag.assums[terms.Normalize(p.Id)] {
 				if found {
 					// inconsistency, because a previous position
 					// of the issue was found to be assumed true
@@ -602,7 +616,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 						}
 						if assumptions {
-							ag.Assumptions[term2.String()] = true
+							ag.assums[term2.String()] = true
 						}
 						role := ""
 						if i < len(scheme.Roles) {

@@ -18,6 +18,11 @@ statements:
   stiffArm: Watson holds his left arm in a stiff and unnatural manner.
   injured: Watson injured his left arm.
   afghanistan: Watson has recently been in Afghanistan.
+  ¬afghanistan: Watson has not recently been in Afghaistan.
+
+issues:
+  i1:
+    positions: [afghanistan, ¬afghanistan]
 
 arguments:
   a1: 

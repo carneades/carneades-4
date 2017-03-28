@@ -18,9 +18,10 @@ package agxml
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/carneades/carneades-4/src/engine/caes"
 	"io"
 	"io/ioutil"
+
+	"github.com/carneades/carneades-4/src/engine/caes"
 )
 
 type Edu struct {
@@ -65,6 +66,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	args := make(map[string]*caes.Argument)
 	issues := make(map[string]*caes.Issue)
 	issueCounter := 0
+	assums := map[string]bool{}
 
 	for _, e := range pag.Edus {
 		edus[e.Id] = []string{e.Content}
@@ -77,7 +79,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	for _, a := range pag.Adus {
 		s := caes.NewStatement()
 		s.Id = a.Id
-		cag.Assumptions[s.Id] = true // overridden below if supported by arguments
+		assums[s.Id] = true // overridden below if supported by arguments
 		s.Metadata["type"] = a.Type
 		stmts[a.Id] = s
 	}
@@ -161,7 +163,7 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 	for _, s := range stmts {
 		// do not assume statements supported by arguments or at issue
 		if len(s.Args) > 0 || s.Issue != nil {
-			cag.Assumptions[s.Id] = false
+			assums[s.Id] = false
 		}
 		cag.Statements[s.Id] = s
 	}
@@ -178,7 +180,9 @@ func (pag *Arggraph) Caes() *caes.ArgGraph {
 			arg.Undercutter = s
 		}
 	}
-
+	for k, _ := range assums {
+		cag.Assumptions = append(cag.Assumptions, k)
+	}
 	return cag
 }
 
