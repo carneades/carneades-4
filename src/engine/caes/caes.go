@@ -616,7 +616,7 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 
 						}
 						if assumptions {
-							ag.assums[term2.String()] = true
+							ag.AddAssumption(term2.String())
 						}
 						role := ""
 						if i < len(scheme.Roles) {
@@ -727,6 +727,13 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 			fmt.Fprintf(os.Stderr, "No scheme with this id: %v\n", id)
 		}
 	}
+}
+
+// Add a statement id to the assumptions of an argument graph.  Assumes a
+// statement with this id has already been declared in the graph
+func (ag *ArgGraph) AddAssumption(stmt_id string) {
+	ag.assums[stmt_id] = true
+	ag.Assumptions = append(ag.Assumptions, stmt_id)
 }
 
 // makeIssue: match the patterns of an issue scheme against the
