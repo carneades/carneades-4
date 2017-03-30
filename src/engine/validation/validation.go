@@ -89,6 +89,7 @@ type Problem struct {
 func validateStatements(ag *caes.ArgGraph) []Problem {
 	problems := []Problem{}
 	for k, _ := range ag.Statements {
+
 		// Check that the key is a term
 		t, ok := terms.ReadString(k)
 		if !ok {
@@ -249,8 +250,19 @@ func validateExpectedLabeling(ag *caes.ArgGraph) []Problem {
 			}
 		}
 		// Check that there is a statement for the term
-		_, ok = ag.Statements[k]
-		if !ok {
+		found := false
+		for k2, _ := range ag.Statements {
+			t2, ok := terms.ReadString(k2)
+			if !ok {
+				continue
+			}
+			if t.String() == t2.String() {
+				found = true
+				break
+			}
+		}
+
+		if !found {
 			p := Problem{EXPECTEDLABELING, "", "not declared to be a statement", k}
 			problems = append(problems, p)
 		}
@@ -314,6 +326,14 @@ func validateVariables(s *caes.Scheme) []Problem {
 
 // Validate an argumentation scheme s against a lanuage l
 func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
+	premiseVars := make(map[string]bool)
+	deletionVars := make(map[string]bool)
+	addToMap := func(vars terms.Vars, mp map[string]bool) {
+		for _, v := range vars {
+			mp[v.Name] = true
+		}
+	}
+
 	// Checks if s is declared as a variable in the scheme.
 	declaredVariable := func(s2 string) bool {
 		for _, v := range s.Variables {
@@ -363,9 +383,19 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 			}
 			// Check that all variables in the atom have been declared in the scheme
 			vars := t.OccurVars()
+			if kind == "premise" {
+				addToMap(vars, premiseVars)
+			}
+			if kind == "deletions" {
+				addToMap(vars, deletionVars)
+			}
 			for _, v := range vars {
 				if !declaredVariable(v.Name) {
 					p := Problem{SCHEME, s.Id, "variable not declared in the scheme", v.Name}
+					problems = append(problems, p)
+				} else if (kind != "premise" && kind != "deletion") && !(premiseVars[v.Name] || deletionVars[v.Name]) {
+
+					p := Problem{SCHEME, s.Id, "variable not used in premises or deletions ", v.Name}
 					problems = append(problems, p)
 				}
 			}
@@ -373,7 +403,11 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 	}
 
 	for _, atm := range s.Premises {
+
 		validateAtom(atm, "premise")
+	}
+	for _, atm := range s.Deletions {
+		validateAtom(atm, "deletion")
 	}
 	for _, atm := range s.Assumptions {
 		validateAtom(atm, "assumption")
@@ -381,9 +415,7 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 	for _, atm := range s.Exceptions {
 		validateAtom(atm, "exception")
 	}
-	for _, atm := range s.Deletions {
-		validateAtom(atm, "deletion")
-	}
+
 	for _, atm := range s.Guards {
 		validateAtom(atm, "guard")
 	}
