@@ -1,0 +1,51 @@
+meta:
+  title: Abduction Argumentation Scheme
+  note: This example only works if the conclusion, rain, is
+        declared in the language. More generally, the predicates
+        of all statements to be derived by the schemes must be declared.
+  source: >
+    Walton, Douglas and Reed, Chris and Macagno, Fabrizio (2008). 
+    Argumentation Schemes. Cambridge University Press.
+
+language:
+  explanation/2: "Theory %s explains %s."
+  in/2: "%s contains %s as a member."
+  more_coherent_explanation/2: "There exists a more coherent explanation than theory %s of observation %s."
+  observed/1:  "%s has been observed."
+  rain/0: "It rained."
+
+argument_schemes:
+  - id: abduction
+    variables: [S,T,H]
+    conclusions: [H]
+    premises:
+      - observed(S)
+      - explanation(T,S)
+      - in(T,H)
+    exceptions:
+      - more_coherent_explanation(T,S)
+
+assumptions:
+  - observed(wet)
+  - explanation(weather,wet)
+  - in(weather,rain)
+
+labels:
+  in:
+    - rain
+    - observed(wet)
+    - in(weather,rain)
+    - explanation(weather,wet)
+  out:
+    - undercut(a1)
+    - undercut(a2)
+    - more_coherent_explanation(weather,wet)
+    
+
+
+
+
+
+
+
+

@@ -35,6 +35,22 @@ const (
 	ISCHEME // Issue Scheme
 )
 
+// builtin predicates that need not be declared
+func builtin(pred string) bool {
+	builtins := map[string]bool{
+		"¬/1":  true,
+		"=/2":  true,
+		"==/2": true,
+		"!=":   true,
+		"<":    true,
+		"<=":   true,
+		">":    true,
+		">=":   true,
+		"=<":   true,
+	}
+	return builtins[pred]
+}
+
 func (c Category) String() string {
 	switch c {
 	case IMPORT:
@@ -337,8 +353,8 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 			}
 			// Check that the predicate of the atom, with the given arity, has been declared in the language
 
-			if key != "¬/1" && !varOrBool {
-				// negation operator, variables and booleans need not be declared
+			if !builtin(key) && key != "¬/1" && !varOrBool {
+				// builtin operators, variables and booleans need not be declared
 				_, ok := l[key]
 				if !ok {
 					p := Problem{SCHEME, s.Id, "predicate not declared in the language", key}

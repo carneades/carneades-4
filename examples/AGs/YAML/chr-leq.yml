@@ -1,21 +1,23 @@
 meta:
-  title: Constraint Handling Rules Demo
+  title: CHR Partial Order Example
   notes: >
-    This illustrates how argumentation schemes are mapped to 
-    Constraint Handling Rules (CHR) and support the full 
-    generality of CHR.  Any CHR program can be represented with
-    argumentation schemes in Carneades, with the added benefit
-    of generating an argument graph which can be used to visualize
-    and explain the program's reasoning.
+    This example illustrates how argumentation schemes are mapped to 
+    Constraint Handling Rules (CHR). While any CHR program
+    can be represented with argumentation schemes in Carneades,
+    assumptions ("facts") must be ground, i.e. not contain
+    any variables. This limits the CHR queries which may
+    be expressed, but assures that all statements
+    in Carneades argument graphs are ground formulas. To overcome
+    this limitation, to an extent, ground terms instead of
+    variables have been used in the assumptions.  But this
+    change also made it necessary to change the conclusion of the
+    antisymmetry rule from X=Y to eq(X,Y), since the builtin
+    equality predicate of CHR requires X and Y to be unifiable.
+    With these changes, the inference engine is able to derive
+    that eq(c,a), but not that all three variables are equal,
+    as in the original CHR version.
   source: >
     https://en.wikipedia.org/wiki/Constraint_Handling_Rules
-    
-    Using the SWI Prolog syntax for CHR: 
-    
-    reflexivity  @ X leq X <=> true.
-    antisymmetry @ X leq Y, Y leq X <=> X = Y.
-    transitivity @ X leq Y, Y leq Z ==> X leq Z.
-    idempotence  @ X leq Y \ X leq Y <=> true.
 
 language:
   leq/2: "%v ≤ %v"
@@ -58,4 +60,4 @@ assumptions:
   - leq(a,b)
   - leq(b,c)
   - leq(c,a)
-
+  

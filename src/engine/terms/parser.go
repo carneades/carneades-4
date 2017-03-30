@@ -19,11 +19,11 @@ import (
 )
 
 // Precedence  Operator
-//     7 (coded as 0)  Variavle, Function, Konstant
+//     7 (coded as 0)  Variable, Function, Constant
 //     6         unary operators +, -, !, ^, ¬ and in Go: *, &, <-
 //     5         *, /, %, div, mod, &, &^, <<, >>
 //     4        +, -, ^, or (the | will be used as list-operator, as in [a|B])
-//     3        ==, !=, <, <=, >, >= and =< (only for Prolog-like)
+//     3        =, ==, !=, <, <=, >, >= and =< (only for Prolog-like)
 //     2        &&
 //     1        ||
 
@@ -247,6 +247,8 @@ func comp_expr(s *sc.Scanner, tok1 rune) (t Term, tok rune, ok bool) {
 			if tok2 == '=' {
 				op = "=="
 				tok = s.Scan()
+			} else {
+				op = "="
 			}
 			// only for PROLOG
 			if tok2 == '<' {

@@ -530,7 +530,7 @@ func (l Language) Apply(term1 terms.Term) string {
 	arity := terms.Arity(term1)
 
 	if arity == 0 {
-		return l[functor]
+		return l[functor+"/0"]
 	}
 
 	if arity > 0 {
