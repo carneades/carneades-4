@@ -138,7 +138,7 @@ func argMapGraph2caes(m *argMapGraph) (*caes.ArgGraph, error) {
 
 	m, err := scanArgMapGraph(m)
 	if err != nil {
-		return nil, err
+		return caes.NewArgGraph(), err
 	}
 	c, err := caesArgMapGraph2caes(m)
 	// fmt.Printf(" >>> End-Assumptions: %v \n", c.Assumptions)
@@ -1034,7 +1034,6 @@ func iface2metadata(value interface{}, meta caes.Metadata) (caes.Metadata, error
 
 func iface2statement(value interface{}, yamlStats map[string]*caes.Statement) (map[string]*caes.Statement, error) {
 
-	var err error
 	// fmt.Printf("Statements: \n")
 	// switch t := value.(type) {
 	switch value.(type) {
@@ -1064,10 +1063,11 @@ func iface2statement(value interface{}, yamlStats map[string]*caes.Statement) (m
 				// fmt.Printf(" %v: %v \n", keyStr, iface2string(st_value))
 			case map[interface{}]interface{}:
 				// fmt.Printf("   %v:\n", keyStr)
-				yamlStats[keyStr], err = iface2xstatement(st_value, &caes.Statement{Id: keyStr, Label: caes.Undecided})
+				v, err := iface2xstatement(st_value, &caes.Statement{Id: keyStr, Label: caes.Undecided})
 				if err != nil {
 					return yamlStats, err
 				}
+				yamlStats[keyStr] = v
 			}
 		}
 	default:
