@@ -326,11 +326,11 @@ func validateVariables(s *caes.Scheme) []Problem {
 
 // Validate an argumentation scheme s against a lanuage l
 func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
-	premiseVars := make(map[string]bool)
-	deletionVars := make(map[string]bool)
-	addToMap := func(vars terms.Vars, mp map[string]bool) {
+	occVars := make(map[string]bool)
+
+	addToMap := func(vars terms.Vars) {
 		for _, v := range vars {
-			mp[v.Name] = true
+			occVars[v.Name] = true
 		}
 	}
 
@@ -383,17 +383,15 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 			}
 			// Check that all variables in the atom have been declared in the scheme
 			vars := t.OccurVars()
-			if kind == "premise" {
-				addToMap(vars, premiseVars)
+			if kind == "premise" || kind == "deletion" {
+				addToMap(vars)
 			}
-			if kind == "deletions" {
-				addToMap(vars, deletionVars)
-			}
+
 			for _, v := range vars {
 				if !declaredVariable(v.Name) {
 					p := Problem{SCHEME, s.Id, "variable not declared in the scheme", v.Name}
 					problems = append(problems, p)
-				} else if (kind != "premise" && kind != "deletion") && !(premiseVars[v.Name] || deletionVars[v.Name]) {
+				} else if !(kind == "premise" || kind == "deletion") && !occVars[v.Name] {
 
 					p := Problem{SCHEME, s.Id, "variable not used in premises or deletions ", v.Name}
 					problems = append(problems, p)
