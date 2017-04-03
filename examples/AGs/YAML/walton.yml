@@ -141,7 +141,7 @@ argument_schemes:
     conclusions:
       - will_occur(E2)
     premises:
-      - has_occurred(E2)
+      - has_occurred(E1)
       - causes(E1,E2)
     exceptions:
       - interference(E1)
