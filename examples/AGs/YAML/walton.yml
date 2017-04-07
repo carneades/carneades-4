@@ -197,7 +197,7 @@ argument_schemes:
     exceptions:
       - inadequate_definition(D,G)
 
-  # defeasible_modus_ponens:
+  # - id: defeasible_modus_ponens
   #   meta:
   #     title: Defeasible Modus Ponens
   #   variables: [A,B]

@@ -5,7 +5,8 @@ meta:
       The Memorial Edition. Garden City, New York: Doubleday, Doran & Co.
 
 statements: 
-  gentleman: Watson is a gentleman of medical type but with the air of a military man.
+  gentleman: Watson is a gentleman of medical type.
+  militaryAir: Watson has the air of a military man.
   armyDoctor: Watson is an army doctor.
   darkFace: Watson has a dark face.
   fairWrists: Watson has fair wrists.
@@ -25,32 +26,36 @@ issues:
     positions: [afghanistan, ¬afghanistan]
 
 arguments:
-  a1: 
+  a1:
+    scheme: cumulative
     conclusion: armyDoctor
-    premises: [gentleman]
+    premises: [gentleman,militaryAir]
   a2:
     conclusion: notNaturalSkinColor
     premises: [fairWrists, darkFace]
   a3: 
     conclusion: wasInWarmerClimate
     premises: [notNaturalSkinColor, warmerClimate, sunNecessary]
-  a4: 
+  a4:
+    scheme: cumulative
     conclusion: hardship
     premises: [haggard]
   a5:
+    scheme: cumulative
     conclusion: injured
     premises: [stiffArm]
   a6:
+    scheme: cumulative
     conclusion: afghanistan
     premises: [armyDoctor, hardship, injured, wasInWarmerClimate]
 
 assumptions: [gentleman, fairWrists, darkFace, haggard, stiffArm,
-              warmerClimate, sunNecessary]
+              warmerClimate, sunNecessary,militaryAir]
 
 tests:
   in: [gentleman, fairWrists, darkFace, haggard, stiffArm,
        warmerClimate, sunNecessary, armyDoctor, notNaturalSkinColor,
-       hardship, injured, afghanistan, wasInWarmerClimate]
-  out: []
+       hardship, injured, afghanistan, wasInWarmerClimate,militaryAir]
+  out: [¬afghanistan]
   undecided: []
 

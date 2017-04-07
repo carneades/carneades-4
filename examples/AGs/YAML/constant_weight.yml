@@ -1,0 +1,34 @@
+meta:
+  title: Argument Scheme with Constant Weight
+
+language:
+  foo/1: foo(%s)
+  bar/1: bar(%s)
+
+argument_schemes:
+  - id: s1
+    weight:
+      constant: 0.1
+    variables: [X]
+    premises:
+      - foo(X)
+    conclusions:
+      - bar(X)
+
+statements:
+  foo(a): foo(a)
+  bar(a): bar(a)
+
+arguments:
+  a1:
+    scheme: s1
+    premises:
+      - foo(a)
+    conclusion: bar(a)
+
+assumptions:
+ #  - foo(a)
+
+# tests:
+#   in: [q, r]
+#   out: [p]
