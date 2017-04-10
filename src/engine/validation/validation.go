@@ -416,6 +416,15 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 	for _, atm := range s.Conclusions {
 		validateAtom(atm, "conclusion")
 	}
+
+	//check if any variables are declared but not used
+	for _, v := range s.Variables {
+		if !occVars[v] {
+			p := Problem{SCHEME, s.Id, "variable declared but not used ", v}
+			problems = append(problems, p)
+		}
+	}
+
 	return problems
 }
 
