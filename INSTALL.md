@@ -20,7 +20,8 @@ Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 In addition, the following open source programs are used by the Carneades system at runtime and must be installed:
 
 - The [Graphviz](http://graphviz.org/) system for generating graph vizualizations in various output formats.
-- Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions.
+
+<!-- - Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions. -->
 
 
 ## Building and Running Carneades from Source
@@ -45,6 +46,7 @@ For further information about how to use the `carneades` command, type
 
 Example argument graphs, in YAML format, can be found in the `$GOPATH/src/github.com/carneades/carneades-4/examples/AGs/YAML` directory.
 
+<!--
 ## Building and Running the Carneades ICCMA Entry
 
 This version of Carneades has been entered in the [ICCMA](http://argumentationcompetition.org/index.html)
@@ -71,7 +73,6 @@ Example abstract argumentation frameworks can be found in the ``$GOPATH/src/gith
 Dung abstract argumentation frameworks can also be evaluated and visualized using the `carneades` command. For instructions, execute:
 
     $ carneades help dung
-
-	
+-->
 
 
