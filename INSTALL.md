@@ -20,7 +20,8 @@ Set the `GOPATH` environment variable to a directory for Go packages, e.g.
 In addition, the following open source programs are used by the Carneades system at runtime and must be installed:
 
 - The [Graphviz](http://graphviz.org/) system for generating graph vizualizations in various output formats.
-- Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions.
+
+<!-- - Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions. -->
 
 
 ## Building and Running Carneades from Source
