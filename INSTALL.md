@@ -46,6 +46,7 @@ For further information about how to use the `carneades` command, type
 
 Example argument graphs, in YAML format, can be found in the `$GOPATH/src/github.com/carneades/carneades-4/examples/AGs/YAML` directory.
 
+<!--
 ## Building and Running the Carneades ICCMA Entry
 
 This version of Carneades has been entered in the [ICCMA](http://argumentationcompetition.org/index.html)
@@ -72,7 +73,6 @@ Example abstract argumentation frameworks can be found in the ``$GOPATH/src/gith
 Dung abstract argumentation frameworks can also be evaluated and visualized using the `carneades` command. For instructions, execute:
 
     $ carneades help dung
-
-	
+-->
 
 
