@@ -171,8 +171,8 @@ argument_schemes:
               functional perspective on argumentation schemes. In
               Proceedings of the 9th International Workshop on
               Argumentation in Multi-Agent Systems (ArgMAS
-              2012) (2012), P. McBurney, S. Parsons, and I. Rahwan,
-              Eds., pp. 203–222."
+              2012) (2012), P. McBurney, S. Parsons, and I. Rahwan,
+              Eds., pp. 203–222."
     variables: [W,D,S]
     conclusions: [S]
     premises:
@@ -199,14 +199,14 @@ argument_schemes:
     exceptions:
       - inadequate_definition(D,G)
 
-  - id: defeasible_modus_ponens
-    meta:
-      title: Defeasible Modus Ponens
-    variables: [A,B]
-    premises:
-      - implies(A,B)
-      - A   # A alone not allowed by CHR
-    conclusions: [B]
+  #- id: defeasible_modus_ponens
+  #  meta:
+  #    title: Defeasible Modus Ponens
+  #  variables: [A,B]
+  #  premises:
+  #    - implies(A,B)
+  #    - A   # A alone not allowed by CHR
+  #  conclusions: [B]
 
   - id: established_rule
     meta:
@@ -480,8 +480,8 @@ assumptions:
   - asserts(joe,¬caused_by(global_warming,humans))
   - in_domain(¬caused_by(global_warming, humans), climate)
   - implies(bribed(joe),biased(joe))
-  - bribed(joe)
-#  - biased(joe)
+#  - bribed(joe)
+  - biased(joe)
   
 
 
