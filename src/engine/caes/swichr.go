@@ -160,10 +160,8 @@ func writeCHR(t *SWIRulebase, goals []string, f *os.File) error {
 	n := len(goals)
 	for i := 0; i < n; i++ {
 		_, err = f.WriteString("  " + goals[i])
-		// _, err = f.WriteString(",\n    ")
 		_, err = f.WriteString(".\n\n")
 	}
-	//	_, err = f.WriteString("go" + ".\n\n")
 
 	if err != nil {
 		return errors.New("Could not write the constraint handling rules to a temporary file.")
