@@ -1,0 +1,78 @@
+meta:
+  title: German Family Law Example
+  source: >
+    Gordon, Thomas F (2008). Hybrid Reasoning with Argumentation Schemes.
+    Proceedings of the 8th Workshop on Computational Models of Natural
+    Argument (CMNA 08) (pp. 16-25). Patras, Greece.
+
+
+language:
+  direct_lineage/2: "%s is in direct lineage with %s."
+  ancestor/2: "An ancestor of %s is %s."
+  obligated_to_support/2: "%s is obligated to support %s."
+  not_obligated_to_support/2: "%s is not obligated to support %s."
+  needy/1: "%s is needy."
+  not_needy/1: "%s is not needy."
+  father/2: "The father of %s is %s."
+  parent/2: "A parent of %s is %s."
+  not_undue_hardship/2: "Supporting %s would not cause %s undue hardship."
+  undue_hardship/2: "Supporting %s would cause %s undue hardship."
+
+issue_schemes:
+  support: ["obligated_to_support(X,Y)", "not_obligated_to_support(X,Y)"]
+  neediness: ["needy(X)", "not_needy(X)"]
+  undue_hardship: ["undue_hardship(X,Y)", "not_undue_hardship(X,Y)"]
+  
+argument_schemes:
+  - id: s1589
+    variables: [X,Y]
+    conclusions:
+      - direct_lineage(X,Y)
+    premises:
+      - ancestor(X,Y)
+
+  - id: ancestor1
+    variables: [X,Y]
+    conclusions:
+      - ancestor(X,Y)
+    premises:
+      - parent(X,Y)
+
+  - id: ancestor2
+    variables: [X,Y]
+    conclusions:
+      - parent(X,Y)
+    premises:
+      - father(X,Y)
+      
+  - id: ancestor3  # transitivity
+    variables: [X,Y,Z]
+    conclusions: 
+      - ancestor(X,Y)
+    premises:
+      - parent(X,Z)
+      - ancestor(Z,Y)
+
+  - id: s1601
+    variables: [X,Y]
+    conclusions:
+      - obligated_to_support(X,Y)
+    premises:
+      - direct_lineage(X,Y)
+    exceptions:                # undercutter
+      - undue_hardship(Y,X)    
+
+  - id: s1602              # rebuttal
+    variables: [X,Y]
+    conclusions:
+      - not_obligated_to_support(X,Y)  
+    premises:
+      - direct_lineage(X,Y)  # needed to instantiate X
+      - not_needy(Y)
+
+assumptions:
+  - father(sally,joe)
+  - father(joe,sam)
+  - undue_hardship(joe,sally)
+
+

@@ -63,8 +63,8 @@ func termToArgDesc(s string) (bool, *ArgDesc) {
 // graph is updated and nil is returned.
 func (ag *ArgGraph) Infer() error {
 	if len(ag.Theory.ArgSchemes) != 0 {
-		rb := TheoryToSWIRulebase(ag.Theory)
-		// rb := TheoryToRuleStore(ag.Theory)
+		// rb := TheoryToSWIRulebase(ag.Theory)
+		rb := TheoryToRuleStore(ag.Theory)
 
 		// Create an index of the previous arguments constructed
 		// to avoid constructing equivalent instanstiations of schemes

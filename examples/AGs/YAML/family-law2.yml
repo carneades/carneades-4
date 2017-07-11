@@ -1,0 +1,69 @@
+meta:
+  title: German Family Law Example, Version 2
+  note: >
+    This version of the example is in German and
+    includes just an argument graph, without rules
+    to automatically construct the arguments.
+  source: >
+    Gordon, Thomas F (2008). Hybrid Reasoning with Argumentation Schemes.
+    Proceedings of the 8th Workshop on Computational Models of Natural
+    Argument (CMNA 08) (pp. 16-25). Patras, Greece.
+
+statements:
+  s1: "Josef ist der Vater von Hilda."
+  s2: "Josef ist ein Verwandter in gerade Linie von Hilda."
+  s3: "Hilda ist verpflichtet, Josef zu unterstützen."
+  s4: "Josef zu unterstützen, wäre für Hilda eine unbillige Härte."
+  s6: "Müller v Bauer"
+  s7: "Schmidt v Vogel"
+  s8: "Hilda und Josef hatten nie ein Vater-Kind Beziehung."
+  s9: "Es gibt eine relevanter Präzedenzfall für die Gegenposition."
+  s10: "Schmidt v Vogel ist relevantere Präzedenzfall für die Gegenposition"
+  s11: "Josef braucht Unterstützung für nur eine kurze Zeit."
+
+argument_schemes:
+  - id: präzedenzfall
+  - id: relevantere_präzedenzfall
+  - id: s1601
+  - id: s1589
+
+arguments:
+  a1:
+    scheme: s1601
+    conclusion: s3
+    premises:
+      - s2
+    undercutter: s4
+
+  a2:
+    scheme: s1589
+    conclusion: s2
+    premises:
+      - s1
+
+  a3:
+    scheme: präzedenzfall
+    conclusion: s4
+    premises:
+      - s8
+      - s6
+    undercutter: s9
+
+  a5:
+    scheme: relevantere_präzedenzfall
+    conclusion: s9
+    premises:
+      - s11
+      - s7
+      - s10
+
+      
+assumptions:
+  - s1
+  - s6
+  - s7
+  - s8
+  - s10
+  - s11
+  
+  

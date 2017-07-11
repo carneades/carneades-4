@@ -359,7 +359,7 @@ func validateScheme(s *caes.Scheme, l caes.Language) []Problem {
 				key = t.(terms.Compound).Functor + "/" + strconv.Itoa(len(t.(terms.Compound).Args))
 			case terms.VariableType:
 				varOrBool = true
-				if kind != "conclusion" {
+				if !(kind == "premise" || kind == "conclusion") {
 					p := Problem{SCHEME, s.Id, fmt.Sprintf("%s may not be a variable", kind), atm}
 					problems = append(problems, p)
 				}

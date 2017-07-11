@@ -15,6 +15,7 @@ language:
   based_on_evidence/1: "The assertion %v is based on evidence."
   believes/2: "%s believes %s to be true."
   biased/1: "%s is biased."
+  bribed/1: "%s was bribed."
   brings_about/2: "The action %s brings about %s."
   bring_about_more_effectively/2: "There exists an action that would bring about % more effectively than %s."
   causes/2: "Event %s causes event %s."
@@ -36,6 +37,7 @@ language:
   has_occurred/1: "An event %s has occurred."
   horrible_costs/1: "Event %s would entail horrible costs."
   implausible/1: "%s is implausible."
+  implies/2: "%s implies %s."
   inadequate_definition/2: "%s is an inadequate definition of %s."
   inapplicable_rule/1: "Rule %s is inapplicable in this case."
   incompatible_goal/1: "Another goal is incompatible with %s."
@@ -197,14 +199,14 @@ argument_schemes:
     exceptions:
       - inadequate_definition(D,G)
 
-  # - id: defeasible_modus_ponens
-  #   meta:
-  #     title: Defeasible Modus Ponens
-  #   variables: [A,B]
-  #   premises:
-  #     - implies(A,B)
-  #     - A   # A alone not allowed by CHR
-  #   conclusions: [B]
+  - id: defeasible_modus_ponens
+    meta:
+      title: Defeasible Modus Ponens
+    variables: [A,B]
+    premises:
+      - implies(A,B)
+      - A   # A alone not allowed by CHR
+    conclusions: [B]
 
   - id: established_rule
     meta:
@@ -474,10 +476,13 @@ argument_schemes:
       - implausible(S)
 
 assumptions:
-  - biased(joe)
   - expert(joe, climate)
   - asserts(joe,¬caused_by(global_warming,humans))
   - in_domain(¬caused_by(global_warming, humans), climate)
+  - implies(bribed(joe),biased(joe))
+  - bribed(joe)
+#  - biased(joe)
+  
 
 
 
