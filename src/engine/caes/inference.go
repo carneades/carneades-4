@@ -76,10 +76,14 @@ func (ag *ArgGraph) Infer() error {
 			}
 		}
 
-		// The goals in the query with the CHR inference
+		// The goals are initialized with a "go" goal, for use by schemes
+		// with no premises, which are translated into CHR rules with a dummy "go"
+		// term in their heads.
+		goals := []string{"go"}
+
+		// The actual goals in the query with the CHR inference
 		// engine consist of the union of the assumptions of the argument graph
 		// and the assumptions for each of the previous arguments
-		goals := []string{}
 		for _, k := range ag.Assumptions {
 			goals = append(goals, k)
 		}
