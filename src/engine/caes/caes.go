@@ -125,7 +125,7 @@ type Statement struct {
 type Rulebase interface {
 	// Infer returns true if the goals succeed and false if they fail.
 	// The list of strings returned represents the constraint store
-	Infer(goals []string) (bool, []string, error)
+	Infer(goals []string, max int) (bool, []string, error)
 	// AddRule adds a constraint handling rule to the rulebase
 	AddRule(name string, keep []string, delete []string, guard []string, body []string) error
 }

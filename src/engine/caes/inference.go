@@ -16,6 +16,9 @@ import (
 	"github.com/carneades/carneades-4/src/engine/terms"
 )
 
+// maximum number of rule (scheme) applications when deriving arguments
+const MAXRULEAPPS = 100000
+
 // ArgDesc: Structure describing an argument instantiating an
 // argument scheme. Represented in Prolog as argument(Scheme,Values)
 type ArgDesc struct {
@@ -91,7 +94,7 @@ func (ag *ArgGraph) Infer() error {
 			goals = append(goals, k)
 		}
 
-		success, store, err := rb.Infer(goals)
+		success, store, err := rb.Infer(goals, MAXRULEAPPS)
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,6 @@ import (
 
 // resource limits for Prolog processes
 const (
-	timeLimit  = 15     // Seconds
 	stackLimit = "256m" // MB
 )
 

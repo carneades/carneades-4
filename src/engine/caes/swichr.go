@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	// "log"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -160,7 +161,11 @@ func writeCHR(t *SWIRulebase, goals []string, f *os.File) error {
 	n := len(goals)
 	for i := 0; i < n; i++ {
 		_, err = f.WriteString("  " + goals[i])
-		_, err = f.WriteString(".\n\n")
+		if i < n-1 {
+			_, err = f.WriteString(",\n")
+		} else {
+			_, err = f.WriteString(".\n\n")
+		}
 	}
 
 	if err != nil {
@@ -170,11 +175,26 @@ func writeCHR(t *SWIRulebase, goals []string, f *os.File) error {
 	}
 }
 
-// Infer: Apply an SWIRulebase to a list of goals.  Return true
-// if the goals are successfully solved, and false if the goals fail.
+// Infer: Apply an SWIRulebase to a list of goals.  The
+// maximum amount of time alloted the SWI Prolog process depends
+// on the maximum number of rules (schemes) which may be applied, max.
+// Return true if the goals are successfully solved, and false if the goals fail.
 // Return a list of the terms in the constraint store, if the goals
 // succeeded. Returns an error if the rulebase could not be applied to the goals.
-func (rb *SWIRulebase) Infer(goals []string) (bool, []string, error) {
+func (rb *SWIRulebase) Infer(goals []string, max int) (bool, []string, error) {
+
+	// Assume that a rule or scheme application takes about 0.00015 seconds.
+	// If there is no limit to the number of rule applications (i.e. max==0),
+	// then limit the maximum amount of time alloted to the SWI Prolog to 15 seconds
+	// anyway, to assure termination. Otherwise limit the time to
+	// max * 0.00015 seconds, rounded up to the next second.
+
+	secsPerRule := 0.00015
+	timeLimit := 15 // seconds
+	if max > 0 {
+		timeLimit = int(math.Ceil(float64(max) * secsPerRule))
+	}
+
 	f, err := ioutil.TempFile(os.TempDir(), "swirulebase")
 	if err != nil {
 		return false, nil, err
@@ -207,7 +227,7 @@ func (rb *SWIRulebase) Infer(goals []string) (bool, []string, error) {
 		done <- cmd.Wait()
 	}()
 	finished := false
-	timer := time.After(timeLimit * time.Second)
+	timer := time.After(time.Duration(timeLimit) * time.Second)
 
 	scanner := bufio.NewScanner(stdout)
 	store := []string{}
