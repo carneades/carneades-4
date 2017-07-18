@@ -1,0 +1,10 @@
+language:
+
+assumptions:
+  - 4a # key is not a term
+  - jw
+  - functor(Term, F, A) # not a ground atomic formula
+  - s(np(john),vp(v(likes),np(mary)))
+  - 2 # not a ground atomic formula
+  -  #not a term
+  - 

@@ -1,0 +1,13 @@
+statements: 
+  functor(Term, F, A): P # not a ground atomic formula
+  s(np(john),vp(v(likes),np(mary))): Compound
+  q: 
+    text: Q
+    assumed: true
+  r: 
+    text: R(a)
+  4r: text # key is not a term
+  s11392: 
+       text: The object is illuminated by a red light. 
+       assumed: true # testcase here would be tru, but throws panic in validator
+       label: un # only valid labels: in|out|undecided

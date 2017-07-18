@@ -1,0 +1,18 @@
+language:
+  buy/1: Buy a %v.
+  price/2: The price of a %v is %v.
+  type/2: A %v is a %v car.
+  speed/2: The speed of a %v is %v.
+  safety/2: The safety of a %v is %v.
+  advertising/2: Advertising claims %v are %v.
+  gov_stats/2: Government statistics show %v to %v safe.
+
+
+issue_schemes:
+    buy: ["buy(O1)", "...", "buy(On,N)"] #
+    safety: 
+      - safety(O,V1)
+      - safety(O,Vn)
+    price: ["price(O,P1)", "..."] #
+    speed: ["speed(O,S1)", "...", "speed(O,S)"]
+    type: ["type(O,T1)"] #

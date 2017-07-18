@@ -1,0 +1,14 @@
+statements:
+  coin(a, head): coin(a, head)
+  coin(b, head): coin(b, head)
+  coin_a: coin_a
+
+assumptions:
+  - coin_a
+  - coin(b, head)
+
+tests:
+  in:
+    - coin_a
+    # not working:
+    - coin(b, head)

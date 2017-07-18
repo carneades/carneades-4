@@ -1,0 +1,19 @@
+language:
+  applicable/1: "Argument %s is applicable."
+  asserts/2: "%s asserts that %s is true."
+  bad/1: "%s is bad."
+  bad_moral_character/1: "%s has bad moral character."
+  based_on_evidence/1: "The assertion %v is based on evidence."
+  believes/2: "%s believes %s to be true."
+  biased/1: "%s is biased."
+  brings_about/2: "The action %s brings about %s."
+  bring_about_more_effectively/2: "There exists an action that would bring about % more effectively than %s."
+  causes/: "Event %s causes event %s." # 
+  2causes/2: "Event %s causes event %s." # 
+  biased2/2: "%s is biased." # 
+  biased0/0: "%s is biased." # 
+  verybad: "is very bad." # 
+  wrong/1: # 
+  right/3: "%T, %s, %d"
+  invalid/e: "%s" # 
+  4/1: "%s"

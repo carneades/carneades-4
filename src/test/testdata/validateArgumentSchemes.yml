@@ -1,0 +1,130 @@
+language:
+  applicable/1: "Argument %s is applicable."
+  asserts/2: "%s asserts that %s is true."
+  bad/1: "%s is bad."
+  bad_moral_character/1: "%s has bad moral character."
+  based_on_evidence/1: "The assertion %v is based on evidence."
+  believes/2: "%s believes %s to be true."
+  biased/1: "%s is biased."
+  brings_about/2: "The action %s brings about %s."
+  bring_about_more_effectively/2: "There exists an action that would bring about % more effectively than %s."
+  causes/2: "Event %s causes event %s."
+  correlated/2: "Events %s and %s are correlated."
+  credible_source/2: "Witness %s is a credible source for the domain %s."
+  current_circumstances/1: "%s is the case in the current circumstances."
+  defeasibly_implies/2: "If %s is true then presumably %s is also true."
+  dishonest/1: "%s is dishonest."
+  expert/2: "%s is an expert in the %s domain."
+  explanation/2: "Theory %s explains %s."
+  in_domain/2: "%s is in the domain of %s."
+  intervening_actions/2: "Intervening actions are needed after performing %s to achieve %s."
+  instance/2: "%s is an instance of class %s."
+  interference/1: "An event has occurred which interferes with event %s."
+  internally_consistent/1: "%s is internally consistent."
+  known/1: "%s is known to be true."
+  legitimate_value/1: "%s is a legitimate value."
+  looks_like/2: "%s looks like a %s."
+  in/2: "%s contains %s as a member."
+  more_coherent_explanation/2: "There exists a more coherent explanation than theory %s of observation %s."
+  more_on_point/2: "%s is false in another case which is more on point than case %s."
+  negative_consequences/1: "Performing action %s would have negative consequences."
+  observed/1:  "%s has been observed."
+  other_credible_sources_disagree/1: "Other credible source disagree with %s."
+  safety/2: The safety of a %v is %v.
+  advertising/2: Advertising claims %v are %v.
+
+argument_schemes:
+
+
+
+# The argument schemes are used only for their weighing functions
+# in this example, during argument evaluation, not to construct arguments.
+ 
+  - id: earlier_federal_law  # some hypothetical federal law
+    meta: 
+      authority: federal
+      effective_date: 1989-06-14
+  
+  - id: earlier_federal_law  # duplicate ID
+    meta: 
+      authority: federal
+      effective_date: 1989-06-14
+
+# Argument scheme names must be Prolog atoms.
+# Parameters are Prolog variables and thus begin with a capital letter.
+# Argument schemes have been extended with weighing functions and with
+# multiple conclusions, deletions and guards to allow any CHR rule
+# to be expressed.
+# Exceptions can be modelled alternatively as undercutters in separate schemes.
+
+  - id: gov_stats_scheme
+    4r: test
+    weight:
+      constant: 0.8
+    variables: [4C,S]
+    premises:
+      - gov_stats(C,D) #not in Language / variable D not declared
+    conclusions:
+      - tru # typo
+
+  - id: advertising_scheme
+    weight:
+      constant: 0.4
+    variables: [C,S]
+    premises:
+      - advertising(C,S,F) # in Language as advertising/2 / variable F not declared
+    deletions:
+      - advertising(S,C)
+      - bad(C)
+    conclusions:
+      - safety(C,F) #new var in conclusion but used in premise
+
+     
+
+
+#############
+  - id: abduction
+    variables: 
+      - S
+      - T
+      - H
+    conclusions: [H]
+    premises:
+      - observed(S)
+      - explanation(T,S)
+      - in(T,H)
+    exceptions:
+      - more_coherent_explanation(T,V) # new var in exception
+
+  - id: appearance
+    meta:
+      title: Argument from Appearance
+      source: "Douglas Walton, ‘Argument from Appearance: A New Argumentation Scheme’, 2006."
+    variables: [O,C,V]
+    conclusions:
+      - instance(O,C)
+    premises:
+      - looks_like(O,C)
+    exceptions:
+      - in(O,V) # var declared but not used in premise
+
+        
+  - id: credible_source
+    meta:
+      title: "Argument from Credible Source"
+      source: "Wyner, A., Atkinson, K., and Bench-Capon, T. A
+              functional perspective on argumentation schemes. In
+              Proceedings of the 9th International Workshop on
+              Argumentation in Multi-Agent Systems (ArgMAS
+              2012) (2012), P. McBurney, S. Parsons, and I. Rahwan,
+              Eds., pp. 203–222."
+    variables: [W,D,S,Z] #Z declared but not used
+    conclusions: [S]
+    premises:
+      - credible_source(W,D)
+      - asserts(W,S)
+      - in_domain(S,D)
+    exceptions:
+      - biased(W)
+      - dishonest(W)
+      - other_credible_sources_disagree(S)
