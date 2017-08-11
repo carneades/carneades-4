@@ -459,7 +459,7 @@ argument_schemes:
         Evidence, Proceedings of the 9th International Conference on
         Artificial Intelligence and Law, Edinburgh, 2003. New York: ACM
         Press 2003, pp. 35.  Douglas Walton, Witness Testimony Evidence,
-        unpublished book manuscript, to appear.
+        Cambridge University Press, 2008.
     variables: [W,D,S]
     conclusions: [S]
     premises:
