@@ -433,13 +433,6 @@ argument_schemes:
     assumptions:
       - feasible(A)
         
-  - id: untrustworthy_due_to_bias
-    variables: [W]
-    premises:
-      - biased(W)
-    conclusions:
-      - untrustworthy(W)
-
   - id: verbal_classification
     meta:
       title: Argument from Verbal Classification
@@ -479,9 +472,8 @@ assumptions:
   - expert(joe, climate)
   - asserts(joe,¬caused_by(global_warming,humans))
   - in_domain(¬caused_by(global_warming, humans), climate)
-  - implies(bribed(joe),biased(joe))
-#  - bribed(joe)
-  - biased(joe)
+#  - implies(biased(joe),untrustworthy(joe))
+  - inconsistent_with_other_experts(¬caused_by(global_warming, humans))
   
 
 
