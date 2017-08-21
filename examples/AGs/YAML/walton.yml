@@ -75,7 +75,7 @@ language:
   sunk_costs/2:  "The costs incurred performing %s thus far are %s."
   too_high_to_waste/1: "The sunk costs of %s are too high to waste."
   trustworthy/1: "%s is trustworthy."
-  uninvestigated/1: "The truth of %s has not been investigated."
+  uninvestigated/1: "The truth of %s has not been sufficiently investigated."
   untrustworthy/1: "%s is untrustworthy."
   valid/1: "Rule %s is valid."
   will_occur/1: "An event %s will occur."
@@ -116,15 +116,14 @@ argument_schemes:
       source: >
         Douglas Walton, Fundamentals of Critical Argumentation,
         Cambridge University Press, New York 2006, p. 96-97.
-    variables: [S,C,E,A]
-    conclusions: [S]
+    variables: [A,C]
+    conclusions: [A]
     premises:
       - similar_case(C)
-      - in_case(S,C)
-      - asserts(E,A)
+      - in_case(A,C)
     exceptions:
       - relevant_differences(C)
-      - more_on_point(S,C)
+      - more_on_point(A,C)
 
   - id: appearance
     meta:
