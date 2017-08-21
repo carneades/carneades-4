@@ -167,12 +167,9 @@ argument_schemes:
   - id: credible_source
     meta:
       title: "Argument from Credible Source"
-      source: "Wyner, A., Atkinson, K., and Bench-Capon, T. A
-              functional perspective on argumentation schemes. In
-              Proceedings of the 9th International Workshop on
-              Argumentation in Multi-Agent Systems (ArgMAS
-              2012) (2012), P. McBurney, S. Parsons, and I. Rahwan,
-              Eds., pp. 203–222."
+      source: "Wyner, A., A
+              functional perspective on argumentation schemes. 
+              Argument and Computation, vol. 7, pp. 113-133. 2016."
     variables: [W,D,S]
     conclusions: [S]
     premises:
