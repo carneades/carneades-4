@@ -31,6 +31,7 @@ language:
   explanation/2: "Theory %s explains %s."
   explanatory_theory/2: "There exists a theory explaining how event %s causes event %s."
   feasible/1: "It is feasible to perform the action %s."
+  future_losses_outweigh/1: "Future losses of completing the action %s outweigh its value."
   good/1: "%s is good."
   good_moral_character/1: "%s is of good moral character."
   has_conclusion/2: "Rule %s has conclusion %s."
@@ -428,6 +429,8 @@ argument_schemes:
       - too_high_to_waste(C)
     assumptions:
       - feasible(A)
+    exceptions:
+      - future_losses_outweigh(A)
         
   - id: verbal_classification
     meta:
