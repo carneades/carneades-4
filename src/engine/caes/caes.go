@@ -545,6 +545,9 @@ func (l Language) Apply(term1 terms.Term) string {
 		spec := functor + "/" + strconv.Itoa(arity)
 		template, ok := l[spec]
 		if !ok {
+			if functor == "¬" {
+				return fmt.Sprintf("¬%s", args...)
+			}
 			fmt.Fprintf(os.Stderr, "Functor not defined in the language: %v\n", spec)
 			return term1.String()
 		}

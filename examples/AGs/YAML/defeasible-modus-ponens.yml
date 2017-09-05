@@ -1,0 +1,22 @@
+meta:
+  title: Defeasible Modus Ponens
+
+language:
+  implies/2: "%s implies %s."
+  man/1: "%s is a man."
+  mortal/1: "%s is mortal."
+  
+argument_schemes:
+  - id: defeasible_modus_ponens
+    meta:
+      title: Defeasible Modus Ponens
+    variables: [A,B]
+    premises:
+      - implies(A,B)
+      - A   
+    conclusions: [B]
+
+assumptions:
+  - man(socrates)
+  - implies(man(socrates),mortal(socrates))
+

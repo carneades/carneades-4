@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+
 	"github.com/carneades/carneades-4/src/engine/caes"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
 	//	"log"
@@ -13,6 +14,12 @@ import (
 func TestYaml(t *testing.T) {
 	var ag *caes.ArgGraph
 	var err error
+
+	checkErr := func(e error) {
+		if e != nil {
+			t.Errorf(e.Error())
+		}
+	}
 
 	d, err := os.Open(yamlDir)
 	check(t, err)
@@ -32,6 +39,11 @@ func TestYaml(t *testing.T) {
 			// yaml.ExportWithReferences(os.Stdout, ag)
 			// fmt.Printf("---------- End: WriteArgGraph %s ----------\n", filename1)
 			fmt.Printf(" -   -  -  -  -  -   Start Groundlabeling & Checklabeling \n")
+			err = ag.Infer()
+			if err != nil {
+				fmt.Printf("Infer error: %v\n", err)
+				checkErr(err)
+			}
 			l := ag.GroundedLabelling()
 			// fmt.Printf("---------- printLabeling %s ----------\n", filename1)
 			// printLabeling(l)

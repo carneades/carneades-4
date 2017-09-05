@@ -1,11 +1,9 @@
 meta:
   title: Legalization of Marijuana
-  notes: >
-    A reconstruction of arguments about the pros and cons of legalizing marijuana 
-  sources:
-    - http://www.nytimes.com/2014/08/01/opinion/Legalizing-Marijuana-Pros-and-Cons.html?_r=0#addenda
-    - http://www.dbp.idebate.org/en/index.php/Debate:_Legalization_of_Marijuana#Pro.2Fcon_resources
-
+  notes: "A reconstruction of arguments about the pros and cons of legalizing marijuana"
+  source: >
+    http://www.nytimes.com/2014/08/01/opinion/Legalizing-Marijuana-Pros-and-Cons.html?_r=0#addenda
+    http://www.dbp.idebate.org/en/index.php/Debate:_Legalization_of_Marijuana#Pro.2Fcon_resources
 
 statements:
   legalize: Marijuana should be legalized.

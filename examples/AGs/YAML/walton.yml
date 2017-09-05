@@ -88,17 +88,17 @@ language:
   would_demote_value/2: "Achieving the goal %s would demote the value %s."
   would_promote_value/2:  "Achieving the goal %s would promote the value %s."
   would_realize/2: "Performing %s would realize event %s."
-
-statements:
-   expert(joe,climate): Joe is a climate expert.
-   in_domain(¬caused_by(global_warming,humans),climate): >
-      The claim that global warming is not caused by humans is in the climate domain.
-   asserts(joe,¬caused_by(global_warming,humans)): >
-      Joe asserts that global warming is not caused by humans.
-   ¬caused_by(global_warming,humans): >
-      Global warming is not caused by humans.
-   based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): 
-      "Joe's assertion is based on evidence."
+    
+# statements:
+#    expert(joe,climate): Joe is a climate expert.
+#    in_domain(¬caused_by(global_warming,humans),climate): >
+#       The claim that global warming is not caused by humans is in the climate domain.
+#    asserts(joe,¬caused_by(global_warming,humans)): >
+#       Joe asserts that global warming is not caused by humans.
+#    ¬caused_by(global_warming,humans): >
+#       Global warming is not caused by humans.
+#    based_on_evidence(asserts(joe,¬caused_by(global_warming,humans))): 
+#       "Joe's assertion is based on evidence."
 
 argument_schemes:
   - id: abduction
@@ -196,14 +196,14 @@ argument_schemes:
     exceptions:
       - inadequate_definition(D,G)
 
-  #- id: defeasible_modus_ponens
-  #  meta:
-  #    title: Defeasible Modus Ponens
-  #  variables: [A,B]
-  #  premises:
-  #    - implies(A,B)
-  #    - A   # A alone not allowed by CHR
-  #  conclusions: [B]
+  - id: defeasible_modus_ponens
+    meta:
+      title: Defeasible Modus Ponens
+    variables: [A,B]
+    premises:
+      - implies(A,B)
+      - A   
+    conclusions: [B]
 
   - id: established_rule
     meta:
@@ -468,10 +468,11 @@ argument_schemes:
       - implausible(S)
 
 assumptions:
+  - biased(joe)
   - expert(joe, climate)
   - asserts(joe,¬caused_by(global_warming,humans))
   - in_domain(¬caused_by(global_warming, humans), climate)
-#  - implies(biased(joe),untrustworthy(joe))
+  - implies(biased(joe),untrustworthy(joe))
   - inconsistent_with_other_experts(¬caused_by(global_warming, humans))
   
 

@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+
 	"github.com/carneades/carneades-4/src/engine/caes"
 	cjson "github.com/carneades/carneades-4/src/engine/caes/encoding/json"
 	"github.com/carneades/carneades-4/src/engine/caes/encoding/yaml"
@@ -13,6 +14,11 @@ import (
 )
 
 func TestJson(t *testing.T) {
+	checkErr := func(e error) {
+		if e != nil {
+			t.Errorf(e.Error())
+		}
+	}
 	var ag *caes.ArgGraph
 	var err error
 
@@ -41,7 +47,11 @@ func TestJson(t *testing.T) {
 			yaml.ExportWithReferences(file0, ag)
 			file0.Close()
 			defer os.Remove(file0.Name())
-
+			err = ag.Infer()
+			if err != nil {
+				fmt.Printf("Infer error: %v\n", err)
+				checkErr(err)
+			}
 			l := ag.GroundedLabelling()
 			// -----------------------
 			//	fmt.Printf(" ## Labeling json-Datei: \n")
@@ -88,6 +98,11 @@ func TestJson(t *testing.T) {
 			defer os.Remove(file3.Name())
 			// Check Labeling JSON
 			// ===================
+			err = ag2.Infer()
+			if err != nil {
+				fmt.Printf("Infer error: %v\n", err)
+				checkErr(err)
+			}
 			l2 := ag2.GroundedLabelling()
 			// -----------------------
 			//	fmt.Printf(" ## Labeling json-Datei: \n")
