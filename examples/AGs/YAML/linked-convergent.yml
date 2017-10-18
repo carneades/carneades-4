@@ -1,0 +1,32 @@
+meta:
+  title: Simple Demonstration of Linked and Convergent Arguments
+
+statements: 
+  p: P 
+  q: Q    
+
+  r: R
+  s: S
+  t: T
+
+arguments:
+  a1:
+    scheme: convergent
+    conclusion: t
+    premises:
+      - p
+      - s
+  a2:
+    scheme: linked
+    conclusion: p
+    premises:
+      - q
+      - r
+
+assumptions:
+  - q
+  - r
+  
+tests:
+  in: [q,r,p,t]
+  out: [s]
