@@ -20,11 +20,18 @@ the HTML templates used by the service
 (default: $GOPATH/src/github.com/carneades/carneades-4/src/web/templates/)
 `
 
-var goPath = os.Getenv("GOPATH")
+func getGoPath() string {
+	goPath := os.Getenv("GOPATH")
+	if goPath == "" {
+		return os.Getenv("HOME") + "/go"
+	} else {
+		return goPath
+	}
+}
 
 const defaultPort = "8080"
 
-var defaultTemplatesDir = filepath.Join(goPath, "/src/github.com/carneades/carneades-4/src/web/templates/")
+var defaultTemplatesDir = filepath.Join(getGoPath(), "/src/github.com/carneades/carneades-4/src/web/templates/")
 
 func webServerCmd() {
 	webFlags := flag.NewFlagSet("webFlags", flag.ContinueOnError)
