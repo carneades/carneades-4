@@ -1,0 +1,145 @@
+meta:
+  title: Basic Event Calculus Example
+  notes: >
+    Illustrates deriving an argument from the axioms of basic event calculus.
+
+language: 
+  stoppedIn/3: "after %v the condition %v started, before %v."
+  startedIn/3: "after %v the condition %v started, before %v."
+  terminates/3: "the event %v terminated the conditon %v at time %v."
+  happens/2: "the event %v happened at time %v."
+  initiates/3: "the event %v initiated the condition %v at time %v."
+  releases/3: "the event %v releases the condition %v at time %v."
+  trajectory/4: "if condition %v is true at time %v, condition %v is true at time %v."
+  initiallyN/1: "initially, the condition %v is not true."
+  initiallyP/1: "initially, the condition %v is true."
+  lt/2: "%v is less than %v"
+  holdsAt/2: "condition %v is true at time %v."
+  notHoldsAt/2: "condition %v is false at time %v."
+
+argument_schemes:
+  - id: stopped_if_terminated
+    variables: [T,E,T1,F,T2]
+    conclusions:
+      - stoppedIn(T1,F,T2)
+    premises:
+      - lt(T1,T)
+      - lt(T,T2)
+      - terminates(E,F,T)
+      - happens(E,T)
+  - id: stopped_if_released
+    variables: [T,E,T1,F,T2]
+    conclusions:
+      - stoppedIn(T1,F,T2)
+    premises:
+      - lt(T1,T)
+      - lt(T,T2)
+      - releases(E,F,T)
+      - happens(E,T)
+  - id: started_if_initiated
+    variables: [E,T,T1,F,T2]
+    conclusions: 
+      - startedIn(T1,F,T2)
+    premises:
+      - lt(T1,T)
+      - lt(T,T2)
+      - initiates(E,F,T)
+      - happens(E,T)
+  - id: started_if_released
+    variables: [E,T,T1,F,T2]
+    conclusions: 
+      - startedIn(T1,F,T2)
+    premises:
+      - lt(T1,T)
+      - lt(T,T2)
+      - releases(E,F,T)
+      - happens(E,T)
+  - id: holds_if_trajectory
+    variables: [F1,F2,T1,T2,E]
+    conclusions: 
+      - holdsAt(F2,T2)
+    premises:
+      - initiates(E,F1,T1)
+      - happens(E,T1)
+      - trajectory(F1,T1,F2,T2)
+    exceptions:
+      - stoppedIn(T1,F1,T2)
+  - id: holds_if_initially_true
+    variables: [F,T]
+    conclusions:
+      - holdsAt(F,T)
+    premises:
+      - lt(0,T)
+      - initiallyP(F)  
+    exceptions:
+      - stoppedIn(0,F,T)
+  - id: does_not_hold_if_initially_false
+    variables: [F,T]
+    conclusions: 
+      - notHoldsAt(F,T)
+    premises:
+      - lt(0,T)
+      - initiallyN(F)
+    exceptions:
+      - startedIn(0,F,T)
+  - id: holds_if_initiated
+    variables: [E,F,T,T1]
+    conclusions: 
+      - holdsAt(F,T)
+    premises:
+      - lt(T1,T)
+      - initiates(E,F,T1)
+      - happens(E,T1)
+    exceptions:
+      - stoppedIn(T1,F,T)
+  - id: does_not_hold_if_terminated
+    variables: [F,T,T1,E]
+    conclusions: 
+      - notHoldsAt(F,T)
+    premises:
+      - lt(T1,T)
+      - terminates(E,F,T1)
+      - happens(E,T1)
+    exceptions:
+      - startedIn(T1,F,T)
+
+statements:
+  initiates(wfh_order, wfh_required, 1): A work from home order requires you to work from home.
+  terminates(presence_required, wfh_required, 3): A presence required notice requires you to go in to work.
+  initiallyN(wfh_required): Initially, work from home was not required.
+  happens(wfh_order, 1): A work from home order was issued at time 1.
+  happens(presence_required, 3): A presence required notice was sent at time 3.
+  holdsAt(wfh_required,3): The person is required to work from home at time 3.
+  notHoldsAt(wfh_required,5): The person is not required to work from home at time 5.
+
+issue_schemes:
+  wfh: 
+    - holdsAt(wfh_required,T)
+    - notHoldsAt(wfh_required,T)
+
+assumptions:
+  - initiates(wfh_order,wfh_required,1)
+  - terminates(presence_required,wfh_required,3)
+  - initiallyN(wfh_required)
+  - happens(wfh_order,1)
+  - happens(presence_required,3)
+  - lt(0,1)
+  - lt(0,2)
+  - lt(0,3)
+  - lt(0,4)
+  - lt(0,5)
+  - lt(1,2)
+  - lt(1,3)
+  - lt(1,4)
+  - lt(1,5)
+  - lt(2,3)
+  - lt(2,4)
+  - lt(3,4)
+  - lt(2,5)
+  - lt(3,5)
+  - lt(4,5)
+
+tests:
+  in:
+    - holdsAt(wfh_required,3)
+    - notHoldsAt(wfh_required,5)
