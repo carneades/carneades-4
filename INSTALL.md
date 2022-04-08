@@ -8,11 +8,6 @@ For building the system from the source files, the following are required:
 - Version 1.4x or newer of the [Go programming language](http://golang.org/) compiler suite.
 - [Git](http://git-scm.com/).
 
-Set the `GOPATH` environment variable to a directory for Go packages, e.g.
-
-    $ mkdir ~/go
-    $ typeset -x GOPATH=~/go
-
 In addition, the following open source programs are used by the Carneades system at runtime and must be installed:
 
 - The [Graphviz](http://graphviz.org/) system for generating graph vizualizations in various output formats.
