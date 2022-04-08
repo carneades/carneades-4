@@ -8,26 +8,27 @@ For building the system from the source files, the following are required:
 - Version 1.4x or newer of the [Go programming language](http://golang.org/) compiler suite.
 - [Git](http://git-scm.com/).
 
+Be sure to follow the Go installation instructions to set the GOPATH environment variable and add $GOPATH/bin to your PATH environment variable.
+
 In addition, the following open source programs are used by the Carneades system at runtime and must be installed:
 
 - The [Graphviz](http://graphviz.org/) system for generating graph vizualizations in various output formats.
 
 <!-- - Version 7.3.x or newer of [SWI Prolog](http://www.swi-prolog.org), which includes the implementation of [Constraint Handling Rules](https://dtai.cs.kuleuven.be/CHR/) used to automatically construct arguments from argumentation schemes and assumptions. -->
 
-
 ## Building and Running Carneades from Source
 
 Use the `go` tool to get, build and install the Carneades
 executable from Github:
 
-    $ go get github.com/carneades/carneades-4/src/cmd/carneades
+    $ go install github.com/carneades/carneades-4/src/cmd/carneades@latest
     
 The `carneades` executable should now be installed in
 
     $GOPATH/bin/carneades
 
-You can execute the program using this full path. Alternatively, add `$GOPATH/bin` to your `PATH` environment.
-You should then be able to execute the command directly, as in
+You can execute the program using this full path. Alternatively, if you have added `$GOPATH/bin` to your `PATH` environment,
+you should be able to execute the command directly, as in
 
     $ carneades eval -o tandem.graphml tandem.yml
     
