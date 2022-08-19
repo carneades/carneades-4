@@ -180,9 +180,9 @@ func evalCmd() {
 	// Print out any problems found to standard out
 	for _, p := range problems {
 		if p.Expression == "" {
-			fmt.Fprintf(outFile, "%s: %s: %s\n", p.Category, p.Id, p.Description)
+			fmt.Fprintf(os.Stderr, "%s: %s: %s\n", p.Category, p.Id, p.Description)
 		} else {
-			fmt.Fprintf(outFile, "%s: %s: %s: %s\n", p.Category, p.Id, p.Description, p.Expression)
+			fmt.Fprintf(os.Stderr, "%s: %s: %s: %s\n", p.Category, p.Id, p.Description, p.Expression)
 		}
 	}
 
