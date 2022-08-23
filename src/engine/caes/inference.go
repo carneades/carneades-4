@@ -17,7 +17,7 @@ import (
 )
 
 // maximum number of rule (scheme) applications when deriving arguments
-const MAXRULEAPPS = 100000
+const MAXRULEAPPS = 100000  
 
 // ArgDesc: Structure describing an argument instantiating an
 // argument scheme. Represented in Prolog as argument(Scheme,Values)
@@ -59,7 +59,7 @@ func termToArgDesc(s string) (bool, *ArgDesc) {
 }
 
 // Infer: Translate a theory into CHR rules and use
-// SWI Prolog to construct arguments and add them to the argument graph.
+// a CHR engine to construct arguments and add them to the argument graph.
 // Does not compute or update labels.  If the theory is syntactically incorrect
 // and thus cannot be parsed by the CHR inference engine, an error is returned
 // and argument graph is left unchanged. If all goes well, the argument

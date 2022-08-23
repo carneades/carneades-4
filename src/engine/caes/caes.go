@@ -116,6 +116,7 @@ type Statement struct {
 	Issue    *Issue      // nil if not at issue
 	Args     []*Argument // concluding with this statement
 	Label    Label       // for storing the evaluated label
+	IsUndercutter bool   // true if the statement is an undercutter
 }
 
 // A Rulebase is a set of constraint handling rules.
@@ -670,7 +671,8 @@ func (ag *ArgGraph) InstantiateScheme(id string, parameters []string) {
 				// add it to the statements of the graph
 				ucid := "undercut(" + argId + ")"
 				uc = Statement{Id: ucid,
-					Text: argId + " is undercut."}
+					Text: argId + " is undercut.",
+				        IsUndercutter: true}
 				ag.Statements[terms.Normalize(ucid)] = &uc
 				for _, c := range conclusions {
 					// Construct an argument for each conclusion and add it to the graph

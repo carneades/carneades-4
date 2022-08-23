@@ -952,7 +952,7 @@ func iface2floatWF(fl interface{}) (caes.WeighingFunction, float64, error) {
 		_, err := fmt.Scanf(fl.(string), "%f", &f)
 		if err != nil {
 			return nil, 0.0,
-				errors.New("*** ERROR in weighing function constant: expected fload and not type '" + flT + "'\n")
+				errors.New("*** ERROR in weighing function constant: expected float and not type '" + flT + "'\n")
 		}
 	}
 	return caes.ConstantWeighingFunction(f), f, nil

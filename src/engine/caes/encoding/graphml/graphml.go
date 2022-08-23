@@ -258,6 +258,8 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 
 	// Statements []
 	for _, stat := range ag.Statements {
+		 // ignore undercutters unless they have supporting arguments
+                if stat.IsUndercutter && stat.Args == nil { continue }
 		nNode := newGmlNode() // shapeType [] (rectangle)
 		stat2Node[stat.Id] = nNode.id
 		nNode.nodeLabel = stat.Text
@@ -338,7 +340,7 @@ func mkNodesAndEdges(ag caes.ArgGraph) (nodes []gmlNode, edges []gmlEdge, err er
 			}
 		}
 		// argument - - - - undercut
-		if arg.Undercutter != nil {
+		if arg.Undercutter != nil  && ag.Statements[arg.Undercutter.Id].Args != nil  {
 			nodeId, found := stat2Node[arg.Undercutter.Id]
 			if found == false {
 				err = errors.New(" *** Undercut-Statement: " + arg.Undercutter.Id + "from Argument: " + arg.Id + "not found")

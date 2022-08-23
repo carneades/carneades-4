@@ -145,8 +145,21 @@ func FactorizedWeighingFunction(arg *Argument, l Labelling) float64 {
 	return float64(m) / float64(n)
 }
 
+// The constant weight function is derived from and generalizes the linked weighing
+// function.  Like the linked weighing function, if any of the
+// premises is Out, the weight is 0.0.  If all of the premises
+// are In, the weight of the argument is the constant weight assigned by
+// to the scheme.  Whereas the linked weighing function always assigns the
+// weight 1.0 if all the premises are In, the constant weighing function is
+// more flexible and allows some other weight to be assigned when all the
+// premises are In.
 func ConstantWeighingFunction(w float64) WeighingFunction {
 	return func(arg *Argument, l Labelling) float64 {
+		for _, p := range arg.Premises {
+			if l[p.Stmt] != In {
+				return 0.0
+			}
+		}
 		return w
 	}
 }
