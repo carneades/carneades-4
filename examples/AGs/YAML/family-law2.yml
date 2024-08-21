@@ -16,10 +16,10 @@ statements:
   s4: "Josef zu unterstützen, wäre für Hilda eine unbillige Härte."
   s6: "Müller v Bauer"
   s7: "Schmidt v Vogel"
-  s8: "Hilda und Josef hatten nie ein Vater-Kind Beziehung."
-  s9: "Es gibt eine relevanter Präzedenzfall für die Gegenposition."
-  s10: "Schmidt v Vogel ist relevantere Präzedenzfall für die Gegenposition"
-  s11: "Josef braucht Unterstützung für nur eine kurze Zeit."
+  s8: "Hilda und Josef hatten nie eine Vater-Kind Beziehung."
+  s9: "Es gibt einen relevanten Präzedenzfall für die Gegenposition."
+  s10: "Schmidt v Vogel ist ein relevanter Präzedenzfall für die Gegenposition"
+  s11: "Josef braucht nur für eine kurze Zeit Unterstützung."
 
 argument_schemes:
   - id: präzedenzfall
