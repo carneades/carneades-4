@@ -3,7 +3,7 @@
 ## YAML Input Format
 
 The YAML based input format is the preferred input for Carneades 4.x.
-See also the numerours examples in [[./examples/AGs/YAML/]].
+See also the numerous examples in [[./examples/AGs/YAML/]].
 The file specifies the argumentation system as an object at the top level.
 
 ### Metainformation
@@ -33,7 +33,7 @@ Each argument is an object with the following fields:
   - `premises`: a list of ground atomic formulas.
   
 An argument can optionally have the following fields:
-  - `scheme`: reference to a scheme via the schemes `id` to inherit properties specified by the scheme. When a scheme is specified it can also be used to infer conclusion or premises.
+  - `scheme`: reference to a scheme via the scheme's `id` to inherit properties specified by the scheme. When a scheme is specified it can also be used to infer conclusion or premises.
   - `undercutter`: a ground atomic formula.
 
 #### Generating Arguments
@@ -44,7 +44,7 @@ Each scheme needs to specify the following:
   - `id`: a unique identifier of the argument scheme.
   - `variables`: a list of variables occuring in the atomic formulas of scheme. 
     Only required when the premises and conclusions contain variables.
-    Keeping with prolog syntax they should be starting with an upper case letter. 
+    Keeping with Prolog syntax they should be starting with an upper case letter. 
   - `premises`: a list of atomic formulas acting as premises for the scheme.
   - `conclusions`: a list of atomic formulas acting as the conclusion of the scheme.
 
@@ -60,7 +60,7 @@ Note that argument schemes in Carneades can go beyond their argumentation theore
 
 #### Weighing Functions
 
-Weighing functions enable much interresting specification capabilities:
+Weighing functions enable many interesting specification capabilities:
 
   - `linked`: The default weighing function putting a weight of `0.0` if any premise is not labelled `in`, `1.0` otherwise.
   - `convergent`: Puts weight `1.0` if any premise is labelled `in`, `0.0` otherwise.
@@ -96,17 +96,17 @@ This can be especially useful for axiomatising certain predicates
 #### Proof Standards
 
 Proof standards are used to decide the winning statement of an issue.
-Note that in cases where there is no clear winner, none of the statements will get labelled `in` 
+Note that in cases where there is no clear winner, none of the statements will get labelled `in`.
 
 Built in proof standards are:
  
-  - `PE`: The default proof standard picking the strongest incoming argument by weight.
-  - `CCE`: Like `PE` but the weight of ther winning argument needs to be sufficiently larger than the other argument.
-  - `BRD`: Like `CCE` but in addition the loosing arguments need to have sufficiently low weights.
+  - `PE` (Preponderance of the Evidence): The default proof standard picking the strongest incoming argument by weight.
+  - `CCE` (Clear and Convincing Evidence): Like `PE` but the weight of the winning argument needs to be sufficiently larger than the other argument.
+  - `BRD` (Beyond Reasonable Doubt): Like `CCE` but in addition the losing arguments need to have sufficiently low weights.
 
 ### Assumptions
 
-In the field `assumptions` a list of ground atomic formulas can be specified that are to be takes as true.
+In the field `assumptions` a list of ground atomic formulas can be specified that are to be taken as true.
 
 ### Tests
 
